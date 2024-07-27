@@ -1,3 +1,5 @@
+import Foundation
+
 struct RotationService {
     let riotApiClient: RiotApiClient
 
@@ -5,16 +7,27 @@ struct RotationService {
         let (championRotationsData, championsData) = try await fetchRiotData()
 
         let championsByKey = championsData.data.values.associateBy(\.key)
-        let champions = try championRotationsData.freeChampionIds.map {
-            id throws(CurrentRotationError) in
+        let freeChampionIds = Set(championRotationsData.freeChampionIds)
+
+        func createChampion(id: Int) throws(CurrentRotationError) -> Champion {
             let key = String(id)
             guard let name = championsByKey[key]?.name else {
                 throw .unknownChampion(key: key)
             }
-            return Champion(name: name)
+            let levelCapped = freeChampionIds.contains(id)
+            return Champion(name: name, levelCapped: levelCapped)
         }
 
-        return ChampionRotation(champions: champions)
+        let championIds = Set(
+            championRotationsData.freeChampionIdsForNewPlayers
+                + championRotationsData.freeChampionIds
+        )
+        let champions = try championIds.map(createChampion)
+
+        return ChampionRotation(
+            playerLevelCap: championRotationsData.maxNewPlayerLevel,
+            champions: champions
+        )
     }
 
     private func fetchRiotData() async throws(CurrentRotationError) -> (
