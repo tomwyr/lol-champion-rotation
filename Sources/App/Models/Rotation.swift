@@ -8,4 +8,5 @@ struct ChampionRotation: Content {
 struct Champion: Content {
     let name: String
     let levelCapped: Bool
+    let imageUrl: String
 }

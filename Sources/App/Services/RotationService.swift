@@ -1,6 +1,7 @@
 import Foundation
 
 struct RotationService {
+    let imageProvider: ImageProvider
     let riotApiClient: RiotApiClient
 
     func currentRotation() async throws(CurrentRotationError) -> ChampionRotation {
@@ -11,11 +12,12 @@ struct RotationService {
 
         func createChampion(id: Int) throws(CurrentRotationError) -> Champion {
             let key = String(id)
-            guard let name = championsByKey[key]?.name else {
+            guard let champion = championsByKey[key] else {
                 throw .unknownChampion(key: key)
             }
             let levelCapped = freeChampionIds.contains(id)
-            return Champion(name: name, levelCapped: levelCapped)
+            let imageUrl = imageProvider.champion(with: champion.id)
+            return Champion(name: champion.name, levelCapped: levelCapped, imageUrl: imageUrl)
         }
 
         let championIds = Set(
