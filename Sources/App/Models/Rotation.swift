@@ -6,6 +6,7 @@ struct ChampionRotation: Content {
 }
 
 struct Champion: Content {
+    let id: String
     let name: String
     let levelCapped: Bool
     let imageUrl: String

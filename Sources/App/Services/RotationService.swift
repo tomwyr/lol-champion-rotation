@@ -3,38 +3,16 @@ import Foundation
 struct RotationService {
     let imageProvider: ImageProvider
     let riotApiClient: RiotApiClient
+    let appDatabase: AppDatabase
 
     func currentRotation() async throws(CurrentRotationError) -> ChampionRotation {
-        let (championRotationsData, championsData) = try await fetchRiotData()
-
-        let championsByKey = championsData.data.values.associateBy(\.key)
-        let freeChampionIds = Set(championRotationsData.freeChampionIds)
-
-        func createChampion(id: Int) throws(CurrentRotationError) -> Champion {
-            let key = String(id)
-            guard let champion = championsByKey[key] else {
-                throw .unknownChampion(key: key)
-            }
-            let levelCapped = freeChampionIds.contains(id)
-            let imageUrl = imageProvider.champion(with: champion.id)
-            return Champion(name: champion.name, levelCapped: levelCapped, imageUrl: imageUrl)
-        }
-
-        let championIds = Set(
-            championRotationsData.freeChampionIdsForNewPlayers
-                + championRotationsData.freeChampionIds
-        )
-        let champions = try championIds.map(createChampion)
-
-        return ChampionRotation(
-            playerLevelCap: championRotationsData.maxNewPlayerLevel,
-            champions: champions
-        )
+        let data = try await fetchRiotData()
+        let rotation = try await createRotation(from: data)
+        try await saveRotationIfChanged(rotation)
+        return rotation
     }
 
-    private func fetchRiotData() async throws(CurrentRotationError) -> (
-        ChampionRotationsData, ChampionsData
-    ) {
+    private func fetchRiotData() async throws(CurrentRotationError) -> CurrentRotationRiotData {
         do {
             let championRotations = try await riotApiClient.championRotations()
             let champions = try await riotApiClient.champions()
@@ -43,9 +21,64 @@ struct RotationService {
             throw .riotDataUnavailable(cause: error)
         }
     }
+
+    private func createRotation(from data: CurrentRotationRiotData)
+        async throws(CurrentRotationError) -> ChampionRotation
+    {
+        let playerLevelCap = data.championRotations.maxNewPlayerLevel
+
+        let championsByKey = data.champions.data.values.associateBy(\.key)
+        let freeChampionIds = Set(data.championRotations.freeChampionIds)
+        let championIds = Set(
+            data.championRotations.freeChampionIdsForNewPlayers
+                + data.championRotations.freeChampionIds
+        )
+
+        let champions = try championIds.map { id throws(CurrentRotationError) in
+            let key = String(id)
+            guard let champion = championsByKey[key] else {
+                throw .unknownChampion(key: key)
+            }
+            let levelCapped = freeChampionIds.contains(id)
+            let imageUrl = imageProvider.champion(with: champion.id)
+
+            return Champion(
+                id: champion.id,
+                name: champion.name,
+                levelCapped: levelCapped,
+                imageUrl: imageUrl
+            )
+        }
+
+        return ChampionRotation(
+            playerLevelCap: playerLevelCap,
+            champions: champions
+        )
+    }
+
+    private func saveRotationIfChanged(_ rotation: ChampionRotation)
+        async throws(CurrentRotationError)
+    {
+        do {
+            let championIds = rotation.champions.map(\.id)
+            let mostRecentRotation = try await appDatabase.mostRecentChampionRotation()
+            if mostRecentRotation == nil || championIds != mostRecentRotation?.championIds {
+                try await appDatabase.addChampionRotation(
+                    data: ChampionRotationModel(championIds: championIds))
+            }
+        } catch {
+            throw .dataSyncFailed(cause: error)
+        }
+    }
 }
+
+private typealias CurrentRotationRiotData = (
+    championRotations: ChampionRotationsData,
+    champions: ChampionsData
+)
 
 enum CurrentRotationError: Error {
     case riotDataUnavailable(cause: Error)
     case unknownChampion(key: String)
+    case dataSyncFailed(cause: Error)
 }
