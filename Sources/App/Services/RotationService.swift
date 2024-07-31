@@ -62,9 +62,17 @@ struct RotationService {
         do {
             let championIds = rotation.champions.map(\.id)
             let mostRecentRotation = try await appDatabase.mostRecentChampionRotation()
-            if mostRecentRotation == nil || championIds != mostRecentRotation?.championIds {
-                try await appDatabase.addChampionRotation(
-                    data: ChampionRotationModel(championIds: championIds))
+
+            let persist: Bool
+            if let lastChampionIds = mostRecentRotation?.championIds {
+                persist = Set(lastChampionIds) == Set(championIds)
+            } else {
+                persist = true
+            }
+
+            if persist {
+                let data = ChampionRotationModel(championIds: championIds)
+                try await appDatabase.addChampionRotation(data: data)
             }
         } catch {
             throw .dataSyncFailed(cause: error)
