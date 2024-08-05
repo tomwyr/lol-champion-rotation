@@ -5,9 +5,9 @@ FROM swiftlang/swift:nightly-6.0-jammy as build
 
 # Install OS updates
 RUN export DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
-    && apt-get -q update \
-    && apt-get -q dist-upgrade -y \
-    && apt-get install -y libjemalloc-dev
+  && apt-get -q update \
+  && apt-get -q dist-upgrade -y \
+  && apt-get install -y libjemalloc-dev
 
 # Set up a build area
 WORKDIR /build
@@ -18,7 +18,7 @@ WORKDIR /build
 # files do not change.
 COPY ./Package.* ./
 RUN swift package resolve \
-        $([ -f ./Package.resolved ] && echo "--force-resolved-versions" || true)
+  $([ -f ./Package.resolved ] && echo "--force-resolved-versions" || true)
 
 # Copy entire repo into container
 COPY . .
@@ -26,8 +26,8 @@ COPY . .
 # Build everything, with optimizations, with static linking, and using jemalloc
 # N.B.: The static version of jemalloc is incompatible with the static Swift runtime.
 RUN swift build -c release \
-                --static-swift-stdlib \
-                -Xlinker -ljemalloc
+  --static-swift-stdlib \
+  -Xlinker -ljemalloc
 
 # Switch to the staging area
 WORKDIR /staging
@@ -53,23 +53,38 @@ FROM ubuntu:noble
 
 # Make sure all system packages are up to date, and install only essential packages.
 RUN export DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
-    && apt-get -q update \
-    && apt-get -q dist-upgrade -y \
-    && apt-get -q install -y \
-      libjemalloc2 \
-      ca-certificates \
-      tzdata \
-# If your app or its dependencies import FoundationNetworking, also install `libcurl4`.
-      libcurl4 \
-# If your app or its dependencies import FoundationXML, also install `libxml2`.
-      # libxml2 \
-    && rm -r /var/lib/apt/lists/*
+  && apt-get -q update \
+  && apt-get -q dist-upgrade -y \
+  && apt-get -q install -y \
+  libjemalloc2 \
+  ca-certificates \
+  tzdata \
+  curl \
+  # If your app or its dependencies import FoundationNetworking, also install `libcurl4`.
+  libcurl4 \
+  # If your app or its dependencies import FoundationXML, also install `libxml2`.
+  # libxml2 \
+  && rm -r /var/lib/apt/lists/*
 
 # Create a vapor user and group with /app as its home directory
 RUN useradd --user-group --create-home --system --skel /dev/null --home-dir /app vapor
 
 # Switch to the new home directory
 WORKDIR /app
+
+# Set up Supercronic
+# Latest releases available at https://github.com/aptible/supercronic/releases
+ENV SUPERCRONIC_URL=https://github.com/aptible/supercronic/releases/download/v0.2.30/supercronic-linux-amd64 \
+  SUPERCRONIC=supercronic-linux-amd64 \
+  SUPERCRONIC_SHA1SUM=9f27ad28c5c57cd133325b2a66bba69ba2235799
+
+RUN curl -fsSLO "$SUPERCRONIC_URL" \
+  && echo "${SUPERCRONIC_SHA1SUM}  ${SUPERCRONIC}" | sha1sum -c - \
+  && chmod +x "$SUPERCRONIC" \
+  && mv "$SUPERCRONIC" "/usr/local/bin/${SUPERCRONIC}" \
+  && ln -s "/usr/local/bin/${SUPERCRONIC}" /usr/local/bin/supercronic
+
+COPY --chown=vapor:vapor scripts scripts
 
 # Copy built executable and any staged resources from builder
 COPY --from=build --chown=vapor:vapor /staging /app
@@ -82,7 +97,3 @@ USER vapor:vapor
 
 # Let Docker bind to port 8080
 EXPOSE 8080
-
-# Start the Vapor service when the image is run, default to listening on 8080 in production environment
-ENTRYPOINT ["./App"]
-CMD ["serve", "--env", "production", "--hostname", "0.0.0.0", "--port", "8080"]

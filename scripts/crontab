@@ -1,0 +1,2 @@
+# Run database backup every day at midnight
+*/5 * * * * curl -XPOST -H "Authorization: Bearer $APP_MANAGEMENT_KEY" "$APP_BASE_URL/rotation/refresh" >> /app/scripts/cron.log 2>&1
