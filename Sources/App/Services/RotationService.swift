@@ -8,8 +8,15 @@ struct RotationService {
     func currentRotation() async throws(CurrentRotationError) -> ChampionRotation {
         let data = try await fetchRiotData()
         let rotation = try await createRotation(from: data)
-        try await saveRotationIfChanged(rotation)
+        _ = try await saveRotationIfChanged(rotation)
         return rotation
+    }
+
+    func refreshRotation() async throws(CurrentRotationError) -> RefreshRotationResult {
+        let data = try await fetchRiotData()
+        let rotation = try await createRotation(from: data)
+        let rotationChanged = try await saveRotationIfChanged(rotation)
+        return RefreshRotationResult(rotationChanged: rotationChanged)
     }
 
     private func fetchRiotData() async throws(CurrentRotationError) -> CurrentRotationRiotData {
@@ -57,25 +64,25 @@ struct RotationService {
     }
 
     private func saveRotationIfChanged(_ rotation: ChampionRotation)
-        async throws(CurrentRotationError)
+        async throws(CurrentRotationError) -> Bool
     {
         do {
             let championIds = rotation.champions.map(\.id)
             let mostRecentRotation = try await appDatabase.mostRecentChampionRotation()
 
-            let persist: Bool
+            let rotationChanged: Bool
             if let lastChampionIds = mostRecentRotation?.championIds {
-                persist = Set(lastChampionIds) == Set(championIds)
+                rotationChanged = Set(lastChampionIds) != Set(championIds)
             } else {
-                persist = true
+                rotationChanged = true
             }
 
-            if persist {
-                let data = ChampionRotationModel(championIds: championIds)
-                try await appDatabase.addChampionRotation(data: data)
-            }
+            let data = ChampionRotationModel(championIds: championIds)
+            try await appDatabase.addChampionRotation(data: data)
+
+            return rotationChanged
         } catch {
-            throw .dataSyncFailed(cause: error)
+            throw .dataOperationFailed(cause: error)
         }
     }
 }
@@ -88,5 +95,5 @@ private typealias CurrentRotationRiotData = (
 enum CurrentRotationError: Error {
     case riotDataUnavailable(cause: Error)
     case unknownChampion(key: String)
-    case dataSyncFailed(cause: Error)
+    case dataOperationFailed(cause: Error)
 }

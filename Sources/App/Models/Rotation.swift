@@ -11,3 +11,7 @@ struct Champion: Content {
     let levelCapped: Bool
     let imageUrl: String
 }
+
+struct RefreshRotationResult: Content {
+    let rotationChanged: Bool
+}
