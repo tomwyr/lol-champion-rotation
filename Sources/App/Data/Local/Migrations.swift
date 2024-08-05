@@ -9,7 +9,9 @@ extension Migrations {
 struct CreateChampionRotation: AsyncMigration {
   func prepare(on database: any Database) async throws {
     try await database.schema("champion-rotations")
-      .id().field("observed_at", .datetime).field("champion_ids", .string)
+      .id()
+      .field("observed_at", .datetime)
+      .field("champion_ids", .array(of: .string))
       .create()
   }
 
