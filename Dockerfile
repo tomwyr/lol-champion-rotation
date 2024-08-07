@@ -1,7 +1,7 @@
 # ================================
 # Build image
 # ================================
-FROM swiftlang/swift:nightly-6.0-jammy as build
+FROM swiftlang/swift:nightly-6.0-jammy AS build
 
 # Install OS updates
 RUN export DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
@@ -84,7 +84,10 @@ RUN curl -fsSLO "$SUPERCRONIC_URL" \
   && mv "$SUPERCRONIC" "/usr/local/bin/${SUPERCRONIC}" \
   && ln -s "/usr/local/bin/${SUPERCRONIC}" /usr/local/bin/supercronic
 
+# Copy scripts directory
 COPY --chown=vapor:vapor scripts scripts
+# Ensure scripts are executable
+RUN chmod +x scripts scripts/*.sh
 
 # Copy built executable and any staged resources from builder
 COPY --from=build --chown=vapor:vapor /staging /app
