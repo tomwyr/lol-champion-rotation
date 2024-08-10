@@ -2,12 +2,18 @@ import Fluent
 import Vapor
 
 struct DI {
-    static func rotationService(database: Database) -> RotationService {
+    static func rotationService(database: Database, cache: Cache) -> RotationService {
         RotationService(
-            imageProvider: ImageProvider(
-                baseUrl: Environment.get("APP_BASE_URL")!
+            imageUrlProvider: ImageUrlProvider(
+                b2ApiClient: B2ApiClient(
+                    http: HttpClient(),
+                    appKeyId: Environment.get("B2_APP_KEY_ID")!,
+                    appKeySecret: Environment.get("B2_APP_KEY_SECRET")!
+                ),
+                cache: cache
             ),
             riotApiClient: RiotApiClient(
+                http: HttpClient(),
                 apiKey: Environment.get("RIOT_API_KEY")!
             ),
             appDatabase: AppDatabase(database: database)

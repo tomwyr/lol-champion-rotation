@@ -5,32 +5,20 @@ import Foundation
 #endif
 
 struct RiotApiClient {
+    let http: HttpClient
     let apiKey: String
 
     func championRotations() async throws -> ChampionRotationsData {
-        try await requestWithAuth(from: championRotationsUrl, into: ChampionRotationsData.self)
+        try await getWithAuth(from: championRotationsUrl, into: ChampionRotationsData.self)
     }
 
     func champions() async throws -> ChampionsData {
-        try await requestWithAuth(from: championsDataUrl, into: ChampionsData.self)
+        try await getWithAuth(from: championsDataUrl, into: ChampionsData.self)
     }
 
-    private func requestWithAuth<T>(from url: String, into type: T.Type) async throws -> T
+    private func getWithAuth<T>(from url: String, into type: T.Type) async throws -> T
     where T: Decodable {
-        try await request(from: url, into: type, with: ["X-Riot-Token": apiKey])
-    }
-
-    private func request<T>(
-        from url: String,
-        into type: T.Type,
-        with headers: [String: String] = [String: String]()
-    ) async throws -> T where T: Decodable {
-        let request = URLRequest(url: url, headers: headers)
-        let (data, response) = try await URLSession.shared.data(for: request)
-        guard response.isHttpSuccess() else {
-            throw RiotApiClientError.unexpectedResponse(response)
-        }
-        return try JSONDecoder().decode(type.self, from: data)
+        try await http.get(from: url, into: type, with: ["X-Riot-Token": apiKey])
     }
 }
 
@@ -45,28 +33,6 @@ extension RiotApiClient {
         "https://ddragon.leagueoflegends.com/cdn/\(version)/data/en_US/champion.json"
     }
 
-}
-
-extension URLRequest {
-    init(url: String, headers: [String: String]) {
-        self.init(url: URL(string: url)!)
-        for (key, value) in headers {
-            self.addValue(value, forHTTPHeaderField: key)
-        }
-    }
-}
-
-extension URLResponse {
-    func isHttpSuccess() -> Bool {
-        if let response = self as? HTTPURLResponse, 200..<300 ~= response.statusCode {
-            return true
-        }
-        return false
-    }
-}
-
-enum RiotApiClientError: Error {
-    case unexpectedResponse(URLResponse)
 }
 
 struct ChampionRotationsData: Decodable {

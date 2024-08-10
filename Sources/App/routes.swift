@@ -2,12 +2,12 @@ import Vapor
 
 func routes(_ app: Application) throws {
     app.get("rotation", "current") { req in
-        let rotationService = DI.rotationService(database: req.db)
+        let rotationService = DI.rotationService(database: req.db, cache: req.cache)
         return try await rotationService.currentRotation()
     }
 
     app.post("rotation", "refresh") { req in
-        let rotationService = DI.rotationService(database: req.db)
+        let rotationService = DI.rotationService(database: req.db, cache: req.cache)
         return try await rotationService.refreshRotation()
     }
 }
