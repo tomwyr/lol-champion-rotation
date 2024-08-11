@@ -1,4 +1,5 @@
 import Foundation
+import NIO
 
 struct B2ApiClient {
   let http: HttpClient
@@ -18,15 +19,15 @@ struct B2ApiClient {
   func getDownloadAuthorization(
     authorizationToken: String,
     fileNamePrefix: String? = nil,
-    validDurationInSeconds: Int? = nil
+    validDuration: TimeAmount? = nil
   ) async throws -> AuthorizationData {
     var body = [String: Encodable]()
     body["bucketId"] = bucketId
     if let fileNamePrefix {
       body["fileNamePrefix"] = fileNamePrefix
     }
-    if let validDurationInSeconds {
-      body["validDurationInSeconds"] = validDurationInSeconds
+    if let validDuration {
+      body["validDurationInSeconds"] = Duration(validDuration).components.seconds
     }
 
     return try await http.post(
