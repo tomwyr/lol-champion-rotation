@@ -7,7 +7,7 @@ func routes(_ app: Application) throws {
     }
 
     app.post("rotation", "refresh") { req in
-        let rotationService = try DI.rotationService(for: req)
+        let rotationService = try DI.rotationService(for: req, skipCache: true)
         return try await rotationService.refreshRotation()
     }
 }

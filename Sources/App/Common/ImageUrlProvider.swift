@@ -2,11 +2,8 @@ import Vapor
 
 struct ImageUrlProvider {
   let b2ApiClient: B2ApiClient
-  let cache: Cache
+  let cache: Cache?
   let fingerprint: Fingerprint
-
-  private let accountTokenKey = "accountToken"
-  private var downloadTokenKey: String { "downloadToken#\(fingerprint.value)" }
 
   func champions(with championIds: [String]) async throws -> [String] {
     let accountToken = try await getAccountToken()
@@ -18,24 +15,42 @@ struct ImageUrlProvider {
   }
 
   private func getAccountToken() async throws -> String {
-    if let cachedToken = try await cache.get(accountTokenKey, as: String.self) {
+    let key = "accountToken"
+    let getToken = {
+      try await b2ApiClient.authorizeAccount().authorizationToken
+    }
+
+    guard let cache = cache else {
+      return try await getToken()
+    }
+
+    if let cachedToken = try await cache.get(key, as: String.self) {
       return cachedToken
     }
-    let freshToken = try await b2ApiClient.authorizeAccount().authorizationToken
-    try await cache.set(freshToken, to: accountTokenKey, expiresIn: .hours(12))
+    let freshToken = try await getToken()
+    try await cache.set(freshToken, to: key, expiresIn: .hours(12))
     return freshToken
   }
 
   private func getDownloadToken(accountToken: String) async throws -> String {
-    if let cachedToken = try await cache.get(downloadTokenKey, as: String.self) {
+    let key = "downloadToken#\(fingerprint.value)"
+    let getToken = {
+      try await b2ApiClient.getDownloadAuthorization(
+        authorizationToken: accountToken,
+        fileNamePrefix: "champions/",
+        validDuration: .minutes(5)
+      ).authorizationToken
+    }
+
+    guard let cache = cache else {
+      return try await getToken()
+    }
+
+    if let cachedToken = try await cache.get(key, as: String.self) {
       return cachedToken
     }
-    let freshToken = try await b2ApiClient.getDownloadAuthorization(
-      authorizationToken: accountToken,
-      fileNamePrefix: "champions/",
-      validDuration: .minutes(5)
-    ).authorizationToken
-    try await cache.set(downloadTokenKey, to: freshToken, expiresIn: .minutes(3))
+    let freshToken = try await getToken()
+    try await cache.set(key, to: freshToken, expiresIn: .minutes(3))
     return freshToken
   }
 }
