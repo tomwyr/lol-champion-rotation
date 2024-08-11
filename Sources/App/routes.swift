@@ -6,7 +6,7 @@ func routes(_ app: Application) throws {
         return try await rotationService.currentRotation()
     }
 
-    app.post("rotation", "refresh") { req in
+    app.protected(with: AppManagementAuthorizer()).post("rotation", "refresh") { req in
         let rotationService = try DI.rotationService(for: req, skipCache: true)
         return try await rotationService.refreshRotation()
     }
