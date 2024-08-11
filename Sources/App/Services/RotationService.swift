@@ -8,14 +8,14 @@ struct RotationService {
     func currentRotation() async throws(CurrentRotationError) -> ChampionRotation {
         let data = try await fetchRiotData()
         let rotation = try await createRotation(riotData: data)
-        _ = try await appDatabase.saveRotationIfChanged(rotation)
+        _ = try await saveRotationIfChanged(rotation)
         return rotation
     }
 
     func refreshRotation() async throws(CurrentRotationError) -> RefreshRotationResult {
         let data = try await fetchRiotData()
         let rotation = try await createRotation(riotData: data)
-        let rotationChanged = try await appDatabase.saveRotationIfChanged(rotation)
+        let rotationChanged = try await saveRotationIfChanged(rotation)
         return RefreshRotationResult(rotationChanged: rotationChanged)
     }
 
@@ -32,49 +32,52 @@ struct RotationService {
     private func createRotation(riotData: CurrentRotationRiotData)
         async throws(CurrentRotationError) -> ChampionRotation
     {
-        let imageUrlsByKey = try await imageUrlProvider.championsByKey(riotData: riotData)
-        return try ChampionRotation(riotData: riotData, imageUrlsByKey: imageUrlsByKey)
+        let imageUrlsByChampionId = try await championsByKey(riotData: riotData)
+        return try createRotation(
+            riotData: riotData,
+            imageUrlsByChampionId: imageUrlsByChampionId
+        )
     }
 }
 
-extension ImageUrlProvider {
-    fileprivate func championsByKey(riotData: CurrentRotationRiotData)
+extension RotationService {
+    private func championsByKey(riotData: CurrentRotationRiotData)
         async throws(CurrentRotationError) -> [String: String]
     {
         do {
             let championKeys = Array(riotData.champions.data.keys)
-            let imageUrls = try await champions(with: championKeys)
+            let imageUrls = try await imageUrlProvider.champions(with: championKeys)
             return Dictionary(uniqueKeysWithValues: zip(championKeys, imageUrls))
         } catch {
-            throw .imageUrlsUnavailable(cause: error)
+            throw .championImagesUnavailable(cause: error)
         }
     }
 }
 
-extension ChampionRotation {
-    fileprivate init(riotData: CurrentRotationRiotData, imageUrlsByKey: [String: String])
-        throws(CurrentRotationError)
-    {
+extension RotationService {
+    private func createRotation(
+        riotData: CurrentRotationRiotData,
+        imageUrlsByChampionId: [String: String]
+    ) throws(CurrentRotationError) -> ChampionRotation {
         let playerLevelCap = riotData.championRotations.maxNewPlayerLevel
         let championsByKey = riotData.champions.data.values.associateBy(\.key)
-        let freeChampionIds = Set(riotData.championRotations.freeChampionIds).map { String($0) }
-        let championIds = Set(
+        let freeChampionKeys = Set(riotData.championRotations.freeChampionIds).map { String($0) }
+        let allChampionKeys = Set(
             riotData.championRotations.freeChampionIdsForNewPlayers
                 + riotData.championRotations.freeChampionIds
         ).map { String($0) }
 
-        let championData = try championIds.map { id throws(CurrentRotationError) in
-            let key = String(id)
+        let championData = try allChampionKeys.map { key throws(CurrentRotationError) in
             guard let champion = championsByKey[key] else {
-                throw .unknownChampion(key: key)
+                throw .unknownChampion(championKey: key)
             }
             return champion
         }
 
         let champions = try championData.map { data throws(CurrentRotationError) in
-            let levelCapped = freeChampionIds.contains(data.id)
-            guard let imageUrl = imageUrlsByKey[data.key] else {
-                throw .unknownChampion(key: data.key)
+            let levelCapped = freeChampionKeys.contains(data.id)
+            guard let imageUrl = imageUrlsByChampionId[data.id] else {
+                throw .championImageMissing(championId: data.id)
             }
 
             return Champion(
@@ -85,18 +88,17 @@ extension ChampionRotation {
             )
         }
 
-        self.playerLevelCap = playerLevelCap
-        self.champions = champions
+        return ChampionRotation(playerLevelCap: playerLevelCap, champions: champions)
     }
 }
 
-extension AppDatabase {
-    fileprivate func saveRotationIfChanged(_ rotation: ChampionRotation)
+extension RotationService {
+    private func saveRotationIfChanged(_ rotation: ChampionRotation)
         async throws(CurrentRotationError) -> Bool
     {
         do {
             let championIds = rotation.champions.map(\.id)
-            let mostRecentRotation = try await mostRecentChampionRotation()
+            let mostRecentRotation = try await appDatabase.mostRecentChampionRotation()
 
             let rotationChanged: Bool
             if let lastChampionIds = mostRecentRotation?.championIds {
@@ -106,7 +108,7 @@ extension AppDatabase {
             }
 
             let data = ChampionRotationModel(championIds: championIds)
-            try await addChampionRotation(data: data)
+            try await appDatabase.addChampionRotation(data: data)
 
             return rotationChanged
         } catch {
@@ -122,7 +124,8 @@ private typealias CurrentRotationRiotData = (
 
 enum CurrentRotationError: Error {
     case riotDataUnavailable(cause: Error)
-    case imageUrlsUnavailable(cause: Error)
-    case unknownChampion(key: String)
+    case championImagesUnavailable(cause: Error)
+    case unknownChampion(championKey: String)
+    case championImageMissing(championId: String)
     case dataOperationFailed(cause: Error)
 }
