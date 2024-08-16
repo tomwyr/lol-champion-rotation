@@ -8,13 +8,13 @@ func routes(_ app: Application, _ deps: Dependencies) throws {
 
     app.protected(with: userGuard).get("rotation", "current") { req in
         let user = try req.auth.require(User.self)
-        let rotationService = try DI.rotationService(for: req, fingerprint: user.fingerprint)
+        let rotationService = deps.rotationService(request: req, fingerprint: user.fingerprint)
         return try await rotationService.currentRotation()
     }
 
     app.protected(with: managementGuard).post("rotation", "refresh") { req in
         try req.auth.require(Manager.self)
-        let rotationService = try deps.rotationService(request: req, fingerprint: nil)
+        let rotationService = deps.rotationService(request: req, fingerprint: nil)
         return try await rotationService.refreshRotation()
     }
 }

@@ -31,7 +31,7 @@ struct B2ApiClient {
     }
 
     return try await http.post(
-      from: getDownloadAuthorizationUrl,
+      to: getDownloadAuthorizationUrl,
       into: AuthorizationData.self,
       with: ["Authorization": authorizationToken],
       sending: body

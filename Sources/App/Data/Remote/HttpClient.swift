@@ -4,7 +4,22 @@ import Foundation
   import FoundationNetworking
 #endif
 
-struct HttpClient {
+protocol HttpClient: Sendable {
+  func get<T>(
+    from url: String,
+    into type: T.Type,
+    with headers: [String: String]
+  ) async throws -> T where T: Decodable
+
+  func post<T>(
+    to url: String,
+    into type: T.Type,
+    with headers: [String: String],
+    sending body: [String: Encodable]
+  ) async throws -> T where T: Decodable
+}
+
+struct NetworkHttpClient: HttpClient {
   func get<T>(
     from url: String,
     into type: T.Type,
@@ -14,7 +29,7 @@ struct HttpClient {
   }
 
   func post<T>(
-    from url: String,
+    to url: String,
     into type: T.Type,
     with headers: [String: String] = [:],
     sending body: [String: Encodable]

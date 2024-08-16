@@ -1,13 +1,12 @@
-import Fluent
 import FluentPostgresDriver
 import Vapor
 
-// configures your application
-public func configure(_ app: Application) async throws {
-    app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
-    let databaseUrl = Environment.get("DATABASE_URL")!
-    try app.databases.use(.postgres(url: databaseUrl), as: .psql)
+func configure(_ app: Application, _ deps: Dependencies) async throws {
+    try database(app, deps)
+    try routes(app, deps)
+}
+
+private func database(_ app: Application, _ deps: Dependencies) throws {
+    try app.databases.use(.postgres(url: deps.appConfig.databaseUrl), as: .psql)
     app.migrations.addAppMigrations()
-    // register routes
-    try routes(app)
 }
