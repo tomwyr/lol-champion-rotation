@@ -1,6 +1,12 @@
 import Crypto
 import Vapor
 
+struct Manager: Authenticatable {}
+
+struct User: Authenticatable {
+  let fingerprint: Fingerprint
+}
+
 struct Fingerprint {
   let value: String
 

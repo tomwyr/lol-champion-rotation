@@ -9,7 +9,7 @@ extension MutableCollection {
 }
 
 extension Application {
-    func protected(with authorizer: RequestAuthorizer) -> RoutesBuilder {
-        grouped(authorizer)
+    func protected(with requestGuard: RequestAuthenticatorGuard) -> RoutesBuilder {
+        grouped(requestGuard)
     }
 }

@@ -2,7 +2,7 @@ import Fluent
 import Vapor
 
 struct DI {
-    static func rotationService(for request: Request, skipCache: Bool = false)
+    static func rotationService(for request: Request, fingerprint: Fingerprint?)
         throws -> RotationService
     {
         RotationService(
@@ -12,8 +12,8 @@ struct DI {
                     appKeyId: Environment.get("B2_APP_KEY_ID")!,
                     appKeySecret: Environment.get("B2_APP_KEY_SECRET")!
                 ),
-                cache: skipCache ? nil : request.cache,
-                fingerprint: try Fingerprint(of: request)
+                cache: request.cache,
+                fingerprint: fingerprint
             ),
             riotApiClient: RiotApiClient(
                 http: HttpClient(),

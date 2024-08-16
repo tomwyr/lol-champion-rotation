@@ -1,27 +1,40 @@
 import Vapor
 
-struct AppManagementAuthorizer: RequestAuthorizer {
-  private let appManagementKey = Environment.get("APP_MANAGEMENT_KEY")!
+struct ManagementGuard: RequestAuthenticatorGuard {
+  let appManagementKey: String
 
-  func authorize(request: Request) -> Error? {
+  func authenticate(request: Request) throws -> Authenticatable {
     let token = request.headers.bearerAuthorization?.token
     guard token == appManagementKey else {
-      return Abort(.unauthorized, reason: "Invalid auth token")
+      throw Abort(.unauthorized, reason: "Invalid auth token")
     }
-    return nil
+    return Manager()
   }
 }
 
-protocol RequestAuthorizer: Middleware {
-  func authorize(request: Request) -> Error?
+struct UserGuard: RequestAuthenticatorGuard {
+  func authenticate(request: Request) throws -> Authenticatable {
+    do {
+      let fingerprint = try Fingerprint(of: request)
+      return User(fingerprint: fingerprint)
+    } catch {
+      throw Abort(.badRequest, reason: "Invalid or insufficient client information")
+    }
+  }
 }
 
-extension RequestAuthorizer {
-  func respond(to request: Request, chainingTo next: Responder) -> EventLoopFuture<Response> {
-    if let error = authorize(request: request) {
-      request.eventLoop.makeFailedFuture(error)
-    } else {
-      next.respond(to: request)
+protocol RequestAuthenticatorGuard: RequestAuthenticator {
+  func authenticate(request: Request) throws -> Authenticatable
+}
+
+extension RequestAuthenticatorGuard {
+  func authenticate(request: Request) -> EventLoopFuture<Void> {
+    do {
+      let result = try authenticate(request: request)
+      request.auth.login(result)
+      return request.eventLoop.makeSucceededVoidFuture()
+    } catch {
+      return request.eventLoop.makeFailedFuture(error)
     }
   }
 }

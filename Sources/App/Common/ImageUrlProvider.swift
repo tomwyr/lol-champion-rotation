@@ -2,8 +2,8 @@ import Vapor
 
 struct ImageUrlProvider {
   let b2ApiClient: B2ApiClient
-  let cache: Cache?
-  let fingerprint: Fingerprint
+  let cache: Cache
+  let fingerprint: Fingerprint?
 
   func champions(with championIds: [String]) async throws -> [String] {
     let accountToken = try await getAccountToken()
@@ -15,15 +15,11 @@ struct ImageUrlProvider {
   }
 
   private func getAccountToken() async throws -> String {
-    let key = "accountToken"
     let getToken = {
       try await b2ApiClient.authorizeAccount().authorizationToken
     }
 
-    guard let cache = cache else {
-      return try await getToken()
-    }
-
+    let key = "accountToken"
     if let cachedToken = try await cache.get(key, as: String.self) {
       return cachedToken
     }
@@ -33,7 +29,6 @@ struct ImageUrlProvider {
   }
 
   private func getDownloadToken(accountToken: String) async throws -> String {
-    let key = "downloadToken#\(fingerprint.value)"
     let getToken = {
       try await b2ApiClient.getDownloadAuthorization(
         authorizationToken: accountToken,
@@ -42,10 +37,11 @@ struct ImageUrlProvider {
       ).authorizationToken
     }
 
-    guard let cache = cache else {
+    guard let fingerprint = fingerprint else {
       return try await getToken()
     }
 
+    let key = "downloadToken#\(fingerprint.value)"
     if let cachedToken = try await cache.get(key, as: String.self) {
       return cachedToken
     }
