@@ -1,23 +1,48 @@
-@testable import App
 import XCTVapor
 
 final class AppTests: XCTestCase {
     var app: Application!
-    
+
     override func setUp() async throws {
-        self.app = try await Application.make(.testing)
-        try await configure(app)
+        app = try await Application.make(.testing)
     }
-    
-    override func tearDown() async throws { 
-        try await self.app.asyncShutdown()
-        self.app = nil
+
+    override func tearDown() async throws {
+        try await app.asyncShutdown()
+        app = nil
     }
-    
-    func testHelloWorld() async throws {
-        try await self.app.test(.GET, "hello", afterResponse: { res async in
+
+    func testRefreshRotationWithNoToken() async throws {
+        try testConfigureWith(appManagementKey: "123")
+
+        try await app.test(
+            .POST, "/rotation/refresh"
+        ) { res async in
+            XCTAssertEqual(res.status, .unauthorized)
+            XCTAssertBodyError(res.body, "Invalid auth token")
+        }
+    }
+
+    func testRefreshRotationWithInvalidToken() async throws {
+        try testConfigureWith(appManagementKey: "abc")
+
+        try await app.test(
+            .POST, "/rotation/refresh",
+            headers: ["Authorization": "Bearer 123"]
+        ) { res async in
+            XCTAssertEqual(res.status, .unauthorized)
+            XCTAssertBodyError(res.body, "Invalid auth token")
+        }
+    }
+
+    func testRefreshRotationWithValidToken() async throws {
+        try testConfigureWith(appManagementKey: "123")
+
+        try await app.test(
+            .POST, "/rotation/refresh",
+            headers: ["Authorization": "Bearer 123"]
+        ) { res async in
             XCTAssertEqual(res.status, .ok)
-            XCTAssertEqual(res.body.string, "Hello, world!")
-        })
+        }
     }
 }
