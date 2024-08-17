@@ -32,10 +32,12 @@ extension AppConfig {
   }
 }
 
-struct MockHttpClient: HttpClient {
-  private let respond: @Sendable (String) -> Any?
+typealias HttpRespond = @Sendable (String) -> Any?
 
-  init(respond: @escaping @Sendable (String) -> Any?) {
+struct MockHttpClient: HttpClient {
+  private let respond: HttpRespond
+
+  init(respond: @escaping HttpRespond = { _ in nil }) {
     self.respond = respond
   }
 
@@ -57,7 +59,7 @@ struct MockHttpClient: HttpClient {
   }
 
   private func request<T>(_ url: String) -> T {
-    guard let response = respond(url) else {
+    guard let response = respond(url) ?? respondDefault(url) else {
       fatalError("Response of type \(T.self) for request url \(url) not found")
     }
     guard let response = (response as? T) else {
