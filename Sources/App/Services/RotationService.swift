@@ -75,7 +75,7 @@ extension RotationService {
         }
 
         let champions = try championData.map { data throws(CurrentRotationError) in
-            let levelCapped = freeChampionKeys.contains(data.id)
+            let levelCapped = freeChampionKeys.contains(data.key)
             guard let imageUrl = imageUrlsByChampionId[data.id] else {
                 throw .championImageMissing(championId: data.id)
             }
@@ -86,7 +86,7 @@ extension RotationService {
                 levelCapped: levelCapped,
                 imageUrl: imageUrl
             )
-        }
+        }.sorted { $0.id < $1.id }
 
         return ChampionRotation(playerLevelCap: playerLevelCap, champions: champions)
     }
