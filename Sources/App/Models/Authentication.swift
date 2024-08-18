@@ -11,18 +11,21 @@ struct Fingerprint {
   let value: String
 
   init(of request: Request) throws(FingerprintError) {
-    let ipAddress = request.remoteAddress?.description
+    let sessionKey = request.headers["X-Session-Key"].first
     let userAgent = request.headers["User-Agent"].first
 
-    guard let ipAddress, let userAgent else {
+    guard let sessionKey, let userAgent else {
       throw .insufficientData
     }
+    guard UUID(uuidString: sessionKey) != nil else {
+      throw .invalidSessionKey
+    }
 
-    let baseString = "\(ipAddress)_\(userAgent)"
+    let baseString = "\(sessionKey)_\(userAgent)"
     self.value = SHA256.hash(data: Data(baseString.utf8)).hex
   }
 }
 
 enum FingerprintError: Error {
-  case insufficientData
+  case insufficientData, invalidSessionKey
 }
