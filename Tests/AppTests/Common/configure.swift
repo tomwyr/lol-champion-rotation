@@ -8,20 +8,23 @@ typealias InitDbModel<T> = (T) -> Void where T: Model
 
 extension AppTests {
   func testConfigureWith(
-    appManagementKey: String,
+    appManagementKey: String? = nil,
     dbChampionRotation: InitDbModel<ChampionRotationModel>? = nil,
+    b2AuthorizeDownloadData: AuthorizationData? = nil,
     riotChampionRotationsData: ChampionRotationsData? = nil,
     riotChampionsData: ChampionsData? = nil
   ) async throws {
     try await testConfigure(
       deps: .mock(
-        appConfig: .empty(appManagementKey: appManagementKey),
+        appConfig: .empty(appManagementKey: appManagementKey ?? ""),
         httpClient: MockHttpClient(respond: { url in
           switch url {
           case requestUrls.riotChampionRotations:
             riotChampionRotationsData
           case requestUrls.riotChampions:
             riotChampionsData
+          case requestUrls.b2AuthorizeDownload:
+            b2AuthorizeDownloadData
           default:
             nil
           }
