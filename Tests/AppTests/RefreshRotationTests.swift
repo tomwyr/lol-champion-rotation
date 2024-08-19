@@ -37,13 +37,42 @@ class RefreshRotationTests: AppTests {
     }
   }
 
-  func testResultWhenRotationChanged() async throws {
-    let dbChampionIds = ["Sett", "Garen"]
-
+  func testResultWhenRotationChampionsChanged() async throws {
     try await testConfigureWith(
       appManagementKey: "123",
       dbChampionRotation: { model in
-        model.championIds = dbChampionIds
+        model.beginnerMaxLevel = 10
+        model.beginnerChampionIds = ["Nocturne"]
+        model.regularChampionIds = ["Sett"]
+      },
+      riotChampionRotationsData: .init(
+        freeChampionIds: [1, 2],
+        freeChampionIdsForNewPlayers: [3],
+        maxNewPlayerLevel: 10
+      ),
+      riotChampionsData: .init(data: [
+        "Sett": .init(id: "Sett", key: "1", name: "Sett"),
+        "Garen": .init(id: "Garen", key: "2", name: "Garen"),
+        "Nocturne": .init(id: "Nocturne", key: "3", name: "Nocturne"),
+      ])
+    )
+
+    try await app.test(
+      .POST, "/rotation/refresh",
+      headers: ["Authorization": "Bearer 123"]
+    ) { res async in
+      XCTAssertEqual(res.status, .ok)
+      XCTAssertBody(res.body, ["rotationChanged": true])
+    }
+  }
+
+  func testResultWhenRotationMaxLevelChanged() async throws {
+    try await testConfigureWith(
+      appManagementKey: "123",
+      dbChampionRotation: { model in
+        model.beginnerMaxLevel = 5
+        model.beginnerChampionIds = ["Nocturne"]
+        model.regularChampionIds = ["Sett", "Garen"]
       },
       riotChampionRotationsData: .init(
         freeChampionIds: [1, 2],
@@ -67,12 +96,12 @@ class RefreshRotationTests: AppTests {
   }
 
   func testResultWhenRotationDidNotChange() async throws {
-    let dbChampionIds = ["Sett", "Garen", "Nocturne"]
-
     try await testConfigureWith(
       appManagementKey: "123",
       dbChampionRotation: { model in
-        model.championIds = dbChampionIds
+        model.beginnerMaxLevel = 10
+        model.beginnerChampionIds = ["Nocturne"]
+        model.regularChampionIds = ["Sett", "Garen"]
       },
       riotChampionRotationsData: .init(
         freeChampionIds: [1, 2],

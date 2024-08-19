@@ -11,7 +11,9 @@ struct CreateChampionRotation: AsyncMigration {
     try await database.schema("champion-rotations")
       .id()
       .field("observed_at", .datetime)
-      .field("champion_ids", .array(of: .string))
+      .field("beginner_max_level", .int)
+      .field("beginner_champion_ids", .array(of: .string))
+      .field("regular_champion_ids", .array(of: .string))
       .create()
   }
 

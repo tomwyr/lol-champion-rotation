@@ -59,36 +59,35 @@ extension RotationService {
         riotData: CurrentRotationRiotData,
         imageUrlsByChampionId: [String: String]
     ) throws(CurrentRotationError) -> ChampionRotation {
-        let playerLevelCap = riotData.championRotations.maxNewPlayerLevel
         let championsByKey = riotData.champions.data.values.associateBy(\.key)
-        let freeChampionKeys = Set(riotData.championRotations.freeChampionIds).map { String($0) }
-        let allChampionKeys = Set(
-            riotData.championRotations.freeChampionIdsForNewPlayers
-                + riotData.championRotations.freeChampionIds
-        ).map { String($0) }
+        let beginnerMaxLevel = riotData.championRotations.maxNewPlayerLevel
+        let beginnerChampionIds = riotData.championRotations.freeChampionIdsForNewPlayers
+            .map { String($0) }
+        let regularChampionIds = riotData.championRotations.freeChampionIds
+            .map { String($0) }
 
-        let championData = try allChampionKeys.map { key throws(CurrentRotationError) in
-            guard let champion = championsByKey[key] else {
+        func createChampion(key: String) throws(CurrentRotationError) -> Champion {
+            guard let data = championsByKey[key] else {
                 throw .unknownChampion(championKey: key)
             }
-            return champion
-        }
-
-        let champions = try championData.map { data throws(CurrentRotationError) in
-            let levelCapped = freeChampionKeys.contains(data.key)
             guard let imageUrl = imageUrlsByChampionId[data.id] else {
                 throw .championImageMissing(championId: data.id)
             }
-
             return Champion(
                 id: data.id,
                 name: data.name,
-                levelCapped: levelCapped,
                 imageUrl: imageUrl
             )
-        }.sorted { $0.id < $1.id }
+        }
 
-        return ChampionRotation(playerLevelCap: playerLevelCap, champions: champions)
+        let beginnerChampions = try beginnerChampionIds.map(createChampion).sorted { $0.id < $1.id }
+        let regularChampions = try regularChampionIds.map(createChampion).sorted { $0.id < $1.id }
+
+        return ChampionRotation(
+            beginnerMaxLevel: beginnerMaxLevel,
+            beginnerChampions: beginnerChampions,
+            regularChampions: regularChampions
+        )
     }
 }
 
@@ -97,20 +96,18 @@ extension RotationService {
         async throws(CurrentRotationError) -> Bool
     {
         do {
-            let championIds = rotation.champions.map(\.id)
-            let mostRecentRotation = try await appDatabase.mostRecentChampionRotation()
+            let newestSnapshot = rotation.toSnapshot()
+            let mostRecentSnapshot = try await appDatabase.mostRecentChampionRotation()?
+                .toSnapshot()
 
-            let rotationChanged: Bool
-            if let lastChampionIds = mostRecentRotation?.championIds {
-                rotationChanged = Set(lastChampionIds) != Set(championIds)
-            } else {
-                rotationChanged = true
+            if let mostRecentSnapshot, newestSnapshot.same(as: mostRecentSnapshot) {
+                return false
             }
 
-            let data = ChampionRotationModel(championIds: championIds)
+            let data = ChampionRotationModel(snapshot: newestSnapshot)
             try await appDatabase.addChampionRotation(data: data)
 
-            return rotationChanged
+            return true
         } catch {
             throw .dataOperationFailed(cause: error)
         }

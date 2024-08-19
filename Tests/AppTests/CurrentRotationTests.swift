@@ -73,21 +73,14 @@ class CurrentRotationTests: AppTests {
       XCTAssertBody(
         res.body,
         [
-          "champions": [
-            [
-              "id": "Garen", "name": "Garen", "levelCapped": true,
-              "imageUrl": imageUrl("Garen"),
-            ],
-            [
-              "id": "Nocturne", "name": "Nocturne", "levelCapped": false,
-              "imageUrl": imageUrl("Nocturne"),
-            ],
-            [
-              "id": "Sett", "name": "Sett", "levelCapped": true,
-              "imageUrl": imageUrl("Sett"),
-            ],
+          "beginnerMaxLevel": 10,
+          "beginnerChampions": [
+            ["id": "Nocturne", "name": "Nocturne", "imageUrl": imageUrl("Nocturne")]
           ],
-          "playerLevelCap": 10,
+          "regularChampions": [
+            ["id": "Garen", "name": "Garen", "imageUrl": imageUrl("Garen")],
+            ["id": "Sett", "name": "Sett", "imageUrl": imageUrl("Sett")],
+          ],
         ]
       )
     }
