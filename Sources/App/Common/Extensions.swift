@@ -13,3 +13,9 @@ extension Application {
         grouped(requestGuard)
     }
 }
+
+extension Array where Element: Hashable {
+    func uniqued() -> [Element] {
+        Array(Set(self))
+    }
+}

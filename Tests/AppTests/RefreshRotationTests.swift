@@ -42,8 +42,8 @@ class RefreshRotationTests: AppTests {
       appManagementKey: "123",
       dbChampionRotation: { model in
         model.beginnerMaxLevel = 10
-        model.beginnerChampionIds = ["Nocturne"]
-        model.regularChampionIds = ["Sett"]
+        model.beginnerChampions = [.init(id: "Nocturne", name: "Nocturne")]
+        model.regularChampions = [.init(id: "Sett", name: "Sett")]
       },
       riotChampionRotationsData: .init(
         freeChampionIds: [1, 2],
@@ -71,8 +71,11 @@ class RefreshRotationTests: AppTests {
       appManagementKey: "123",
       dbChampionRotation: { model in
         model.beginnerMaxLevel = 5
-        model.beginnerChampionIds = ["Nocturne"]
-        model.regularChampionIds = ["Sett", "Garen"]
+        model.beginnerChampions = [.init(id: "Nocturne", name: "Nocturne")]
+        model.regularChampions = [
+          .init(id: "Sett", name: "Sett"),
+          .init(id: "Garen", name: "Garen"),
+        ]
       },
       riotChampionRotationsData: .init(
         freeChampionIds: [1, 2],
@@ -100,8 +103,11 @@ class RefreshRotationTests: AppTests {
       appManagementKey: "123",
       dbChampionRotation: { model in
         model.beginnerMaxLevel = 10
-        model.beginnerChampionIds = ["Nocturne"]
-        model.regularChampionIds = ["Sett", "Garen"]
+        model.beginnerChampions = [.init(id: "Nocturne", name: "Nocturne")]
+        model.regularChampions = [
+          .init(id: "Sett", name: "Sett"),
+          .init(id: "Garen", name: "Garen"),
+        ]
       },
       riotChampionRotationsData: .init(
         freeChampionIds: [1, 2],

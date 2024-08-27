@@ -36,7 +36,13 @@ class CurrentRotationTests: AppTests {
   }
 
   func testValidFingerprint() async throws {
-    try await testConfigureWith()
+    try await testConfigureWith(
+      dbChampionRotation: { model in
+        model.beginnerMaxLevel = 1
+        model.beginnerChampions = []
+        model.regularChampions = []
+      }
+    )
 
     try await app.test(
       .GET, "/rotation/current",
@@ -52,17 +58,15 @@ class CurrentRotationTests: AppTests {
     }
 
     try await testConfigureWith(
-      b2AuthorizeDownloadData: .init(authorizationToken: "123"),
-      riotChampionRotationsData: .init(
-        freeChampionIds: [1, 2],
-        freeChampionIdsForNewPlayers: [3],
-        maxNewPlayerLevel: 10
-      ),
-      riotChampionsData: .init(data: [
-        "Sett": .init(id: "Sett", key: "1", name: "Sett"),
-        "Garen": .init(id: "Garen", key: "2", name: "Garen"),
-        "Nocturne": .init(id: "Nocturne", key: "3", name: "Nocturne"),
-      ])
+      dbChampionRotation: { model in
+        model.beginnerMaxLevel = 10
+        model.beginnerChampions = [.init(id: "Nocturne", name: "Nocturne")]
+        model.regularChampions = [
+          .init(id: "Garen", name: "Garen"),
+          .init(id: "Sett", name: "Sett"),
+        ]
+      },
+      b2AuthorizeDownloadData: .init(authorizationToken: "123")
     )
 
     try await app.test(
