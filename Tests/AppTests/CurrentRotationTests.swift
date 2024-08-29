@@ -52,11 +52,7 @@ class CurrentRotationTests: AppTests {
     }
   }
 
-  func testResult() async throws {
-    let imageUrl = { (championId: String) in
-      "https://api003.backblazeb2.com/file/lol-champion-rotation/champions/\(championId).jpg?Authorization=123"
-    }
-
+  func testSimpleResult() async throws {
     try await testConfigureWith(
       dbChampionRotation: { model in
         model.beginnerMaxLevel = 10
@@ -88,5 +84,91 @@ class CurrentRotationTests: AppTests {
         ]
       )
     }
+  }
+
+  func testChampionsAreSortedById() async throws {
+    try await testConfigureWith(
+      dbChampionRotation: { model in
+        model.beginnerMaxLevel = 10
+        model.beginnerChampions = [
+          .init(id: "Nocturne", name: "Nocturne"),
+          .init(id: "Ashe", name: "Ashe"),
+          .init(id: "Shen", name: "Shen"),
+        ]
+        model.regularChampions = [
+          .init(id: "Jax", name: "Jax"),
+          .init(id: "Sett", name: "Sett"),
+          .init(id: "Garen", name: "Garen"),
+        ]
+      },
+      b2AuthorizeDownloadData: .init(authorizationToken: "123")
+    )
+
+    try await app.test(
+      .GET, "/rotation/current",
+      headers: HTTPHeaders(validHeaders)
+    ) { res async in
+      XCTAssertEqual(res.status, .ok)
+      XCTAssertBody(
+        res.body,
+        [
+          "beginnerMaxLevel": 10,
+          "beginnerChampions": [
+            ["id": "Ashe", "name": "Ashe", "imageUrl": imageUrl("Ashe")],
+            ["id": "Nocturne", "name": "Nocturne", "imageUrl": imageUrl("Nocturne")],
+            ["id": "Shen", "name": "Shen", "imageUrl": imageUrl("Shen")],
+          ],
+          "regularChampions": [
+            ["id": "Garen", "name": "Garen", "imageUrl": imageUrl("Garen")],
+            ["id": "Jax", "name": "Jax", "imageUrl": imageUrl("Jax")],
+            ["id": "Sett", "name": "Sett", "imageUrl": imageUrl("Sett")],
+          ],
+        ]
+      )
+    }
+  }
+
+  func testSameChampionIsBeginnerAndRegular() async throws {
+    try await testConfigureWith(
+      dbChampionRotation: { model in
+        model.beginnerMaxLevel = 10
+        model.beginnerChampions = [
+          .init(id: "Garen", name: "Garen"),
+          .init(id: "Sett", name: "Sett"),
+        ]
+        model.regularChampions = [
+          .init(id: "Nocturne", name: "Nocturne"),
+          .init(id: "Sett", name: "Sett"),
+        ]
+      },
+      b2AuthorizeDownloadData: .init(authorizationToken: "123")
+    )
+
+    try await app.test(
+      .GET, "/rotation/current",
+      headers: HTTPHeaders(validHeaders)
+    ) { res async in
+      XCTAssertEqual(res.status, .ok)
+      XCTAssertBody(
+        res.body,
+        [
+          "beginnerMaxLevel": 10,
+          "beginnerChampions": [
+            ["id": "Garen", "name": "Garen", "imageUrl": imageUrl("Garen")],
+            ["id": "Sett", "name": "Sett", "imageUrl": imageUrl("Sett")],
+          ],
+          "regularChampions": [
+            ["id": "Nocturne", "name": "Nocturne", "imageUrl": imageUrl("Nocturne")],
+            ["id": "Sett", "name": "Sett", "imageUrl": imageUrl("Sett")],
+          ],
+        ]
+      )
+    }
+  }
+}
+
+extension CurrentRotationTests {
+  func imageUrl(_ championId: String) -> String {
+    "https://api003.backblazeb2.com/file/lol-champion-rotation/champions/\(championId).jpg?Authorization=123"
   }
 }
