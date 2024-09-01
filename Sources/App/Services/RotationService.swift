@@ -71,9 +71,9 @@ extension RotationService {
 
         let beginnerMaxLevel = rotation.beginnerMaxLevel
         let beginnerChampions = try rotation.beginnerChampions
-            .map(createChampion).sorted { $0.id < $1.id }
+            .map(createChampion).sorted { $0.name < $1.name }
         let regularChampions = try rotation.regularChampions
-            .map(createChampion).sorted { $0.id < $1.id }
+            .map(createChampion).sorted { $0.name < $1.name }
 
         return ChampionRotation(
             beginnerMaxLevel: beginnerMaxLevel,

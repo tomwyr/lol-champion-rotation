@@ -40,11 +40,11 @@ class RefreshRotationTests: AppTests {
   func testResultWhenRotationChampionsChanged() async throws {
     try await testConfigureWith(
       appManagementKey: "123",
-      dbChampionRotation: { model in
-        model.beginnerMaxLevel = 10
-        model.beginnerChampions = [.init(id: "Nocturne", name: "Nocturne")]
-        model.regularChampions = [.init(id: "Sett", name: "Sett")]
-      },
+      dbChampionRotation: .init(
+        beginnerMaxLevel: 10,
+        beginnerChampions: ["Nocturne"],
+        regularChampions: ["Sett", "Sett"]
+      ),
       riotChampionRotationsData: .init(
         freeChampionIds: [1, 2],
         freeChampionIdsForNewPlayers: [3],
@@ -69,14 +69,11 @@ class RefreshRotationTests: AppTests {
   func testResultWhenRotationMaxLevelChanged() async throws {
     try await testConfigureWith(
       appManagementKey: "123",
-      dbChampionRotation: { model in
-        model.beginnerMaxLevel = 5
-        model.beginnerChampions = [.init(id: "Nocturne", name: "Nocturne")]
-        model.regularChampions = [
-          .init(id: "Sett", name: "Sett"),
-          .init(id: "Garen", name: "Garen"),
-        ]
-      },
+      dbChampionRotation: .init(
+        beginnerMaxLevel: 5,
+        beginnerChampions: ["Nocturne"],
+        regularChampions: ["Sett", "Garen"]
+      ),
       riotChampionRotationsData: .init(
         freeChampionIds: [1, 2],
         freeChampionIdsForNewPlayers: [3],
@@ -101,14 +98,11 @@ class RefreshRotationTests: AppTests {
   func testResultWhenRotationDidNotChange() async throws {
     try await testConfigureWith(
       appManagementKey: "123",
-      dbChampionRotation: { model in
-        model.beginnerMaxLevel = 10
-        model.beginnerChampions = [.init(id: "Nocturne", name: "Nocturne")]
-        model.regularChampions = [
-          .init(id: "Sett", name: "Sett"),
-          .init(id: "Garen", name: "Garen"),
-        ]
-      },
+      dbChampionRotation: .init(
+        beginnerMaxLevel: 10,
+        beginnerChampions: ["Nocturne"],
+        regularChampions: ["Sett", "Garen"]
+      ),
       riotChampionRotationsData: .init(
         freeChampionIds: [1, 2],
         freeChampionIdsForNewPlayers: [3],

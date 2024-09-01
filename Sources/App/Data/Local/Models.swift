@@ -15,7 +15,8 @@ final class ChampionModel: Model {
 
     init() {}
 
-    init(riotId: String, name: String) {
+    init(id: UUID? = nil, riotId: String, name: String) {
+        self.id = id
         self.riotId = riotId
         self.name = name
     }
