@@ -9,6 +9,16 @@ extension MutableCollection {
 }
 
 extension Application {
+    func grouped(_ path: PathComponent..., builder: (RoutesBuilder) -> Void) {
+        builder(grouped(path))
+    }
+
+    func protected(with requestGuard: RequestAuthenticatorGuard) -> RoutesBuilder {
+        grouped(requestGuard)
+    }
+}
+
+extension RoutesBuilder {
     func protected(with requestGuard: RequestAuthenticatorGuard) -> RoutesBuilder {
         grouped(requestGuard)
     }
