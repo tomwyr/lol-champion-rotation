@@ -44,7 +44,7 @@ extension AppTests {
 
   func testConfigure(deps: Dependencies, initDb: InitDb) async throws {
     try await database(deps, initDb)
-    try routes(app, deps)
+    try apiRoutes(app, deps)
   }
 
   func database(_ deps: Dependencies, _ initDb: InitDb) async throws {

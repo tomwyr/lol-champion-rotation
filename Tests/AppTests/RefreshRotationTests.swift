@@ -7,7 +7,7 @@ class RefreshRotationTests: AppTests {
     try await testConfigureWith(appManagementKey: "123")
 
     try await app.test(
-      .POST, "/rotation/refresh"
+      .POST, "/api/rotation/refresh"
     ) { res async in
       XCTAssertEqual(res.status, .unauthorized)
       XCTAssertBodyError(res.body, "Invalid auth token")
@@ -18,7 +18,7 @@ class RefreshRotationTests: AppTests {
     try await testConfigureWith(appManagementKey: "abc")
 
     try await app.test(
-      .POST, "/rotation/refresh",
+      .POST, "/api/rotation/refresh",
       headers: ["Authorization": "Bearer 123"]
     ) { res async in
       XCTAssertEqual(res.status, .unauthorized)
@@ -30,7 +30,7 @@ class RefreshRotationTests: AppTests {
     try await testConfigureWith(appManagementKey: "123")
 
     try await app.test(
-      .POST, "/rotation/refresh",
+      .POST, "/api/rotation/refresh",
       headers: ["Authorization": "Bearer 123"]
     ) { res async in
       XCTAssertEqual(res.status, .ok)
@@ -58,7 +58,7 @@ class RefreshRotationTests: AppTests {
     )
 
     try await app.test(
-      .POST, "/rotation/refresh",
+      .POST, "/api/rotation/refresh",
       headers: ["Authorization": "Bearer 123"]
     ) { res async in
       XCTAssertEqual(res.status, .ok)
@@ -87,7 +87,7 @@ class RefreshRotationTests: AppTests {
     )
 
     try await app.test(
-      .POST, "/rotation/refresh",
+      .POST, "/api/rotation/refresh",
       headers: ["Authorization": "Bearer 123"]
     ) { res async in
       XCTAssertEqual(res.status, .ok)
@@ -116,7 +116,7 @@ class RefreshRotationTests: AppTests {
     )
 
     try await app.test(
-      .POST, "/rotation/refresh",
+      .POST, "/api/rotation/refresh",
       headers: ["Authorization": "Bearer 123"]
     ) { res async in
       XCTAssertEqual(res.status, .ok)

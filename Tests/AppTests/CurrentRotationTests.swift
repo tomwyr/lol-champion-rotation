@@ -3,55 +3,6 @@ import XCTVapor
 @testable import App
 
 class CurrentRotationTests: AppTests {
-  let sessionKey = "4d99934d-da51-4d89-a049-b70a75b52e55"
-  let userAgent =
-    "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_1_2; en-US) Gecko/20100101 Firefox/72.5"
-
-  lazy var validHeaders = {
-    [
-      ("X-Session-Key", sessionKey),
-      ("User-Agent", userAgent),
-    ]
-  }()
-
-  func testIncompleteFingerprint() async throws {
-    let invalidHeaders = [
-      [],
-      [("X-Session-Key", sessionKey)],
-      [("User-Agent", userAgent)],
-      [("X-Session-Key", "123"), ("User-Agent", userAgent)],
-    ]
-
-    try await testConfigureWith()
-
-    for headers in invalidHeaders {
-      try await app.test(
-        .GET, "/rotation/current",
-        headers: HTTPHeaders(headers)
-      ) { res async in
-        XCTAssertEqual(res.status, .badRequest)
-        XCTAssertBodyError(res.body, "Invalid or insufficient client information")
-      }
-    }
-  }
-
-  func testValidFingerprint() async throws {
-    try await testConfigureWith(
-      dbChampionRotation: .init(
-        beginnerMaxLevel: 1,
-        beginnerChampions: [],
-        regularChampions: []
-      )
-    )
-
-    try await app.test(
-      .GET, "/rotation/current",
-      headers: HTTPHeaders(validHeaders)
-    ) { res async in
-      XCTAssertEqual(res.status, .ok)
-    }
-  }
-
   func testSimpleResult() async throws {
     try await testConfigureWith(
       dbChampionRotation: .init(
@@ -68,8 +19,7 @@ class CurrentRotationTests: AppTests {
     )
 
     try await app.test(
-      .GET, "/rotation/current",
-      headers: HTTPHeaders(validHeaders)
+      .GET, "/api/rotation/current"
     ) { res async in
       XCTAssertEqual(res.status, .ok)
       XCTAssertBody(
@@ -116,8 +66,7 @@ class CurrentRotationTests: AppTests {
     )
 
     try await app.test(
-      .GET, "/rotation/current",
-      headers: HTTPHeaders(validHeaders)
+      .GET, "/api/rotation/current"
     ) { res async in
       XCTAssertEqual(res.status, .ok)
       XCTAssertBody(
@@ -155,8 +104,7 @@ class CurrentRotationTests: AppTests {
     )
 
     try await app.test(
-      .GET, "/rotation/current",
-      headers: HTTPHeaders(validHeaders)
+      .GET, "/api/rotation/current"
     ) { res async in
       XCTAssertEqual(res.status, .ok)
       XCTAssertBody(
@@ -178,7 +126,7 @@ class CurrentRotationTests: AppTests {
 }
 
 func imageUrl(_ championId: String) -> String {
-  "https://api003.backblazeb2.com/file/lol-champion-rotation/champions/\(championId).jpg?Authorization=123"
+  "https://api003.backblazeb2.com/file/lol-champion-rotation/champions/\(championId).jpg"
 }
 
 func uuid(_ value: String) -> UUID? {
