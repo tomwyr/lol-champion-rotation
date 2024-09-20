@@ -15,7 +15,7 @@ func apiRoutes(_ app: Application, _ deps: Dependencies) throws {
 
         api.protected(with: managementGuard).post("rotation", "refresh") { req in
             try req.auth.require(Manager.self)
-            let rotationService = deps.rotationService(request: req, fingerprint: nil)
+            let rotationService = deps.rotationService(request: req)
             return try await rotationService.refreshRotation()
         }
     }

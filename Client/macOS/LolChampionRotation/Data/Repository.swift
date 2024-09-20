@@ -1,5 +1,4 @@
 struct RotationRepository {
-    let sessionKey: String
     let httpClient: HttpClient
 
     func currentRotation() async throws(CurrentRotationError) -> ChampionRotation {
@@ -7,8 +6,7 @@ struct RotationRepository {
         do {
             return try await httpClient.get(
                 from: url,
-                into: ChampionRotation.self,
-                with: ["X-Session-Key": sessionKey]
+                into: ChampionRotation.self
             )
         } catch {
             throw .unavailable

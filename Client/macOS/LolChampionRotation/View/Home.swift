@@ -4,7 +4,6 @@ import SwiftUI
 struct HomePage: View {
     @StateObject var store = RotationStore(
         repository: RotationRepository(
-            sessionKey: UUID().uuidString,
             httpClient: NetworkHttpClient()
         )
     )
