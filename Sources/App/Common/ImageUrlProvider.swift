@@ -6,12 +6,16 @@ struct ImageUrlProvider {
   let fingerprint: Fingerprint?
 
   func champions(with championIds: [String]) async throws -> [String] {
-    let accountToken = try await getAccountToken()
-    let downloadToken = try await getDownloadToken(accountToken: accountToken)
     return championIds.map { championId in
       let fileName = "champions/\(championId).jpg"
-      return b2ApiClient.fileUrl(for: fileName, authorizeWith: downloadToken)
+      return b2ApiClient.fileUrl(for: fileName)
     }
+  }
+
+  private func getDownloadToken() async throws -> String {
+    let accountToken = try await getAccountToken()
+    let downloadToken = try await getDownloadToken(accountToken: accountToken)
+    return downloadToken
   }
 
   private func getAccountToken() async throws -> String {
