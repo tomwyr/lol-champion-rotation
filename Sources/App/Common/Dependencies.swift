@@ -12,7 +12,7 @@ struct Dependencies {
         )
     }
 
-    func rotationService(request: Request, fingerprint: Fingerprint?) -> RotationService {
+    func rotationService(request: Request) -> RotationService {
         RotationService(
             imageUrlProvider: ImageUrlProvider(
                 b2ApiClient: B2ApiClient(
@@ -21,7 +21,7 @@ struct Dependencies {
                     appKeySecret: appConfig.b2AppKeySecret
                 ),
                 cache: request.cache,
-                fingerprint: fingerprint
+                fingerprint: nil
             ),
             riotApiClient: RiotApiClient(
                 http: httpClient,

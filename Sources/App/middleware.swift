@@ -14,12 +14,7 @@ struct ManagementGuard: RequestAuthenticatorGuard {
 
 struct UserGuard: RequestAuthenticatorGuard {
   func authenticate(request: Request) throws -> Authenticatable {
-    do {
-      let fingerprint = try Fingerprint(of: request)
-      return User(fingerprint: fingerprint)
-    } catch {
-      throw Abort(.badRequest, reason: "Invalid or insufficient client information")
-    }
+    return User()
   }
 }
 

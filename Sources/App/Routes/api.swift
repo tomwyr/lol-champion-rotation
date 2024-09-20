@@ -9,7 +9,7 @@ func apiRoutes(_ app: Application, _ deps: Dependencies) throws {
     app.grouped("api") { api in
         api.protected(with: userGuard).get("rotation", "current") { req in
             let user = try req.auth.require(User.self)
-            let rotationService = deps.rotationService(request: req, fingerprint: user.fingerprint)
+            let rotationService = deps.rotationService(request: req)
             return try await rotationService.currentRotation()
         }
 

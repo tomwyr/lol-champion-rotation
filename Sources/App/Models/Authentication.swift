@@ -3,9 +3,7 @@ import Vapor
 
 struct Manager: Authenticatable {}
 
-struct User: Authenticatable {
-  let fingerprint: Fingerprint
-}
+struct User: Authenticatable {}
 
 struct Fingerprint {
   let value: String
