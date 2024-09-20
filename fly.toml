@@ -26,4 +26,3 @@ primary_region = 'waw'
 
 [processes]
   app = "/app/App serve --env production --hostname 0.0.0.0 --port 8080"
-  cron = "supercronic /app/scripts/crontab"

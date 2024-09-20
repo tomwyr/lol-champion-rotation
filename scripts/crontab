@@ -1,2 +1,0 @@
-# Refresh rotation every hour
-0 */6 * * * ./scripts/refresh-rotation.sh
