@@ -22,18 +22,13 @@ struct RiotApiClient {
     }
 }
 
-extension RiotApiClient {
-    private var platform: String { "eun1" }
-    private var version: String { "14.14.1" }
+private let platform = "eun1"
+private let version = "14.14.1"
 
-    private var championRotationsUrl: String {
-        "https://\(platform).api.riotgames.com/lol/platform/v3/champion-rotations"
-    }
-    private var championsDataUrl: String {
-        "https://ddragon.leagueoflegends.com/cdn/\(version)/data/en_US/champion.json"
-    }
-
-}
+private let championRotationsUrl =
+    "https://\(platform).api.riotgames.com/lol/platform/v3/champion-rotations"
+private let championsDataUrl =
+    "https://ddragon.leagueoflegends.com/cdn/\(version)/data/en_US/champion.json"
 
 struct ChampionRotationsData: Decodable {
     let freeChampionIds: [Int]
