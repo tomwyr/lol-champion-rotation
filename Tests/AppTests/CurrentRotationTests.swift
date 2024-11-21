@@ -4,7 +4,7 @@ import XCTVapor
 
 class CurrentRotationTests: AppTests {
   func testSimpleResult() async throws {
-    try await testConfigureWith(
+    _ = try await testConfigureWith(
       dbChampionRotation: .init(
         beginnerMaxLevel: 10,
         beginnerChampions: ["Nocturne"],
@@ -48,7 +48,7 @@ class CurrentRotationTests: AppTests {
   }
 
   func testChampionsAreSortedById() async throws {
-    try await testConfigureWith(
+    _ = try await testConfigureWith(
       dbChampionRotation: .init(
         beginnerMaxLevel: 10,
         beginnerChampions: ["Nocturne", "Ashe", "Shen"],
@@ -89,7 +89,7 @@ class CurrentRotationTests: AppTests {
   }
 
   func testSameChampionIsBeginnerAndRegular() async throws {
-    try await testConfigureWith(
+    _ = try await testConfigureWith(
       dbChampionRotation: .init(
         beginnerMaxLevel: 10,
         beginnerChampions: ["Garen", "Sett"],

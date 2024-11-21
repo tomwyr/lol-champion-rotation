@@ -4,7 +4,7 @@ import XCTVapor
 
 class RefreshRotationTests: AppTests {
   func testNoToken() async throws {
-    try await testConfigureWith(appManagementKey: "123")
+    _ = try await testConfigureWith(appManagementKey: "123")
 
     try await app.test(
       .POST, "/api/rotation/refresh"
@@ -15,7 +15,7 @@ class RefreshRotationTests: AppTests {
   }
 
   func testInvalidToken() async throws {
-    try await testConfigureWith(appManagementKey: "abc")
+    _ = try await testConfigureWith(appManagementKey: "abc")
 
     try await app.test(
       .POST, "/api/rotation/refresh",
@@ -27,7 +27,9 @@ class RefreshRotationTests: AppTests {
   }
 
   func testValidToken() async throws {
-    try await testConfigureWith(appManagementKey: "123")
+    _ = try await testConfigureWith(
+      appManagementKey: "123"
+    )
 
     try await app.test(
       .POST, "/api/rotation/refresh",
@@ -38,7 +40,7 @@ class RefreshRotationTests: AppTests {
   }
 
   func testResultWhenRotationChampionsChanged() async throws {
-    try await testConfigureWith(
+    _ = try await testConfigureWith(
       appManagementKey: "123",
       dbChampionRotation: .init(
         beginnerMaxLevel: 10,
@@ -67,7 +69,7 @@ class RefreshRotationTests: AppTests {
   }
 
   func testResultWhenRotationMaxLevelChanged() async throws {
-    try await testConfigureWith(
+    _ = try await testConfigureWith(
       appManagementKey: "123",
       dbChampionRotation: .init(
         beginnerMaxLevel: 5,
@@ -96,7 +98,7 @@ class RefreshRotationTests: AppTests {
   }
 
   func testResultWhenRotationDidNotChange() async throws {
-    try await testConfigureWith(
+    _ = try await testConfigureWith(
       appManagementKey: "123",
       dbChampionRotation: .init(
         beginnerMaxLevel: 10,
@@ -121,6 +123,44 @@ class RefreshRotationTests: AppTests {
     ) { res async in
       XCTAssertEqual(res.status, .ok)
       XCTAssertBody(res.body, ["rotationChanged": false])
+    }
+  }
+
+  func testNewestPatchVersionIsUsed() async throws {
+    let httpClient = try await testConfigureWith(
+      appManagementKey: "123",
+      riotPatchVersions: ["15.22.1", "14.27.5", "15.23.5", "15.23.0", "15.22.8"],
+      riotChampionsData: .init(data: [
+        "Sett": .init(id: "Sett", key: "1", name: "Sett")
+      ]),
+      riotChampionsDataVersion: "15.23.5"
+    )
+
+    try await app.test(
+      .POST, "/api/rotation/refresh",
+      headers: ["Authorization": "Bearer 123"]
+    ) { res async in
+      let newestChampionsDataUrl = requestUrls.riotChampions("15.23.5")
+      XCTAssert(httpClient.requestedUrls.contains(newestChampionsDataUrl))
+    }
+  }
+
+  func testInvalidPatchVersionAreIgnored() async throws {
+    let httpClient = try await testConfigureWith(
+      appManagementKey: "123",
+      riotPatchVersions: ["15.24.1a", "15.23.5", "lolpatch_7.20"],
+      riotChampionsData: .init(data: [
+        "Sett": .init(id: "Sett", key: "1", name: "Sett")
+      ]),
+      riotChampionsDataVersion: "15.23.5"
+    )
+
+    try await app.test(
+      .POST, "/api/rotation/refresh",
+      headers: ["Authorization": "Bearer 123"]
+    ) { res async in
+      let newestChampionsDataUrl = requestUrls.riotChampions("15.23.5")
+      XCTAssert(httpClient.requestedUrls.contains(newestChampionsDataUrl))
     }
   }
 }

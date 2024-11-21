@@ -26,7 +26,8 @@ extension RotationService {
     {
         do {
             let championRotations = try await riotApiClient.championRotations()
-            let champions = try await riotApiClient.champions()
+            let version = try await riotApiClient.latestPatchVersion()
+            let champions = try await riotApiClient.champions(version: version)
             return CurrentRotationRiotData(championRotations, champions)
         } catch {
             throw .riotDataUnavailable(cause: error)

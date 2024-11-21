@@ -34,7 +34,9 @@ extension AppConfig {
 
 typealias HttpRespond = @Sendable (String) -> Any?
 
-struct MockHttpClient: HttpClient {
+final class MockHttpClient: HttpClient, @unchecked Sendable {
+  private(set) var requestedUrls: [String] = []
+
   private let respond: HttpRespond
 
   init(respond: @escaping HttpRespond = { _ in nil }) {
@@ -59,6 +61,8 @@ struct MockHttpClient: HttpClient {
   }
 
   private func request<T>(_ url: String) -> T {
+    requestedUrls.append(url)
+
     guard let response = respond(url) ?? respondDefault(url) else {
       fatalError("Response of type \(T.self) for request url \(url) not found")
     }

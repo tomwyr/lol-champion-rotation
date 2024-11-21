@@ -12,24 +12,30 @@ extension AppTests {
     dbChampionRotation: ChampionRotationModel? = nil,
     dbChampions: [ChampionModel] = [],
     b2AuthorizeDownloadData: AuthorizationData? = nil,
+    riotPatchVersions: [String]? = nil,
     riotChampionRotationsData: ChampionRotationsData? = nil,
-    riotChampionsData: ChampionsData? = nil
-  ) async throws {
+    riotChampionsData: ChampionsData? = nil,
+    riotChampionsDataVersion: String? = nil
+  ) async throws -> MockHttpClient {
+    let httpClient = MockHttpClient(respond: { url in
+      return switch url {
+      case requestUrls.riotPatchVersions:
+        riotPatchVersions
+      case requestUrls.riotChampionRotations:
+        riotChampionRotationsData
+      case requestUrls.riotChampions(riotChampionsDataVersion ?? defaultPatchVersion):
+        riotChampionsData
+      case requestUrls.b2AuthorizeDownload:
+        b2AuthorizeDownloadData
+      default:
+        nil
+      }
+    })
+
     try await testConfigure(
       deps: .mock(
         appConfig: .empty(appManagementKey: appManagementKey ?? ""),
-        httpClient: MockHttpClient(respond: { url in
-          switch url {
-          case requestUrls.riotChampionRotations:
-            riotChampionRotationsData
-          case requestUrls.riotChampions:
-            riotChampionsData
-          case requestUrls.b2AuthorizeDownload:
-            b2AuthorizeDownloadData
-          default:
-            nil
-          }
-        })
+        httpClient: httpClient
       ),
       initDb: { db async throws in
         if let initRotation = dbChampionRotation {
@@ -40,6 +46,8 @@ extension AppTests {
         }
       }
     )
+
+    return httpClient
   }
 
   func testConfigure(deps: Dependencies, initDb: InitDb) async throws {
