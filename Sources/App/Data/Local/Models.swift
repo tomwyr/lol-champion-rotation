@@ -2,65 +2,65 @@ import Fluent
 import Foundation
 
 final class ChampionModel: Model {
-    static let schema = "champions"
+  static let schema = "champions"
 
-    @ID(key: .id)
-    var id: UUID?
+  @ID(key: .id)
+  var id: UUID?
 
-    @Field(key: "riot_id")
-    var riotId: String
+  @Field(key: "riot_id")
+  var riotId: String
 
-    @Field(key: "name")
-    var name: String
+  @Field(key: "name")
+  var name: String
 
-    init() {}
+  init() {}
 
-    init(id: UUID? = nil, riotId: String, name: String) {
-        self.id = id
-        self.riotId = riotId
-        self.name = name
-    }
+  init(id: UUID? = nil, riotId: String, name: String) {
+    self.id = id
+    self.riotId = riotId
+    self.name = name
+  }
 }
 
 final class ChampionRotationModel: Model {
-    static let schema = "champion-rotations"
+  static let schema = "champion-rotations"
 
-    @ID(key: .id)
-    var id: UUID?
+  @ID(key: .id)
+  var id: UUID?
 
-    @Timestamp(key: "observed_at", on: .create)
-    var observedAt: Date?
+  @Timestamp(key: "observed_at", on: .create)
+  var observedAt: Date?
 
-    @Field(key: "beginner_max_level")
-    var beginnerMaxLevel: Int
+  @Field(key: "beginner_max_level")
+  var beginnerMaxLevel: Int
 
-    @Field(key: "beginner_champions")
-    var beginnerChampions: [String]
+  @Field(key: "beginner_champions")
+  var beginnerChampions: [String]
 
-    @Field(key: "regular_champions")
-    var regularChampions: [String]
+  @Field(key: "regular_champions")
+  var regularChampions: [String]
 
-    init() {}
+  init() {}
 
-    init(
-        beginnerMaxLevel: Int,
-        beginnerChampions: [String],
-        regularChampions: [String]
-    ) {
-        self.beginnerMaxLevel = beginnerMaxLevel
-        self.beginnerChampions = beginnerChampions
-        self.regularChampions = regularChampions
-    }
+  init(
+    beginnerMaxLevel: Int,
+    beginnerChampions: [String],
+    regularChampions: [String]
+  ) {
+    self.beginnerMaxLevel = beginnerMaxLevel
+    self.beginnerChampions = beginnerChampions
+    self.regularChampions = regularChampions
+  }
 }
 
 extension ChampionModel {
-    convenience init(championData: ChampionData) {
-        self.init(riotId: championData.id, name: championData.name)
-    }
+  convenience init(championData: ChampionData) {
+    self.init(riotId: championData.id, name: championData.name)
+  }
 }
 
 extension Collection<ChampionData> {
-    func toModels() -> [ChampionModel] {
-        map { .init(championData: $0) }
-    }
+  func toModels() -> [ChampionModel] {
+    map { .init(championData: $0) }
+  }
 }
