@@ -9,11 +9,31 @@ struct VersionService {
     return latestVersion.value
   }
 
-  func refreshVersion() async throws(PatchVersionError) {
-    let riotVersion = try await getLatestRiotVersion()
+  func refreshVersion() async throws(PatchVersionError) -> RefreshVersionResult {
     let localVersion = try await getLatestLocalVersion()
-    if localVersion == nil || riotVersion > localVersion! {
-      try await updateLatestLocalVersion(riotVersion)
+    let riotVersion = try await getLatestRiotVersion()
+
+    let (versionChanged, latestVersion) = resolveLatestVersion(localVersion, riotVersion)
+    if versionChanged {
+      try await saveLatestLocalVersion(latestVersion)
+    }
+
+    return RefreshVersionResult(
+      versionChanged: versionChanged,
+      latestVersion: latestVersion.value
+    )
+  }
+
+  private func resolveLatestVersion(
+    _ localVersion: SemanticVersion?, _ riotVersion: SemanticVersion
+  ) -> ResolveVersionResult {
+    guard let localVersion = localVersion else {
+      return (true, riotVersion)
+    }
+    return if riotVersion > localVersion {
+      (true, riotVersion)
+    } else {
+      (false, localVersion)
     }
   }
 
@@ -44,8 +64,7 @@ struct VersionService {
     }
   }
 
-  private func updateLatestLocalVersion(_ version: SemanticVersion) async throws(PatchVersionError)
-  {
+  private func saveLatestLocalVersion(_ version: SemanticVersion) async throws(PatchVersionError) {
     let data = PatchVersionModel(value: version.value)
     do {
       try await appDatabase.savePatchVersion(data: data)
@@ -61,3 +80,5 @@ enum PatchVersionError: Error {
   case noValidRiotVersion(allVersions: [String])
   case dataOperationFailed(cause: Error)
 }
+
+private typealias ResolveVersionResult = (versionChanged: Bool, latestVersion: SemanticVersion)
