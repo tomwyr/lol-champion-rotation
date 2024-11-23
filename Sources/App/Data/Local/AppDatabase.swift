@@ -2,7 +2,9 @@ import Fluent
 
 struct AppDatabase {
   let database: Database
+}
 
+extension AppDatabase {
   func addChampionRotation(data: ChampionRotationModel) async throws {
     try await data.create(on: database)
   }
@@ -29,5 +31,15 @@ struct AppDatabase {
         }
       }
     }
+  }
+}
+
+extension AppDatabase {
+  func latestPatchVersion() async throws -> PatchVersionModel? {
+    try await PatchVersionModel.query(on: database).sort(\.$observedAt).first()
+  }
+
+  func savePatchVersion(data: PatchVersionModel) async throws {
+    try await data.create(on: database)
   }
 }

@@ -4,6 +4,7 @@ struct RotationService {
   let imageUrlProvider: ImageUrlProvider
   let riotApiClient: RiotApiClient
   let appDatabase: AppDatabase
+  let versionService: VersionService
 
   func currentRotation() async throws(CurrentRotationError) -> ChampionRotation {
     let localData = try await loadRotationLocalData()
@@ -26,7 +27,7 @@ extension RotationService {
   {
     do {
       let championRotations = try await riotApiClient.championRotations()
-      let version = try await riotApiClient.latestPatchVersion()
+      let version = try await versionService.latestVersion()
       let champions = try await riotApiClient.champions(version: version)
       return CurrentRotationRiotData(championRotations, champions)
     } catch {

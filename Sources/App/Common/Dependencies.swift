@@ -14,20 +14,40 @@ struct Dependencies {
 
   func rotationService(request: Request) -> RotationService {
     RotationService(
-      imageUrlProvider: ImageUrlProvider(
-        b2ApiClient: B2ApiClient(
-          http: httpClient,
-          appKeyId: appConfig.b2AppKeyId,
-          appKeySecret: appConfig.b2AppKeySecret
-        ),
-        cache: request.cache,
-        fingerprint: nil
-      ),
-      riotApiClient: RiotApiClient(
-        http: httpClient,
-        apiKey: appConfig.riotApiKey
-      ),
-      appDatabase: AppDatabase(database: request.db)
+      imageUrlProvider: imageUrlProvider(request: request),
+      riotApiClient: riotApiClient(),
+      appDatabase: appDatabase(request: request),
+      versionService: versionService(request: request)
     )
+  }
+
+  func versionService(request: Request) -> VersionService {
+    VersionService(
+      riotApiClient: riotApiClient(),
+      appDatabase: appDatabase(request: request)
+    )
+  }
+
+  func imageUrlProvider(request: Request) -> ImageUrlProvider {
+    ImageUrlProvider(
+      b2ApiClient: B2ApiClient(
+        http: httpClient,
+        appKeyId: appConfig.b2AppKeyId,
+        appKeySecret: appConfig.b2AppKeySecret
+      ),
+      cache: request.cache,
+      fingerprint: nil
+    )
+  }
+
+  func riotApiClient() -> RiotApiClient {
+    RiotApiClient(
+      http: httpClient,
+      apiKey: appConfig.riotApiKey
+    )
+  }
+
+  func appDatabase(request: Request) -> AppDatabase {
+    AppDatabase(database: request.db)
   }
 }

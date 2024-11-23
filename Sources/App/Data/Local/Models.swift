@@ -64,3 +64,22 @@ extension Collection<ChampionData> {
     map { .init(championData: $0) }
   }
 }
+
+final class PatchVersionModel: Model {
+  static let schema = "patch-versions"
+
+  @ID(key: .id)
+  var id: UUID?
+
+  @Timestamp(key: "observed_at", on: .create)
+  var observedAt: Date?
+
+  @Field(key: "value")
+  var value: String?
+
+  init() {}
+
+  init(value: String) {
+    self.value = value
+  }
+}

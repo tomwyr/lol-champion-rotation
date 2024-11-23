@@ -48,7 +48,7 @@ struct SemanticVersion: Comparable {
 }
 
 extension [SemanticVersion] {
-  var newest: SemanticVersion? {
+  var latest: SemanticVersion? {
     sorted(by: >).first
   }
 }

@@ -26,17 +26,6 @@ struct RiotApiClient {
   }
 }
 
-extension RiotApiClient {
-  func latestPatchVersion() async throws -> String {
-    let allVersions = try await patchVersions()
-    let semanticVersions = allVersions.compactMap(SemanticVersion.init(try:))
-    guard let newestVersion = semanticVersions.newest else {
-      throw RiotApiClientError.noValidVersion(allVersions)
-    }
-    return newestVersion.value
-  }
-}
-
 private let platform = "eun1"
 
 private let patchVersionsUrl = "https://ddragon.leagueoflegends.com/api/versions.json"
@@ -60,8 +49,4 @@ struct ChampionData: Decodable {
   let id: String
   let key: String
   let name: String
-}
-
-enum RiotApiClientError: Error {
-  case noValidVersion(_ allVersions: [String])
 }

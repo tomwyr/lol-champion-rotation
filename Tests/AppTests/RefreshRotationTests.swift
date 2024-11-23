@@ -126,7 +126,7 @@ class RefreshRotationTests: AppTests {
     }
   }
 
-  func testNewestPatchVersionIsUsed() async throws {
+  func testLatestPatchVersionIsUsed() async throws {
     let httpClient = try await testConfigureWith(
       appManagementKey: "123",
       riotPatchVersions: ["15.22.1", "14.27.5", "15.23.5", "15.23.0", "15.22.8"],
@@ -140,8 +140,8 @@ class RefreshRotationTests: AppTests {
       .POST, "/api/rotation/refresh",
       headers: ["Authorization": "Bearer 123"]
     ) { res async in
-      let newestChampionsDataUrl = requestUrls.riotChampions("15.23.5")
-      XCTAssert(httpClient.requestedUrls.contains(newestChampionsDataUrl))
+      let latestChampionsDataUrl = requestUrls.riotChampions("15.23.5")
+      XCTAssert(httpClient.requestedUrls.contains(latestChampionsDataUrl))
     }
   }
 
@@ -159,8 +159,8 @@ class RefreshRotationTests: AppTests {
       .POST, "/api/rotation/refresh",
       headers: ["Authorization": "Bearer 123"]
     ) { res async in
-      let newestChampionsDataUrl = requestUrls.riotChampions("15.23.5")
-      XCTAssert(httpClient.requestedUrls.contains(newestChampionsDataUrl))
+      let latestChampionsDataUrl = requestUrls.riotChampions("15.23.5")
+      XCTAssert(httpClient.requestedUrls.contains(latestChampionsDataUrl))
     }
   }
 }

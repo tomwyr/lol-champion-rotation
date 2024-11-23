@@ -133,10 +133,10 @@ final class SemanticVersionTests: XCTestCase {
     XCTAssertTrue(v1 >= v2)
   }
 
-  func testNewestVersion() throws {
+  func testLatestVersion() throws {
     let versions = ["15.22.1", "14.27.5", "15.23.5", "15.23.0", "15.22.8"]
-    let newest = try versions.map { try SemanticVersion($0) }.newest?.value
+    let latest = try versions.map { try SemanticVersion($0) }.latest?.value
 
-    XCTAssertEqual(newest, "15.23.5")
+    XCTAssertEqual(latest, "15.23.5")
   }
 }

@@ -3,6 +3,7 @@ import Fluent
 extension Migrations {
   func addAppMigrations() {
     add(InitialSchema())
+    add(AddPatchVersions())
   }
 }
 
@@ -26,5 +27,19 @@ struct InitialSchema: AsyncMigration {
   func revert(on database: any Database) async throws {
     try await database.schema("champion-rotations").delete()
     try await database.schema("champions").delete()
+  }
+}
+
+struct AddPatchVersions: AsyncMigration {
+  func prepare(on database: any Database) async throws {
+    try await database.schema("patch-versions")
+      .id()
+      .field("observed_at", .datetime)
+      .field("value", .string)
+      .create()
+  }
+
+  func revert(on database: any Database) async throws {
+    try await database.schema("patch-versions").delete()
   }
 }
