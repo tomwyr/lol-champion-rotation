@@ -5,14 +5,26 @@ func XCTAssertBodyError(_ body: ByteBuffer, _ reason: String) {
 }
 
 func XCTAssertBody(
-  _ body: ByteBuffer, _ expected: [String: Any],
+  _ body: ByteBuffer,
+  at path: String? = nil,
+  _ expected: NSDictionary,
   file: StaticString = #filePath, line: UInt = #line
 ) {
+  let fail = { (message: String) in XCTFail(message, file: file, line: line) }
+
   if let data = body.getData(at: body.readerIndex, length: body.readableBytes),
-    let jsonObject = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
+    let jsonObject = try? JSONSerialization.jsonObject(with: data) as? NSDictionary
   {
-    XCTAssertEqual(expected as NSDictionary, jsonObject as NSDictionary)
+    if let path {
+      guard let pathJsonObject = jsonObject[path] as? NSDictionary else {
+        fail("Expected an object in the response body at path \(path)")
+        return
+      }
+      XCTAssertEqual(expected, pathJsonObject)
+    } else {
+      XCTAssertEqual(expected, jsonObject)
+    }
   } else {
-    XCTFail("Failed to decode JSON object from response body", file: file, line: line)
+    fail("Failed to decode JSON object from response body")
   }
 }

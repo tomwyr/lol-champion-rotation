@@ -15,8 +15,7 @@ extension AppTests {
     b2AuthorizeDownloadData: AuthorizationData? = nil,
     riotPatchVersions: [String]? = nil,
     riotChampionRotationsData: ChampionRotationsData? = nil,
-    riotChampionsData: ChampionsData? = nil,
-    riotChampionsDataVersion: String? = nil
+    riotChampionsData: ChampionsData? = nil
   ) async throws -> MockHttpClient {
     let httpClient = MockHttpClient(respond: { url in
       return switch url {
@@ -24,7 +23,7 @@ extension AppTests {
         riotPatchVersions
       case requestUrls.riotChampionRotations:
         riotChampionRotationsData
-      case requestUrls.riotChampions(riotChampionsDataVersion ?? defaultPatchVersion):
+      case let url where url.wholeMatch(of: championsDataRegex) != nil:
         riotChampionsData
       case requestUrls.b2AuthorizeDownload:
         b2AuthorizeDownloadData

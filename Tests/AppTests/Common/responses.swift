@@ -12,6 +12,10 @@ let requestUrls = (
   b2AuthorizeDownload: "https://api003.backblazeb2.com/b2api/v3/b2_get_download_authorization"
 )
 
+var championsDataRegex: Regex<(Substring, Substring)> {
+  #/https://ddragon.leagueoflegends.com/cdn/(\d+\.\d+\.\d+)/data/en_US/champion.json/#
+}
+
 extension MockHttpClient {
   @Sendable func respondDefault(_ url: String) -> Any? {
     switch url {
@@ -25,7 +29,7 @@ extension MockHttpClient {
         maxNewPlayerLevel: 0
       )
 
-    case requestUrls.riotChampions(defaultPatchVersion):
+    case let url where url.wholeMatch(of: championsDataRegex) != nil:
       ChampionsData(data: [:])
 
     case requestUrls.b2AuthorizeAccount:
