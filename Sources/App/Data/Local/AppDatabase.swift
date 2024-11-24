@@ -36,7 +36,7 @@ extension AppDatabase {
 
 extension AppDatabase {
   func latestPatchVersion() async throws -> PatchVersionModel? {
-    try await PatchVersionModel.query(on: database).sort(\.$observedAt).first()
+    try await PatchVersionModel.query(on: database).sort(\.$observedAt, .descending).first()
   }
 
   func savePatchVersion(data: PatchVersionModel) async throws {

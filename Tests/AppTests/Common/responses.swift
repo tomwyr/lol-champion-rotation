@@ -1,6 +1,6 @@
 @testable import App
 
-let defaultPatchVersion = "14.23.1"
+let defaultPatchVersion = "1.0.0"
 
 let requestUrls = (
   riotPatchVersions: "https://ddragon.leagueoflegends.com/api/versions.json",

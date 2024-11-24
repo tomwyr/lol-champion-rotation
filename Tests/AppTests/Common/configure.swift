@@ -11,6 +11,7 @@ extension AppTests {
     appManagementKey: String? = nil,
     dbChampionRotation: ChampionRotationModel? = nil,
     dbChampions: [ChampionModel] = [],
+    dbPatchVersions: [PatchVersionModel] = [],
     b2AuthorizeDownloadData: AuthorizationData? = nil,
     riotPatchVersions: [String]? = nil,
     riotChampionRotationsData: ChampionRotationsData? = nil,
@@ -43,6 +44,9 @@ extension AppTests {
         }
         for champion in dbChampions {
           try await champion.create(on: db)
+        }
+        for version in dbPatchVersions {
+          try await version.create(on: db)
         }
       }
     )
