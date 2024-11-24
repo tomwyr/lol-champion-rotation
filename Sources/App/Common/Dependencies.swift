@@ -13,7 +13,7 @@ struct Dependencies {
   }
 
   func rotationService(request: Request) -> RotationService {
-    RotationService(
+    DefaultRotationService(
       imageUrlProvider: imageUrlProvider(request: request),
       riotApiClient: riotApiClient(),
       appDatabase: appDatabase(request: request),
@@ -22,7 +22,8 @@ struct Dependencies {
   }
 
   func versionService(request: Request) -> VersionService {
-    VersionService(
+    DefaultVersionService(
+      versionType: String.self,
       riotApiClient: riotApiClient(),
       appDatabase: appDatabase(request: request)
     )

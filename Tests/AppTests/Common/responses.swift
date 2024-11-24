@@ -1,7 +1,5 @@
 @testable import App
 
-let defaultPatchVersion = "1.0.0"
-
 let requestUrls = (
   riotPatchVersions: "https://ddragon.leagueoflegends.com/api/versions.json",
   riotChampionRotations: "https://eun1.api.riotgames.com/lol/platform/v3/champion-rotations",
@@ -13,14 +11,14 @@ let requestUrls = (
 )
 
 var championsDataRegex: Regex<(Substring, Substring)> {
-  #/https://ddragon.leagueoflegends.com/cdn/(\d+\.\d+\.\d+)/data/en_US/champion.json/#
+  #/https://ddragon.leagueoflegends.com/cdn/(.+)/data/en_US/champion.json/#
 }
 
 extension MockHttpClient {
   @Sendable func respondDefault(_ url: String) -> Any? {
     switch url {
     case requestUrls.riotPatchVersions:
-      [defaultPatchVersion]
+      []
 
     case requestUrls.riotChampionRotations:
       ChampionRotationsData(

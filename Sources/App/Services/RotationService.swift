@@ -1,6 +1,11 @@
 import Foundation
 
-struct RotationService {
+protocol RotationService {
+  func currentRotation() async throws(CurrentRotationError) -> ChampionRotation
+  func refreshRotation() async throws(CurrentRotationError) -> RefreshRotationResult
+}
+
+struct DefaultRotationService: RotationService {
   let imageUrlProvider: ImageUrlProvider
   let riotApiClient: RiotApiClient
   let appDatabase: AppDatabase
@@ -21,7 +26,7 @@ struct RotationService {
   }
 }
 
-extension RotationService {
+extension DefaultRotationService {
   private func fetchRotationRiotData() async throws(CurrentRotationError)
     -> CurrentRotationRiotData
   {
@@ -48,7 +53,7 @@ extension RotationService {
   }
 }
 
-extension RotationService {
+extension DefaultRotationService {
   private func createRotation(
     _ localData: CurrentRotationLocalData,
     _ imageUrlsByChampionId: [String: String]
@@ -111,7 +116,7 @@ extension RotationService {
   }
 }
 
-extension RotationService {
+extension DefaultRotationService {
   private func loadRotationLocalData() async throws(CurrentRotationError)
     -> CurrentRotationLocalData
   {

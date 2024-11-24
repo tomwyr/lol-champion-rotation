@@ -28,7 +28,9 @@ class RefreshDataTests: AppTests {
 
   func testValidToken() async throws {
     _ = try await testConfigureWith(
-      appManagementKey: "123"
+      appManagementKey: "123",
+      dbPatchVersions: [.init(value: "1")],
+      riotPatchVersions: ["1"]
     )
 
     try await app.test(
@@ -47,7 +49,8 @@ class RefreshDataTests: AppTests {
         beginnerChampions: ["Nocturne"],
         regularChampions: ["Sett", "Sett"]
       ),
-      dbPatchVersions: [.init(value: "1.0.0")],
+      dbPatchVersions: [.init(value: "1")],
+      riotPatchVersions: ["1"],
       riotChampionRotationsData: .init(
         freeChampionIds: [1, 2],
         freeChampionIdsForNewPlayers: [3],
@@ -80,7 +83,8 @@ class RefreshDataTests: AppTests {
         beginnerChampions: ["Nocturne"],
         regularChampions: ["Sett", "Garen"]
       ),
-      dbPatchVersions: [.init(value: "1.0.0")],
+      dbPatchVersions: [.init(value: "1")],
+      riotPatchVersions: ["1"],
       riotChampionRotationsData: .init(
         freeChampionIds: [1, 2],
         freeChampionIdsForNewPlayers: [3],
@@ -113,8 +117,8 @@ class RefreshDataTests: AppTests {
         beginnerChampions: ["Nocturne"],
         regularChampions: ["Sett", "Garen"]
       ),
-
-      dbPatchVersions: [.init(value: "1.0.0")],
+      dbPatchVersions: [.init(value: "1")],
+      riotPatchVersions: ["1"],
       riotChampionRotationsData: .init(
         freeChampionIds: [1, 2],
         freeChampionIdsForNewPlayers: [3],
@@ -138,89 +142,43 @@ class RefreshDataTests: AppTests {
     }
   }
 
-  func testMultipleRiotVersions() async throws {
+  func testMultipleLocalVersions() async throws {
     let httpClient = try await testConfigureWith(
-      appManagementKey: "123",
-      riotPatchVersions: ["15.22.1", "14.27.5", "15.23.5", "15.23.0", "15.22.8"]
-    )
-
-    try await app.test(
-      .POST, "/api/data/refresh",
-      headers: ["Authorization": "Bearer 123"]
-    ) { res async in
-      let latestChampionsUrl = requestUrls.riotChampions("15.23.5")
-      XCTAssert(httpClient.requestedUrls.contains(latestChampionsUrl))
-    }
-  }
-
-  func testInvalidRiotVersions() async throws {
-    let httpClient = try await testConfigureWith(
-      appManagementKey: "123",
-      riotPatchVersions: ["15.24.1a", "15.23.5", "lolpatch_7.20"]
-    )
-
-    try await app.test(
-      .POST, "/api/data/refresh",
-      headers: ["Authorization": "Bearer 123"]
-    ) { res async in
-      let latestChampionsUrl = requestUrls.riotChampions("15.23.5")
-      XCTAssert(httpClient.requestedUrls.contains(latestChampionsUrl))
-    }
-  }
-
-  func testLocalVersionOnly() async throws {
-    let httpClient = try await testConfigureWith(
-      appManagementKey: "123",
-      dbPatchVersions: [.init(value: "15.23.5")]
-    )
-
-    try await app.test(
-      .POST, "/api/data/refresh",
-      headers: ["Authorization": "Bearer 123"]
-    ) { res async in
-      let latestChampionsUrl = requestUrls.riotChampions("15.23.5")
-      XCTAssert(httpClient.requestedUrls.contains(latestChampionsUrl))
-    }
-  }
-
-  func testInvalidLocalVersion() async throws {
-    _ = try await testConfigureWith(
       appManagementKey: "123",
       dbPatchVersions: [
-        .init(value: "15.24.1a"), .init(value: "15.23.5"), .init(value: "lolpatch_7.20"),
-      ]
-    )
-
-    try await app.test(
-      .POST, "/api/data/refresh",
-      headers: ["Authorization": "Bearer 123"]
-    ) { res async in
-      XCTAssertEqual(res.status, .internalServerError)
-    }
-  }
-
-  func testRiotVersionOnly() async throws {
-    _ = try await testConfigureWith(
-      appManagementKey: "123",
-      dbPatchVersions: [],
+        .init(value: "15.23.5"),
+        .init(value: "15.23.0"),
+        .init(value: "15.22.8"),
+      ],
       riotPatchVersions: ["15.23.5"]
     )
 
     try await app.test(
       .POST, "/api/data/refresh",
       headers: ["Authorization": "Bearer 123"]
-    ) { res async throws in
-      let versions = try await localPatchVersions()
-      XCTAssertEqual(versions, ["15.23.5"])
-      XCTAssertEqual(res.status, .ok)
-      XCTAssertBody(
-        res.body, at: "version",
-        ["latestVersion": "15.23.5", "versionChanged": true]
-      )
+    ) { res async in
+      let latestChampionsUrl = requestUrls.riotChampions("15.23.5")
+      XCTAssert(httpClient.requestedUrls.contains(latestChampionsUrl))
     }
   }
 
-  func testOlderLocalVersion() async throws {
+  func testMultipleRiotVersions() async throws {
+    let httpClient = try await testConfigureWith(
+      appManagementKey: "123",
+      dbPatchVersions: [.init(value: "1")],
+      riotPatchVersions: ["15.23.5", "15.23.0", "15.22.8"]
+    )
+
+    try await app.test(
+      .POST, "/api/data/refresh",
+      headers: ["Authorization": "Bearer 123"]
+    ) { res async in
+      let latestChampionsUrl = requestUrls.riotChampions("15.23.5")
+      XCTAssert(httpClient.requestedUrls.contains(latestChampionsUrl))
+    }
+  }
+
+  func testDifferentVersions() async throws {
     _ = try await testConfigureWith(
       appManagementKey: "123",
       dbPatchVersions: [.init(value: "14.0.0")],
@@ -241,10 +199,10 @@ class RefreshDataTests: AppTests {
     }
   }
 
-  func testNewerLocalVersion() async throws {
+  func testIdenticalVersions() async throws {
     _ = try await testConfigureWith(
       appManagementKey: "123",
-      dbPatchVersions: [.init(value: "16.0.0")],
+      dbPatchVersions: [.init(value: "15.23.5")],
       riotPatchVersions: ["15.23.5"]
     )
 
@@ -253,11 +211,11 @@ class RefreshDataTests: AppTests {
       headers: ["Authorization": "Bearer 123"]
     ) { res async throws in
       let versions = try await localPatchVersions()
-      XCTAssertEqual(versions, ["16.0.0"])
+      XCTAssertEqual(versions, ["15.23.5"])
       XCTAssertEqual(res.status, .ok)
       XCTAssertBody(
         res.body, at: "version",
-        ["latestVersion": "16.0.0", "versionChanged": false]
+        ["latestVersion": "15.23.5", "versionChanged": false]
       )
     }
   }
