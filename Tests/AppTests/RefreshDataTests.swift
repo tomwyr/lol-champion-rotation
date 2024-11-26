@@ -219,6 +219,27 @@ class RefreshDataTests: AppTests {
       )
     }
   }
+
+  func testNoLocalVersion() async throws {
+     _ = try await testConfigureWith(
+      appManagementKey: "123",
+      dbPatchVersions: [],
+      riotPatchVersions: ["15.23.5"]
+    )
+
+    try await app.test(
+      .POST, "/api/data/refresh",
+      headers: ["Authorization": "Bearer 123"]
+    ) { res async throws in
+      let versions = try await localPatchVersions()
+      XCTAssertEqual(versions, ["15.23.5"])
+      XCTAssertEqual(res.status, .ok)
+      XCTAssertBody(
+        res.body, at: "version",
+        ["latestVersion": "15.23.5", "versionChanged": true]
+      )
+    }
+  }
 }
 
 extension RefreshDataTests {

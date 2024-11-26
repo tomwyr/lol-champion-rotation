@@ -9,7 +9,10 @@ struct DefaultVersionService<Version: RiotPatchVersion>: VersionService {
   let appDatabase: AppDatabase
 
   func latestVersion() async throws(PatchVersionError) -> String {
-    try await getLatestLocalVersion().rawValue
+    guard let version = try await getLatestLocalVersion()?.rawValue else {
+      throw .latestVersionUnknown
+    }
+    return version
   }
 
   func refreshVersion() async throws(PatchVersionError) -> RefreshVersionResult {
@@ -41,7 +44,7 @@ struct DefaultVersionService<Version: RiotPatchVersion>: VersionService {
     return latestVersion
   }
 
-  private func getLatestLocalVersion() async throws(PatchVersionError) -> Version {
+  private func getLatestLocalVersion() async throws(PatchVersionError) -> Version? {
     let value: String?
     do {
       value = try await appDatabase.latestPatchVersion()?.value
@@ -49,7 +52,9 @@ struct DefaultVersionService<Version: RiotPatchVersion>: VersionService {
       throw .dataUnavailable(cause: error)
     }
 
-    guard let value, let latestVersion = try? Version(rawValue: value) else {
+    guard let value else { return nil }
+
+    guard let latestVersion = try? Version(rawValue: value) else {
       throw .localVersionInvalid(value: value)
     }
     return latestVersion
@@ -66,9 +71,12 @@ struct DefaultVersionService<Version: RiotPatchVersion>: VersionService {
     }
   }
 
-  private func resolveVersion(_ localVersion: Version, _ riotVersion: Version)
+  private func resolveVersion(_ localVersion: Version?, _ riotVersion: Version)
     -> ResolveVersionResult<Version>
   {
+    guard let localVersion else {
+      return (versionChanged: true, latestVersion: riotVersion)
+    }
     return if Version.increased(from: localVersion, to: riotVersion) {
       (versionChanged: true, latestVersion: riotVersion)
     } else {
@@ -83,6 +91,7 @@ private typealias ResolveVersionResult<Version: RiotPatchVersion> = (
 
 enum PatchVersionError: Error {
   case dataUnavailable(cause: Error)
+  case latestVersionUnknown
   case localVersionInvalid(value: String?)
   case noValidRiotVersion(allVersions: [String])
   case dataOperationFailed(cause: Error)
