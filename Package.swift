@@ -11,9 +11,9 @@ let package = Package(
     .package(url: "https://github.com/vapor/vapor.git", from: "4.99.3"),
     // 🔵 Non-blocking, event-driven networking for Swift. Used for custom executors
     .package(url: "https://github.com/apple/swift-nio.git", from: "2.65.0"),
-    .package(url: "https://github.com/vapor/fluent.git", from: "4.0.0"),
-    .package(url: "https://github.com/vapor/fluent-postgres-driver.git", from: "2.9.2"),
-    .package(url: "https://github.com/vapor/fluent-sqlite-driver.git", from: "4.7.4"),
+    .package(url: "https://github.com/vapor/fluent.git", from: "4.12.0"),
+    .package(url: "https://github.com/vapor/fluent-postgres-driver.git", from: "2.10.0"),
+    .package(url: "https://github.com/vapor/fluent-sqlite-driver.git", from: "4.8.0"),
   ],
   targets: [
     .executableTarget(
