@@ -16,7 +16,7 @@ func runRetrying<T>(
       guard let delay = retryDelays[try: retry] else {
         throw error
       }
-      try await runDelay(delay)
+      try await Task.sleep(for: delay)
       retry += 1
     }
   }
