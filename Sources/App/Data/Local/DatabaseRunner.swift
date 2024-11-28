@@ -10,10 +10,11 @@ struct RetryingRunner: DatabaseRunner {
 
   func run<T>(block: (Database) async throws -> T) async throws -> T {
     try await runRetrying(
-      block: { try await block(database) },
       retryDelays: [.seconds(2), .seconds(3), .seconds(5)],
       errorFilter: isStartupError
-    )
+    ) {
+      try await block(database)
+    }
   }
 
   private func isStartupError(_ error: any Error) -> Bool {
