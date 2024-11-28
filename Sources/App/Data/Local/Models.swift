@@ -1,7 +1,7 @@
 import Fluent
 import Foundation
 
-final class ChampionModel: Model {
+final class ChampionModel: Model, @unchecked Sendable {
   static let schema = "champions"
 
   @ID(key: .id)
@@ -22,7 +22,7 @@ final class ChampionModel: Model {
   }
 }
 
-final class ChampionRotationModel: Model {
+final class ChampionRotationModel: Model, @unchecked Sendable {
   static let schema = "champion-rotations"
 
   @ID(key: .id)
@@ -65,7 +65,7 @@ extension Collection<ChampionData> {
   }
 }
 
-final class PatchVersionModel: Model {
+final class PatchVersionModel: Model, @unchecked Sendable {
   static let schema = "patch-versions"
 
   @ID(key: .id)
