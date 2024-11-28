@@ -35,3 +35,13 @@ extension Array where Element: Hashable {
     Array(Set(self))
   }
 }
+
+extension Date {
+  static func iso(_ string: String) -> Date? {
+    ISO8601DateFormatter().date(from: string)
+  }
+
+  func adding(_ value: Int, _ component: Calendar.Component) -> Date? {
+    Calendar.current.date(byAdding: component, value: value, to: self)
+  }
+}

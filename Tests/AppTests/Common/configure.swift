@@ -39,7 +39,12 @@ extension AppTests {
       ),
       initDb: { db async throws in
         if let initRotation = dbChampionRotation {
+          let observedAt = initRotation.observedAt
           try await initRotation.create(on: db)
+          if let observedAt {
+            initRotation.observedAt = observedAt
+            try await initRotation.update(on: db)
+          }
         }
         for champion in dbChampions {
           try await champion.create(on: db)

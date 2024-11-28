@@ -6,6 +6,7 @@ class CurrentRotationTests: AppTests {
   func testSimpleResult() async throws {
     _ = try await testConfigureWith(
       dbChampionRotation: .init(
+        observedAt: .iso("2024-11-14T12:00:00Z"),
         beginnerMaxLevel: 10,
         beginnerChampions: ["Nocturne"],
         regularChampions: ["Garen", "Sett"]
@@ -25,6 +26,10 @@ class CurrentRotationTests: AppTests {
       XCTAssertBody(
         res.body,
         [
+          "duration": [
+            "start": "2024-11-14T12:00:00Z",
+            "end": "2024-11-28T12:00:00Z",
+          ],
           "beginnerMaxLevel": 10,
           "beginnerChampions": [
             [
@@ -70,19 +75,19 @@ class CurrentRotationTests: AppTests {
     ) { res async in
       XCTAssertEqual(res.status, .ok)
       XCTAssertBody(
-        res.body,
+        res.body, at: "beginnerChampions",
         [
-          "beginnerMaxLevel": 10,
-          "beginnerChampions": [
-            ["id": id("1"), "name": "Ashe", "imageUrl": imageUrl("Ashe")],
-            ["id": id("2"), "name": "Nocturne", "imageUrl": imageUrl("Nocturne")],
-            ["id": id("3"), "name": "Shen", "imageUrl": imageUrl("Shen")],
-          ],
-          "regularChampions": [
-            ["id": id("4"), "name": "Garen", "imageUrl": imageUrl("Garen")],
-            ["id": id("5"), "name": "Jax", "imageUrl": imageUrl("Jax")],
-            ["id": id("6"), "name": "Sett", "imageUrl": imageUrl("Sett")],
-          ],
+          ["id": id("1"), "name": "Ashe", "imageUrl": imageUrl("Ashe")],
+          ["id": id("2"), "name": "Nocturne", "imageUrl": imageUrl("Nocturne")],
+          ["id": id("3"), "name": "Shen", "imageUrl": imageUrl("Shen")],
+        ]
+      )
+      XCTAssertBody(
+        res.body, at: "regularChampions",
+        [
+          ["id": id("4"), "name": "Garen", "imageUrl": imageUrl("Garen")],
+          ["id": id("5"), "name": "Jax", "imageUrl": imageUrl("Jax")],
+          ["id": id("6"), "name": "Sett", "imageUrl": imageUrl("Sett")],
         ]
       )
     }
@@ -108,17 +113,17 @@ class CurrentRotationTests: AppTests {
     ) { res async in
       XCTAssertEqual(res.status, .ok)
       XCTAssertBody(
-        res.body,
+        res.body, at: "beginnerChampions",
         [
-          "beginnerMaxLevel": 10,
-          "beginnerChampions": [
-            ["id": id("1"), "name": "Garen", "imageUrl": imageUrl("Garen")],
-            ["id": id("2"), "name": "Sett", "imageUrl": imageUrl("Sett")],
-          ],
-          "regularChampions": [
-            ["id": id("3"), "name": "Nocturne", "imageUrl": imageUrl("Nocturne")],
-            ["id": id("2"), "name": "Sett", "imageUrl": imageUrl("Sett")],
-          ],
+          ["id": id("1"), "name": "Garen", "imageUrl": imageUrl("Garen")],
+          ["id": id("2"), "name": "Sett", "imageUrl": imageUrl("Sett")],
+        ]
+      )
+      XCTAssertBody(
+        res.body, at: "regularChampions",
+        [
+          ["id": id("3"), "name": "Nocturne", "imageUrl": imageUrl("Nocturne")],
+          ["id": id("2"), "name": "Sett", "imageUrl": imageUrl("Sett")],
         ]
       )
     }

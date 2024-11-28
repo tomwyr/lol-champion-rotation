@@ -43,10 +43,12 @@ final class ChampionRotationModel: Model, @unchecked Sendable {
   init() {}
 
   init(
+    observedAt: Date? = nil,
     beginnerMaxLevel: Int,
     beginnerChampions: [String],
     regularChampions: [String]
   ) {
+    self.observedAt = observedAt
     self.beginnerMaxLevel = beginnerMaxLevel
     self.beginnerChampions = beginnerChampions
     self.regularChampions = regularChampions

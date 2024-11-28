@@ -82,7 +82,16 @@ extension DefaultRotationService {
     let regularChampions = try rotation.regularChampions
       .map(createChampion).sorted { $0.name < $1.name }
 
+    guard let startDate = rotation.observedAt else {
+      throw .rotationDurationInvalid(bound: .start)
+    }
+    guard let endDate = startDate.adding(2, .weekOfYear) else {
+      throw .rotationDurationInvalid(bound: .end)
+    }
+    let duration = ChampionRotationDuration(start: startDate, end: endDate)
+
     return ChampionRotation(
+      duration: duration,
       beginnerMaxLevel: beginnerMaxLevel,
       beginnerChampions: beginnerChampions,
       regularChampions: regularChampions
@@ -192,5 +201,10 @@ enum CurrentRotationError: Error {
   case championImageMissing(championId: String)
   case championDataMissing(championId: String)
   case rotationDataMissing
+  case rotationDurationInvalid(bound: RotationDurationBound)
   case dataOperationFailed(cause: Error)
+}
+
+enum RotationDurationBound {
+  case start, end
 }
