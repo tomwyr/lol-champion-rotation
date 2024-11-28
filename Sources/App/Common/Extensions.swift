@@ -24,6 +24,12 @@ extension RoutesBuilder {
   }
 }
 
+extension Array where Element: Any {
+  subscript(try index: Int) -> Element? {
+    count >= index ? self[index] : nil
+  }
+}
+
 extension Array where Element: Hashable {
   func uniqued() -> [Element] {
     Array(Set(self))
