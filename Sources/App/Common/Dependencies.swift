@@ -50,7 +50,7 @@ struct Dependencies {
 
   func appDatabase(request: Request) -> AppDatabase {
     AppDatabase(
-      runner: RetryingRunner(database: request.db)
+      runner: StartupRetryRunner(database: request.db)
     )
   }
 }

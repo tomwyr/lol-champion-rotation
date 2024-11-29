@@ -5,7 +5,7 @@ protocol DatabaseRunner {
   func run<T>(block: (Database) async throws -> T) async throws -> T
 }
 
-struct RetryingRunner: DatabaseRunner {
+struct StartupRetryRunner: DatabaseRunner, RunRetrying {
   let database: Database
 
   func run<T>(block: (Database) async throws -> T) async throws -> T {

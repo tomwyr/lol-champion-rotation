@@ -26,7 +26,7 @@ extension RoutesBuilder {
 
 extension Array where Element: Any {
   subscript(try index: Int) -> Element? {
-    count >= index ? self[index] : nil
+    (0..<count) ~= index ? self[index] : nil
   }
 }
 
