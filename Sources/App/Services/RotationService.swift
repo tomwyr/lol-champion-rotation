@@ -12,9 +12,10 @@ struct DefaultRotationService: RotationService {
   let versionService: VersionService
 
   func currentRotation() async throws(CurrentRotationError) -> ChampionRotation {
+    let patchVersion = try? await versionService.latestVersion()
     let localData = try await loadRotationLocalData()
     let imageUrlsByChampionId = try await fetchImageUrls(localData)
-    return try createRotation(localData, imageUrlsByChampionId)
+    return try createRotation(patchVersion, localData, imageUrlsByChampionId)
   }
 
   func refreshRotation() async throws(CurrentRotationError) -> RefreshRotationResult {
@@ -55,6 +56,7 @@ extension DefaultRotationService {
 
 extension DefaultRotationService {
   private func createRotation(
+    _ patchVersion: String?,
     _ localData: CurrentRotationLocalData,
     _ imageUrlsByChampionId: [String: String]
   ) throws(CurrentRotationError) -> ChampionRotation {
@@ -82,15 +84,15 @@ extension DefaultRotationService {
     let regularChampions = try rotation.regularChampions
       .map(createChampion).sorted { $0.name < $1.name }
 
-    guard let startDate = rotation.observedAt else {
-      throw .rotationDurationInvalid(bound: .start)
-    }
-    guard let endDate = startDate.adding(2, .weekOfYear) else {
-      throw .rotationDurationInvalid(bound: .end)
+    guard let startDate = rotation.observedAt,
+      let endDate = startDate.adding(2, .weekOfYear)
+    else {
+      throw .rotationDurationInvalid
     }
     let duration = ChampionRotationDuration(start: startDate, end: endDate)
 
     return ChampionRotation(
+      patchVersion: patchVersion,
       duration: duration,
       beginnerMaxLevel: beginnerMaxLevel,
       beginnerChampions: beginnerChampions,
@@ -201,10 +203,6 @@ enum CurrentRotationError: Error {
   case championImageMissing(championId: String)
   case championDataMissing(championId: String)
   case rotationDataMissing
-  case rotationDurationInvalid(bound: RotationDurationBound)
+  case rotationDurationInvalid
   case dataOperationFailed(cause: Error)
-}
-
-enum RotationDurationBound {
-  case start, end
 }

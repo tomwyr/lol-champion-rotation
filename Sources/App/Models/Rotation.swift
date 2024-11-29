@@ -1,7 +1,8 @@
 import Vapor
 
 struct ChampionRotation: Content {
-  let duration: ChampionRotationDuration?
+  let patchVersion: String?
+  let duration: ChampionRotationDuration
   let beginnerMaxLevel: Int
   let beginnerChampions: [Champion]
   let regularChampions: [Champion]

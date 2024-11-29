@@ -31,7 +31,6 @@ func XCTAssertBody(
   }
 
   XCTAssertEqual(expected, actual)
-
 }
 
 func XCTAssertBody(

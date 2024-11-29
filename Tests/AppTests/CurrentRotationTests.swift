@@ -16,6 +16,7 @@ class CurrentRotationTests: AppTests {
         .init(id: uuid("2"), riotId: "Garen", name: "Garen"),
         .init(id: uuid("3"), riotId: "Sett", name: "Sett"),
       ],
+      dbPatchVersions: [.init(value: "15.0.1")],
       b2AuthorizeDownloadData: .init(authorizationToken: "123")
     )
 
@@ -26,6 +27,7 @@ class CurrentRotationTests: AppTests {
       XCTAssertBody(
         res.body,
         [
+          "patchVersion": "15.0.1",
           "duration": [
             "start": "2024-11-14T12:00:00Z",
             "end": "2024-11-28T12:00:00Z",
@@ -124,6 +126,38 @@ class CurrentRotationTests: AppTests {
         [
           ["id": id("3"), "name": "Nocturne", "imageUrl": imageUrl("Nocturne")],
           ["id": id("2"), "name": "Sett", "imageUrl": imageUrl("Sett")],
+        ]
+      )
+    }
+  }
+
+  func testOptionalDataUnavailable() async throws {
+    _ = try await testConfigureWith(
+      dbChampionRotation: .init(
+        observedAt: .iso("2024-11-14T12:00:00Z"),
+        beginnerMaxLevel: 10,
+        beginnerChampions: [],
+        regularChampions: []
+      ),
+      dbChampions: [],
+      dbPatchVersions: []
+    )
+
+    try await app.test(
+      .GET, "/api/rotation/current"
+    ) { res async in
+      XCTAssertEqual(res.status, .ok)
+      XCTAssertBody(
+        res.body,
+        [
+          // "patchVersion": null,
+          "duration": [
+            "start": "2024-11-14T12:00:00Z",
+            "end": "2024-11-28T12:00:00Z",
+          ],
+          "beginnerMaxLevel": 10,
+          "beginnerChampions": [],
+          "regularChampions": [],
         ]
       )
     }
