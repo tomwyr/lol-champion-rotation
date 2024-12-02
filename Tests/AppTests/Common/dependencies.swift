@@ -17,6 +17,7 @@ extension Dependencies {
 extension AppConfig {
   static func empty(
     databaseUrl: String = "",
+    appAllowedOrigins: [String] = [],
     appManagementKey: String = "",
     b2AppKeyId: String = "",
     b2AppKeySecret: String = "",
@@ -24,6 +25,7 @@ extension AppConfig {
   ) -> AppConfig {
     .init(
       databaseUrl: databaseUrl,
+      appAllowedOrigins: appAllowedOrigins,
       appManagementKey: appManagementKey,
       b2AppKeyId: b2AppKeyId,
       b2AppKeySecret: b2AppKeySecret,

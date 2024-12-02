@@ -45,3 +45,10 @@ extension Date {
     Calendar.current.date(byAdding: component, value: value, to: self)
   }
 }
+
+extension String {
+  func split(separator: Character) -> [String] {
+    // Pass maxSplits to avoid method ambiguity.
+    split(separator: separator, maxSplits: Int.max).map(String.init)
+  }
+}
