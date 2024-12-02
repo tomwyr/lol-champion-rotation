@@ -11,7 +11,7 @@ struct AppConfig {
   static func fromEnvironment() -> AppConfig {
     AppConfig(
       databaseUrl: Environment.get("DATABASE_URL")!,
-      appAllowedOrigins: Environment.get("APP_ALLOWED_ORIGIN")!.split(separator: ","),
+      appAllowedOrigins: Environment.get("APP_ALLOWED_ORIGINS")!.split(separator: ","),
       appManagementKey: Environment.get("APP_MANAGEMENT_KEY")!,
       b2AppKeyId: Environment.get("B2_APP_KEY_ID")!,
       b2AppKeySecret: Environment.get("B2_APP_KEY_SECRET")!,
