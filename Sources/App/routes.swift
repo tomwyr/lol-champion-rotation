@@ -1,6 +1,6 @@
 import Vapor
 
-func apiRoutes(_ app: Application, _ deps: Dependencies) throws {
+func routes(_ app: Application, _ deps: Dependencies) throws {
   let userGuard = UserGuard()
   let managementGuard = ManagementGuard(
     appManagementKey: deps.appConfig.appManagementKey
@@ -13,7 +13,7 @@ func apiRoutes(_ app: Application, _ deps: Dependencies) throws {
       return try await rotationService.currentRotation()
     }
 
-    api.protected(with: managementGuard).post("data", "refresh") { req in
+    api.protected(with: managementGuard).get("data", "refresh") { req in
       try req.auth.require(Manager.self)
       let rotationService = deps.rotationService(request: req)
       let versionService = deps.versionService(request: req)

@@ -12,11 +12,6 @@ private func database(_ app: Application, _ deps: Dependencies) throws {
   app.migrations.addAppMigrations()
 }
 
-private func routes(_ app: Application, _ deps: Dependencies) throws {
-  try apiRoutes(app, deps)
-  try clientRoutes(app)
-}
-
 private func cors(_ app: Application, _ deps: Dependencies) throws {
   app.middleware.use(
     CORSMiddleware(
