@@ -1,5 +1,5 @@
 {
-  "originHash" : "886a3b3f92e388cadbbabf81306dfe9c046a0b7c8cd719ef1866be09412b9da0",
+  "originHash" : "2611d3503ddb15e0341f506a99618effdba3cf46814b92840a9edb12e0297553",
   "pins" : [
     {
       "identity" : "async-http-client",
@@ -168,8 +168,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-clocks.git",
       "state" : {
-        "revision" : "b9b24b69e2adda099a1fa381cda1eeec272d5b53",
-        "version" : "1.0.5"
+        "revision" : "cc46202b53476d64e824e0b6612da09d84ffde8e",
+        "version" : "1.0.6"
       }
     },
     {

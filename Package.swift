@@ -15,7 +15,7 @@ let package = Package(
     .package(url: "https://github.com/vapor/fluent.git", from: "4.12.0"),
     .package(url: "https://github.com/vapor/fluent-postgres-driver.git", from: "2.10.0"),
     .package(url: "https://github.com/vapor/fluent-sqlite-driver.git", from: "4.8.0"),
-    .package(url: "https://github.com/pointfreeco/swift-clocks.git", from: "1.0.5")
+    .package(url: "https://github.com/pointfreeco/swift-clocks.git", from: "1.0.6"),
   ],
   targets: [
     .executableTarget(

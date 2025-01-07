@@ -21,6 +21,10 @@ struct Dependencies {
     )
   }
 
+  func notificationsService(request: Request) -> NotificationsService {
+    NotificationsService()
+  }
+
   func versionService(request: Request) -> VersionService {
     DefaultVersionService(
       versionType: String.self,

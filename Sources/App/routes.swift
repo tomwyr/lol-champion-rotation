@@ -13,6 +13,22 @@ func routes(_ app: Application, _ deps: Dependencies) throws {
       return try await rotationService.currentRotation()
     }
 
+    api.protected(with: userGuard).put("notifications", "token") { req in
+      try req.auth.require(User.self)
+      let input = try req.content.decode(NotificationsTokenInput.self)
+      let notificationsService = deps.notificationsService(request: req)
+      try await notificationsService.updateToken(input: input)
+      return Response(status: .noContent)
+    }
+
+    api.protected(with: userGuard).put("notifications", "settings") { req in
+      try req.auth.require(User.self)
+      let input = try req.content.decode(NotificationsSettingsInput.self)
+      let notificationsService = deps.notificationsService(request: req)
+      try await notificationsService.updateSettings(input: input)
+      return Response(status: .noContent)
+    }
+
     api.protected(with: managementGuard).get("data", "refresh") { req in
       try req.auth.require(Manager.self)
       let rotationService = deps.rotationService(request: req)
