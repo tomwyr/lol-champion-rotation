@@ -16,6 +16,7 @@ let package = Package(
     .package(url: "https://github.com/vapor/fluent-postgres-driver.git", from: "2.10.0"),
     .package(url: "https://github.com/vapor/fluent-sqlite-driver.git", from: "4.8.0"),
     .package(url: "https://github.com/pointfreeco/swift-clocks.git", from: "1.0.6"),
+    .package(url: "https://github.com/MihaelIsaev/FCM.git", from: "3.0.0-beta.1"),
   ],
   targets: [
     .executableTarget(
@@ -26,6 +27,7 @@ let package = Package(
         .product(name: "NIOPosix", package: "swift-nio"),
         .product(name: "Fluent", package: "fluent"),
         .product(name: "FluentPostgresDriver", package: "fluent-postgres-driver"),
+        .product(name: "FCM", package: "FCM"),
       ],
       swiftSettings: swiftSettings
     ),

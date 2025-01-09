@@ -37,7 +37,7 @@ extension PushNotification {
   static func rotationChanged(tokens: [String]) -> PushNotification {
     PushNotification(
       title: "Rotation Changed",
-      description: "New champion rotation is now available",
+      body: "New champion rotation is now available",
       tokens: tokens
     )
   }

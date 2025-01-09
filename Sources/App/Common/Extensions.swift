@@ -52,3 +52,9 @@ extension String {
     split(separator: separator, maxSplits: Int.max).map(String.init)
   }
 }
+
+extension AsyncMapSequence {
+  func collect() async throws -> [Element] {
+    try await Array(self)
+  }
+}

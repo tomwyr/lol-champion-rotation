@@ -25,7 +25,7 @@ struct Dependencies {
   func notificationsService(request: Request) -> NotificationsService {
     NotificationsService(
       appDatabase: appDatabase(request: request),
-      pushNotificationsClient: PushNotificationsClient()
+      pushNotificationsClient: pushNotificationsClient(request: request)
     )
   }
 
@@ -56,8 +56,10 @@ struct Dependencies {
     )
   }
 
-  func pushNotificationsClient() -> PushNotificationsClient {
-    PushNotificationsClient()
+  func pushNotificationsClient(request: Request) -> PushNotificationsClient {
+    PushNotificationsClient(
+      fcm: request.fcm
+    )
   }
 
   func appDatabase(request: Request) -> AppDatabase {
