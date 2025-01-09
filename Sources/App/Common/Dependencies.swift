@@ -17,12 +17,16 @@ struct Dependencies {
       imageUrlProvider: imageUrlProvider(request: request),
       riotApiClient: riotApiClient(),
       appDatabase: appDatabase(request: request),
-      versionService: versionService(request: request)
+      versionService: versionService(request: request),
+      notificationsService: notificationsService(request: request)
     )
   }
 
   func notificationsService(request: Request) -> NotificationsService {
-    NotificationsService()
+    NotificationsService(
+      appDatabase: appDatabase(request: request),
+      pushNotificationsClient: PushNotificationsClient()
+    )
   }
 
   func versionService(request: Request) -> VersionService {
@@ -50,6 +54,10 @@ struct Dependencies {
       http: httpClient,
       apiKey: appConfig.riotApiKey
     )
+  }
+
+  func pushNotificationsClient() -> PushNotificationsClient {
+    PushNotificationsClient()
   }
 
   func appDatabase(request: Request) -> AppDatabase {

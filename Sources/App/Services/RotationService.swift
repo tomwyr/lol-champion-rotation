@@ -10,6 +10,7 @@ struct DefaultRotationService: RotationService {
   let riotApiClient: RiotApiClient
   let appDatabase: AppDatabase
   let versionService: VersionService
+  let notificationsService: NotificationsService
 
   func currentRotation() async throws(CurrentRotationError) -> ChampionRotation {
     let patchVersion = try? await versionService.latestVersion()
@@ -23,6 +24,9 @@ struct DefaultRotationService: RotationService {
     let rotation = try createRotationModel(riotData)
     let rotationChanged = try await saveRotationIfChanged(rotation)
     try await saveChampionsData(riotData)
+    if rotationChanged {
+      try? await notificationsService.notifyRotationChanged()
+    }
     return RefreshRotationResult(rotationChanged: rotationChanged)
   }
 }

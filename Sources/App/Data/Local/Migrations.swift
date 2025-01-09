@@ -4,6 +4,7 @@ extension Migrations {
   func addAppMigrations() {
     add(InitialSchema())
     add(AddPatchVersions())
+    add(AddNotificationConfigs())
   }
 }
 
@@ -41,5 +42,20 @@ struct AddPatchVersions: AsyncMigration {
 
   func revert(on database: any Database) async throws {
     try await database.schema("patch-versions").delete()
+  }
+}
+
+struct AddNotificationConfigs: AsyncMigration {
+  func prepare(on database: any Database) async throws {
+    try await database.schema("notifications-configs")
+      .id()
+      .field("device_id", .string)
+      .field("token", .string)
+      .field("enabled", .bool)
+      .create()
+  }
+
+  func revert(on database: any Database) async throws {
+    try await database.schema("notifications-configs").delete()
   }
 }

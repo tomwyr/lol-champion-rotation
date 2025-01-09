@@ -85,3 +85,27 @@ final class PatchVersionModel: Model, @unchecked Sendable {
     self.value = value
   }
 }
+
+final class NotificationsConfigModel: Model, @unchecked Sendable {
+  static let schema = "notifications-configs"
+
+  @ID(key: .id)
+  var id: UUID?
+
+  @Field(key: "device_id")
+  var deviceId: String
+
+  @Field(key: "token")
+  var token: String
+
+  @Field(key: "enabled")
+  var enabled: Bool
+
+  init() {}
+
+  init(deviceId: String, token: String, enabled: Bool) {
+    self.deviceId = deviceId
+    self.token = token
+    self.enabled = enabled
+  }
+}
