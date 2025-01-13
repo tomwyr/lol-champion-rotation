@@ -54,6 +54,7 @@ extension PushNotification {
     PushNotification(
       title: "Rotation Changed",
       body: "New champion rotation is now available",
+      data: ["type": "rotationChanged"],
       tokens: tokens
     )
   }

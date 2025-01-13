@@ -18,7 +18,8 @@ struct PushNotificationsClient {
     do {
       let message = FCMMessage(
         token: token,
-        notification: FCMNotification(title: notification.title, body: notification.body)
+        notification: FCMNotification(title: notification.title, body: notification.body),
+        data: notification.data
       )
       _ = try await fcm.send(message)
       return true
@@ -32,6 +33,7 @@ struct PushNotificationsClient {
 struct PushNotification {
   let title: String
   let body: String
+  let data: [String: String]?
   let tokens: [String]
 }
 
