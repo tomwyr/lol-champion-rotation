@@ -19,6 +19,10 @@ extension Application {
 }
 
 extension RoutesBuilder {
+  func grouped(_ path: PathComponent..., builder: (RoutesBuilder) -> Void) {
+    builder(grouped(path))
+  }
+
   func protected(with requestGuard: RequestAuthenticatorGuard) -> RoutesBuilder {
     grouped(requestGuard)
   }

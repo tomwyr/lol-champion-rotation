@@ -5,6 +5,10 @@ struct Manager: Authenticatable {}
 
 struct User: Authenticatable {}
 
+struct MobileUser: Authenticatable {
+  let deviceId: String
+}
+
 struct Fingerprint {
   let value: String
 

@@ -2,14 +2,21 @@ struct NotificationsService {
   let appDatabase: AppDatabase
   let pushNotificationsClient: PushNotificationsClient
 
-  func updateToken(input: NotificationsTokenInput) async throws {
-    let config = try await getOrCreateConfig(input.deviceId)
+  func updateToken(deviceId: String, input: NotificationsTokenInput) async throws {
+    let config = try await getOrCreateConfig(deviceId)
     config.token = input.token
     try await appDatabase.updateNotificationsConfig(data: config)
   }
 
-  func updateSettings(input: NotificationsSettingsInput) async throws {
-    let config = try await getOrCreateConfig(input.deviceId)
+  func getSettings(deviceId: String) async throws -> NotificationsSettings? {
+    guard let data = try await appDatabase.getNotificationsConfig(deviceId: deviceId) else {
+      return nil
+    }
+    return NotificationsSettings(enabled: data.enabled)
+  }
+
+  func updateSettings(deviceId: String, input: NotificationsSettings) async throws {
+    let config = try await getOrCreateConfig(deviceId)
     config.enabled = input.enabled
     try await appDatabase.updateNotificationsConfig(data: config)
   }

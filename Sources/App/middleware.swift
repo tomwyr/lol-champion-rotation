@@ -18,6 +18,15 @@ struct UserGuard: RequestAuthenticatorGuard {
   }
 }
 
+struct MobileUserGuard: RequestAuthenticatorGuard {
+  func authenticate(request: Request) throws -> Authenticatable {
+    guard let deviceId = request.headers["X-Device-Id"].first else {
+      throw Abort(.unauthorized, reason: "Invalid device id")
+    }
+    return MobileUser(deviceId: deviceId)
+  }
+}
+
 protocol RequestAuthenticatorGuard: RequestAuthenticator {
   func authenticate(request: Request) throws -> Authenticatable
 }
