@@ -27,11 +27,20 @@ struct NotificationsService {
     let notification = PushNotification.rotationChanged(tokens: configs.map(\.token))
     let result = try await pushNotificationsClient.send(notification)
 
+    try await cleanupFailingTokens(configs, result)
+  }
+
+  private func cleanupFailingTokens(
+    _ configs: [NotificationsConfigModel],
+    _ result: SendNotificationResult
+  ) async throws {
     let tokenFailed = { (config: NotificationsConfigModel) -> Bool in
       result.failedTokens.contains(config.token)
     }
     let corruptDeviceIds = configs.filter(tokenFailed).map(\.deviceId)
-    try await appDatabase.removeNotificationsConfigs(deviceIds: corruptDeviceIds)
+    if !corruptDeviceIds.isEmpty {
+      try await appDatabase.removeNotificationsConfigs(deviceIds: corruptDeviceIds)
+    }
   }
 
   private func getOrCreateConfig(_ deviceId: String) async throws -> NotificationsConfigModel {
