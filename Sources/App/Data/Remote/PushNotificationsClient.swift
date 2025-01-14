@@ -5,16 +5,17 @@ struct PushNotificationsClient {
 
   func send(_ notification: PushNotification) async throws -> SendNotificationResult {
     let results = try await notification.tokens.async.map { token in
-      let success = await sendWithFcm(notification, token)
-      return (token: token, success: success)
+      let status = await sendWithFcm(notification, token)
+      return (token: token, status: status)
     }.collect()
 
-    let failedTokens = results.filter { result in !result.success }.map(\.token)
+    let staleTokens = results.filter { result in result.status == .staleToken }.map(\.token)
 
-    return SendNotificationResult(failedTokens: failedTokens)
+    return SendNotificationResult(staleTokens: staleTokens)
   }
 
-  private func sendWithFcm(_ notification: PushNotification, _ token: String) async -> Bool {
+  private func sendWithFcm(_ notification: PushNotification, _ token: String) async -> FcmSendStatus
+  {
     do {
       let message = FCMMessage(
         token: token,
@@ -22,10 +23,21 @@ struct PushNotificationsClient {
         data: notification.data
       )
       _ = try await fcm.send(message)
-      return true
+      return .success
     } catch {
-      // TODO: Catch only errors specific to when the token/device is corrupted.
-      return false
+      return error.isStaleTokenError ? .staleToken : .otherError
+    }
+  }
+}
+
+extension Error {
+  // Detect stale tokens according to the documentation.
+  // https://firebase.google.com/docs/cloud-messaging/manage-tokens
+  var isStaleTokenError: Bool {
+    if let error = self as? GoogleError, let code = error.fcmError?.errorCode {
+      code == .invalid || code == .unregistered
+    } else {
+      false
     }
   }
 }
@@ -38,5 +50,9 @@ struct PushNotification {
 }
 
 struct SendNotificationResult {
-  let failedTokens: [String]
+  let staleTokens: [String]
+}
+
+enum FcmSendStatus {
+  case success, staleToken, otherError
 }
