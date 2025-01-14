@@ -2,6 +2,6 @@
 
 set -e
 
-mkdir -p assets && cd assets
+mkdir -p Resources && cd Resources
 
 echo "$FIREBASE_AUTH_KEY" | base64 --decode > firebaseAuthKey.json
