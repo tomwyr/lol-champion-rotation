@@ -5,6 +5,7 @@ extension Migrations {
     add(InitialSchema())
     add(AddPatchVersions())
     add(AddNotificationConfigs())
+    add(SplitChampionRotations())
   }
 }
 
@@ -57,5 +58,86 @@ struct AddNotificationConfigs: AsyncMigration {
 
   func revert(on database: any Database) async throws {
     try await database.schema("notifications-configs").delete()
+  }
+}
+
+struct SplitChampionRotations: AsyncMigration {
+  func prepare(on database: any Database) async throws {
+    try await createRegularRotationsTable(database)
+    try await createBeginnerRotationsTable(database)
+    try await populateRegularRotations(database)
+    try await populateBeginnerRotations(database)
+    try await deleteCombinedRotationsTable(database)
+  }
+
+  func revert(on database: any Database) async throws {
+    try await createCombinedRotationsTable(database)
+    try await deleteSplitRotationsTables(database)
+  }
+
+  func createRegularRotationsTable(_ db: Database) async throws {
+    try await db.schema("regular-champion-rotations")
+      .id()
+      .field("observed_at", .datetime)
+      .field("champions", .array(of: .string))
+      .create()
+  }
+
+  func createBeginnerRotationsTable(_ db: Database) async throws {
+    try await db.schema("beginner-champion-rotations")
+      .id()
+      .field("observed_at", .datetime)
+      .field("max_level", .int)
+      .field("champions", .array(of: .string))
+      .create()
+  }
+
+  func createCombinedRotationsTable(_ db: Database) async throws {
+    try await db.schema("champion-rotations")
+      .id()
+      .field("observed_at", .datetime)
+      .field("beginner_max_level", .int)
+      .field("beginner_champions", .array(of: .string))
+      .field("regular_champions", .array(of: .string))
+      .create()
+  }
+
+  func populateRegularRotations(_ db: Database) async throws {
+    let allRotations = try await ChampionRotationModel.query(on: db).all()
+
+    var regularRotations = [RegularChampionRotationModel]()
+    for rotation in allRotations {
+      let lastRotation = regularRotations.last
+      let nextRotation = RegularChampionRotationModel(from: rotation)
+      if lastRotation == nil || lastRotation!.same(as: nextRotation) {
+        regularRotations.append(nextRotation)
+      }
+    }
+
+    try await regularRotations.create(on: db)
+  }
+
+  func populateBeginnerRotations(_ db: Database) async throws {
+    let allRotations = try await ChampionRotationModel.query(on: db).all()
+
+    var beginnerRotations = [BeginnerChampionRotationModel]()
+    for rotation in allRotations {
+      let lastRotation = beginnerRotations.last
+      let nextRotation = BeginnerChampionRotationModel(from: rotation)
+      if lastRotation == nil || lastRotation!.same(as: nextRotation) {
+        beginnerRotations.append(nextRotation)
+      }
+    }
+
+    try await beginnerRotations.create(on: db)
+  }
+
+  func deleteCombinedRotationsTable(_ db: Database) async throws {
+    try await db.schema("champion-rotations").delete()
+  }
+
+  func deleteSplitRotationsTables(_ db: Database) async throws {
+    try await db.schema("regular-champion-rotations").delete()
+    try await db.schema("beginner-champion-rotations").delete()
   }
 }

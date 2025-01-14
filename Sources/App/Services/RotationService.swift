@@ -21,8 +21,8 @@ struct DefaultRotationService: RotationService {
 
   func refreshRotation() async throws(CurrentRotationError) -> RefreshRotationResult {
     let riotData = try await fetchRotationRiotData()
-    let rotation = try createRotationModel(riotData)
-    let rotationChanged = try await saveRotationIfChanged(rotation)
+    let rotations = try createRotationModels(riotData)
+    let rotationChanged = try await saveRotationsIfChanged(rotations)
     try await saveChampionsData(riotData)
     if rotationChanged {
       try? await notificationsService.notifyRotationChanged()
@@ -48,8 +48,9 @@ extension DefaultRotationService {
   private func fetchImageUrls(_ localData: CurrentRotationLocalData)
     async throws(CurrentRotationError) -> [String: String]
   {
+    let (regularRotation, beginnerRotation, _) = localData
     do {
-      let championIds = localData.rotation.allChampions
+      let championIds = (regularRotation.champions + beginnerRotation.champions).uniqued()
       let imageUrls = try await imageUrlProvider.champions(with: championIds)
       return Dictionary(uniqueKeysWithValues: zip(championIds, imageUrls))
     } catch {
@@ -64,7 +65,7 @@ extension DefaultRotationService {
     _ localData: CurrentRotationLocalData,
     _ imageUrlsByChampionId: [String: String]
   ) throws(CurrentRotationError) -> ChampionRotation {
-    let (rotation, champions) = localData
+    let (regularRotation, beginnerRotation, champions) = localData
     let championsByRiotId = champions.associateBy(\.riotId)
 
     func createChampion(riotId: String) throws(CurrentRotationError) -> Champion {
@@ -82,13 +83,13 @@ extension DefaultRotationService {
       )
     }
 
-    let beginnerMaxLevel = rotation.beginnerMaxLevel
-    let beginnerChampions = try rotation.beginnerChampions
+    let beginnerMaxLevel = beginnerRotation.maxLevel
+    let beginnerChampions = try beginnerRotation.champions
       .map(createChampion).sorted { $0.name < $1.name }
-    let regularChampions = try rotation.regularChampions
+    let regularChampions = try regularRotation.champions
       .map(createChampion).sorted { $0.name < $1.name }
 
-    guard let startDate = rotation.observedAt,
+    guard let startDate = regularRotation.observedAt,
       let endDate = startDate.adding(2, .weekOfYear)
     else {
       throw .rotationDurationInvalid
@@ -104,8 +105,8 @@ extension DefaultRotationService {
     )
   }
 
-  private func createRotationModel(_ riotData: CurrentRotationRiotData)
-    throws(CurrentRotationError) -> ChampionRotationModel
+  private func createRotationModels(_ riotData: CurrentRotationRiotData)
+    throws(CurrentRotationError) -> ChampionRotationModels
   {
     let (championRotations, champions) = riotData
     let championsByRiotKey = champions.data.values.associateBy(\.key)
@@ -123,11 +124,15 @@ extension DefaultRotationService {
     let regularChampions = try championRotations.freeChampionIds
       .map(championRiotId).sorted()
 
-    return ChampionRotationModel(
-      beginnerMaxLevel: beginnerMaxLevel,
-      beginnerChampions: beginnerChampions,
-      regularChampions: regularChampions
+    let regularRotation = RegularChampionRotationModel(
+      champions: regularChampions
     )
+    let beginnerRotation = BeginnerChampionRotationModel(
+      maxLevel: beginnerMaxLevel,
+      champions: beginnerChampions
+    )
+
+    return (regularRotation, beginnerRotation)
   }
 }
 
@@ -135,18 +140,20 @@ extension DefaultRotationService {
   private func loadRotationLocalData() async throws(CurrentRotationError)
     -> CurrentRotationLocalData
   {
-    let rotation: ChampionRotationModel?
+    let regularRotation: RegularChampionRotationModel?
+    let beginnerRotation: BeginnerChampionRotationModel?
     let champions: [ChampionModel]
     do {
-      rotation = try await appDatabase.mostRecentChampionRotation()
+      regularRotation = try await appDatabase.mostRecentRegularRotation()
+      beginnerRotation = try await appDatabase.mostRecentBeginnerRotation()
       champions = try await appDatabase.champions()
     } catch {
       throw .dataOperationFailed(cause: error)
     }
-    guard let rotation else {
+    guard let regularRotation, let beginnerRotation else {
       throw .rotationDataMissing
     }
-    return (rotation, champions)
+    return (regularRotation, beginnerRotation, champions)
   }
 
   private func saveChampionsData(_ riotData: CurrentRotationRiotData)
@@ -160,38 +167,46 @@ extension DefaultRotationService {
     }
   }
 
-  private func saveRotationIfChanged(_ rotation: ChampionRotationModel)
+  private func saveRotationsIfChanged(_ rotations: ChampionRotationModels)
     async throws(CurrentRotationError) -> Bool
   {
     do {
-      let mostRecentRotation = try await appDatabase.mostRecentChampionRotation()
-      if let mostRecentRotation, rotation.same(as: mostRecentRotation) {
-        return false
-      }
-
-      try await appDatabase.addChampionRotation(data: rotation)
-
-      return true
+      let regularRotationChanged = try await saveRegularRotation(rotations.regular)
+      let beginnerRotationChanged = try await saveBeginnerRotation(rotations.beginner)
+      return regularRotationChanged || beginnerRotationChanged
     } catch {
       throw .dataOperationFailed(cause: error)
     }
   }
-}
 
-extension ChampionRotationModel {
-  var allChampions: [String] {
-    (beginnerChampions + regularChampions).uniqued()
+  private func saveRegularRotation(_ rotation: RegularChampionRotationModel) async throws -> Bool {
+    let mostRecentRotation = try await appDatabase.mostRecentRegularRotation()
+    if let mostRecentRotation, rotation.same(as: mostRecentRotation) {
+      return false
+    }
+    try await appDatabase.addRegularRotation(data: rotation)
+    return true
   }
 
-  func same(as other: ChampionRotationModel) -> Bool {
-    beginnerMaxLevel == other.beginnerMaxLevel
-      && beginnerChampions.sorted() == other.beginnerChampions.sorted()
-      && regularChampions.sorted() == other.regularChampions.sorted()
+  private func saveBeginnerRotation(_ rotation: BeginnerChampionRotationModel) async throws -> Bool
+  {
+    let mostRecentRotation = try await appDatabase.mostRecentBeginnerRotation()
+    if let mostRecentRotation, rotation.same(as: mostRecentRotation) {
+      return false
+    }
+    try await appDatabase.addBeginnerRotation(data: rotation)
+    return true
   }
 }
+
+private typealias ChampionRotationModels = (
+  regular: RegularChampionRotationModel,
+  beginner: BeginnerChampionRotationModel
+)
 
 private typealias CurrentRotationLocalData = (
-  rotation: ChampionRotationModel,
+  regularRotation: RegularChampionRotationModel,
+  beginnerRotation: BeginnerChampionRotationModel,
   champions: [ChampionModel]
 )
 

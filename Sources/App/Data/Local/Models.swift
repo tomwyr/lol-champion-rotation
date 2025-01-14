@@ -22,6 +22,7 @@ final class ChampionModel: Model, @unchecked Sendable {
   }
 }
 
+/// Deprecated: Champion rotation model was split into regular and beginner rotation models.
 final class ChampionRotationModel: Model, @unchecked Sendable {
   static let schema = "champion-rotations"
 
@@ -52,6 +53,76 @@ final class ChampionRotationModel: Model, @unchecked Sendable {
     self.beginnerMaxLevel = beginnerMaxLevel
     self.beginnerChampions = beginnerChampions
     self.regularChampions = regularChampions
+  }
+}
+
+final class RegularChampionRotationModel: Model, @unchecked Sendable {
+  static let schema = "regular-champion-rotations"
+
+  @ID(key: .id)
+  var id: UUID?
+
+  @Timestamp(key: "observed_at", on: .create)
+  var observedAt: Date?
+
+  @Field(key: "champions")
+  var champions: [String]
+
+  init() {}
+
+  init(
+    observedAt: Date? = nil,
+    champions: [String]
+  ) {
+    self.observedAt = observedAt
+    self.champions = champions
+  }
+
+  init(from rotation: ChampionRotationModel) {
+    self.observedAt = rotation.observedAt
+    self.champions = rotation.regularChampions
+  }
+
+  func same(as other: RegularChampionRotationModel) -> Bool {
+    champions.sorted() == other.champions.sorted()
+  }
+}
+
+final class BeginnerChampionRotationModel: Model, @unchecked Sendable {
+  static let schema = "beginner-champion-rotations"
+
+  @ID(key: .id)
+  var id: UUID?
+
+  @Timestamp(key: "observed_at", on: .create)
+  var observedAt: Date?
+
+  @Field(key: "max_level")
+  var maxLevel: Int
+
+  @Field(key: "champions")
+  var champions: [String]
+
+  init() {}
+
+  init(
+    observedAt: Date? = nil,
+    maxLevel: Int,
+    champions: [String]
+  ) {
+    self.observedAt = observedAt
+    self.maxLevel = maxLevel
+    self.champions = champions
+  }
+
+  init(from rotation: ChampionRotationModel) {
+    self.observedAt = rotation.observedAt
+    self.maxLevel = rotation.beginnerMaxLevel
+    self.champions = rotation.beginnerChampions
+  }
+
+  func same(as other: BeginnerChampionRotationModel) -> Bool {
+    maxLevel == other.maxLevel && champions.sorted() == other.champions.sorted()
   }
 }
 

@@ -5,15 +5,26 @@ struct AppDatabase {
 }
 
 extension AppDatabase {
-  func addChampionRotation(data: ChampionRotationModel) async throws {
+  func addRegularRotation(data: RegularChampionRotationModel) async throws {
+    try await runner.run { db in
+      try await data.create(on: db)
+    }
+  }
+  func addBeginnerRotation(data: BeginnerChampionRotationModel) async throws {
     try await runner.run { db in
       try await data.create(on: db)
     }
   }
 
-  func mostRecentChampionRotation() async throws -> ChampionRotationModel? {
+  func mostRecentRegularRotation() async throws -> RegularChampionRotationModel? {
     try await runner.run { db in
-      try await ChampionRotationModel.query(on: db).sort(\.$observedAt, .descending).first()
+      try await RegularChampionRotationModel.query(on: db).sort(\.$observedAt, .descending).first()
+    }
+  }
+
+  func mostRecentBeginnerRotation() async throws -> BeginnerChampionRotationModel? {
+    try await runner.run { db in
+      try await BeginnerChampionRotationModel.query(on: db).sort(\.$observedAt, .descending).first()
     }
   }
 
