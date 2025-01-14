@@ -1,11 +1,11 @@
 import Crypto
 import Vapor
 
-struct Manager: Authenticatable {}
+struct ManagerAuth: Authenticatable {}
 
-struct User: Authenticatable {}
+struct UserAuth: Authenticatable {}
 
-struct MobileUser: Authenticatable {
+struct MobileUserAuth: Authenticatable {
   let deviceId: String
 }
 

@@ -8,13 +8,13 @@ struct ManagementGuard: RequestAuthenticatorGuard {
     guard token == appManagementKey else {
       throw Abort(.unauthorized, reason: "Invalid auth token")
     }
-    return Manager()
+    return ManagerAuth()
   }
 }
 
 struct UserGuard: RequestAuthenticatorGuard {
   func authenticate(request: Request) throws -> Authenticatable {
-    return User()
+    return UserAuth()
   }
 }
 
@@ -23,7 +23,7 @@ struct MobileUserGuard: RequestAuthenticatorGuard {
     guard let deviceId = request.headers["X-Device-Id"].first else {
       throw Abort(.unauthorized, reason: "Invalid device id")
     }
-    return MobileUser(deviceId: deviceId)
+    return MobileUserAuth(deviceId: deviceId)
   }
 }
 

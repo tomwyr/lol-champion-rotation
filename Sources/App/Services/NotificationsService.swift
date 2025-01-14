@@ -8,6 +8,11 @@ struct NotificationsService {
     try await appDatabase.updateNotificationsConfig(data: config)
   }
 
+  func hasSettings(deviceId: String) async throws -> Bool {
+    let data = try await appDatabase.getNotificationsConfig(deviceId: deviceId)
+    return data != nil
+  }
+
   func getSettings(deviceId: String) async throws -> NotificationsSettings? {
     guard let data = try await appDatabase.getNotificationsConfig(deviceId: deviceId) else {
       return nil
