@@ -108,8 +108,8 @@ struct SplitChampionRotations: AsyncMigration {
     var regularRotations = [RegularChampionRotationModel]()
     for rotation in allRotations {
       let lastRotation = regularRotations.last
-      let nextRotation = RegularChampionRotationModel(from: rotation)
-      if lastRotation == nil || lastRotation!.same(as: nextRotation) {
+      let nextRotation = rotation.toRegularRotation()
+      if lastRotation == nil || !lastRotation!.same(as: nextRotation) {
         regularRotations.append(nextRotation)
       }
     }
@@ -123,8 +123,8 @@ struct SplitChampionRotations: AsyncMigration {
     var beginnerRotations = [BeginnerChampionRotationModel]()
     for rotation in allRotations {
       let lastRotation = beginnerRotations.last
-      let nextRotation = BeginnerChampionRotationModel(from: rotation)
-      if lastRotation == nil || lastRotation!.same(as: nextRotation) {
+      let nextRotation = rotation.toBeginnerRotation()
+      if lastRotation == nil || !lastRotation!.same(as: nextRotation) {
         beginnerRotations.append(nextRotation)
       }
     }
@@ -139,5 +139,22 @@ struct SplitChampionRotations: AsyncMigration {
   func deleteSplitRotationsTables(_ db: Database) async throws {
     try await db.schema("regular-champion-rotations").delete()
     try await db.schema("beginner-champion-rotations").delete()
+  }
+}
+
+extension ChampionRotationModel {
+  func toRegularRotation() -> RegularChampionRotationModel {
+    .init(
+      observedAt: observedAt!,
+      champions: regularChampions
+    )
+  }
+
+  func toBeginnerRotation() -> BeginnerChampionRotationModel {
+    .init(
+      observedAt: observedAt!,
+      maxLevel: beginnerMaxLevel,
+      champions: beginnerChampions
+    )
   }
 }

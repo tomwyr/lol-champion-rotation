@@ -89,9 +89,8 @@ extension DefaultRotationService {
     let regularChampions = try regularRotation.champions
       .map(createChampion).sorted { $0.name < $1.name }
 
-    guard let startDate = regularRotation.observedAt,
-      let endDate = startDate.adding(2, .weekOfYear)
-    else {
+    let startDate = regularRotation.observedAt
+    guard let endDate = startDate.adding(2, .weekOfYear) else {
       throw .rotationDurationInvalid
     }
     let duration = ChampionRotationDuration(start: startDate, end: endDate)
@@ -125,9 +124,11 @@ extension DefaultRotationService {
       .map(championRiotId).sorted()
 
     let regularRotation = RegularChampionRotationModel(
+      observedAt: Date.now,
       champions: regularChampions
     )
     let beginnerRotation = BeginnerChampionRotationModel(
+      observedAt: Date.now,
       maxLevel: beginnerMaxLevel,
       champions: beginnerChampions
     )

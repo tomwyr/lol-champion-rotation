@@ -62,8 +62,8 @@ final class RegularChampionRotationModel: Model, @unchecked Sendable {
   @ID(key: .id)
   var id: UUID?
 
-  @Timestamp(key: "observed_at", on: .create)
-  var observedAt: Date?
+  @Field(key: "observed_at")
+  var observedAt: Date
 
   @Field(key: "champions")
   var champions: [String]
@@ -71,16 +71,11 @@ final class RegularChampionRotationModel: Model, @unchecked Sendable {
   init() {}
 
   init(
-    observedAt: Date? = nil,
+    observedAt: Date,
     champions: [String]
   ) {
     self.observedAt = observedAt
     self.champions = champions
-  }
-
-  init(from rotation: ChampionRotationModel) {
-    self.observedAt = rotation.observedAt
-    self.champions = rotation.regularChampions
   }
 
   func same(as other: RegularChampionRotationModel) -> Bool {
@@ -94,8 +89,8 @@ final class BeginnerChampionRotationModel: Model, @unchecked Sendable {
   @ID(key: .id)
   var id: UUID?
 
-  @Timestamp(key: "observed_at", on: .create)
-  var observedAt: Date?
+  @Field(key: "observed_at")
+  var observedAt: Date
 
   @Field(key: "max_level")
   var maxLevel: Int
@@ -106,19 +101,13 @@ final class BeginnerChampionRotationModel: Model, @unchecked Sendable {
   init() {}
 
   init(
-    observedAt: Date? = nil,
+    observedAt: Date,
     maxLevel: Int,
     champions: [String]
   ) {
     self.observedAt = observedAt
     self.maxLevel = maxLevel
     self.champions = champions
-  }
-
-  init(from rotation: ChampionRotationModel) {
-    self.observedAt = rotation.observedAt
-    self.maxLevel = rotation.beginnerMaxLevel
-    self.champions = rotation.beginnerChampions
   }
 
   func same(as other: BeginnerChampionRotationModel) -> Bool {
