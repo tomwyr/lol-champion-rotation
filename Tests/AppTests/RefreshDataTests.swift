@@ -7,7 +7,7 @@ class RefreshDataTests: AppTests {
     _ = try await testConfigureWith(appManagementKey: "123")
 
     try await app.test(
-      .POST, "/api/data/refresh"
+      .GET, "/api/data/refresh"
     ) { res async in
       XCTAssertEqual(res.status, .unauthorized)
       XCTAssertBodyError(res.body, "Invalid auth token")
@@ -18,7 +18,7 @@ class RefreshDataTests: AppTests {
     _ = try await testConfigureWith(appManagementKey: "abc")
 
     try await app.test(
-      .POST, "/api/data/refresh",
+      .GET, "/api/data/refresh",
       headers: ["Authorization": "Bearer 123"]
     ) { res async in
       XCTAssertEqual(res.status, .unauthorized)
@@ -34,7 +34,7 @@ class RefreshDataTests: AppTests {
     )
 
     try await app.test(
-      .POST, "/api/data/refresh",
+      .GET, "/api/data/refresh",
       headers: ["Authorization": "Bearer 123"]
     ) { res async in
       XCTAssertEqual(res.status, .ok)
@@ -44,10 +44,14 @@ class RefreshDataTests: AppTests {
   func testRotationChampionsChanged() async throws {
     _ = try await testConfigureWith(
       appManagementKey: "123",
-      dbChampionRotation: .init(
-        beginnerMaxLevel: 10,
-        beginnerChampions: ["Nocturne"],
-        regularChampions: ["Sett", "Sett"]
+      dbRegularRotation: .init(
+        observedAt: Date.now,
+        champions: ["Sett", "Sett"]
+      ),
+      dbBeginnerRotation: .init(
+        observedAt: Date.now,
+        maxLevel: 10,
+        champions: ["Nocturne"]
       ),
       dbPatchVersions: [.init(value: "1")],
       riotPatchVersions: ["1"],
@@ -64,7 +68,7 @@ class RefreshDataTests: AppTests {
     )
 
     try await app.test(
-      .POST, "/api/data/refresh",
+      .GET, "/api/data/refresh",
       headers: ["Authorization": "Bearer 123"]
     ) { res async in
       XCTAssertEqual(res.status, .ok)
@@ -78,10 +82,14 @@ class RefreshDataTests: AppTests {
   func testRotationMaxLevelChanged() async throws {
     _ = try await testConfigureWith(
       appManagementKey: "123",
-      dbChampionRotation: .init(
-        beginnerMaxLevel: 5,
-        beginnerChampions: ["Nocturne"],
-        regularChampions: ["Sett", "Garen"]
+      dbRegularRotation: .init(
+        observedAt: Date.now,
+        champions: ["Sett", "Garen"]
+      ),
+      dbBeginnerRotation: .init(
+        observedAt: Date.now,
+        maxLevel: 5,
+        champions: ["Nocturne"]
       ),
       dbPatchVersions: [.init(value: "1")],
       riotPatchVersions: ["1"],
@@ -98,7 +106,7 @@ class RefreshDataTests: AppTests {
     )
 
     try await app.test(
-      .POST, "/api/data/refresh",
+      .GET, "/api/data/refresh",
       headers: ["Authorization": "Bearer 123"]
     ) { res async in
       XCTAssertEqual(res.status, .ok)
@@ -112,10 +120,14 @@ class RefreshDataTests: AppTests {
   func testRotationDidNotChange() async throws {
     _ = try await testConfigureWith(
       appManagementKey: "123",
-      dbChampionRotation: .init(
-        beginnerMaxLevel: 10,
-        beginnerChampions: ["Nocturne"],
-        regularChampions: ["Sett", "Garen"]
+      dbRegularRotation: .init(
+        observedAt: Date.now,
+        champions: ["Sett", "Garen"]
+      ),
+      dbBeginnerRotation: .init(
+        observedAt: Date.now,
+        maxLevel: 10,
+        champions: ["Nocturne"]
       ),
       dbPatchVersions: [.init(value: "1")],
       riotPatchVersions: ["1"],
@@ -132,7 +144,7 @@ class RefreshDataTests: AppTests {
     )
 
     try await app.test(
-      .POST, "/api/data/refresh",
+      .GET, "/api/data/refresh",
       headers: ["Authorization": "Bearer 123"]
     ) { res async in
       XCTAssertEqual(res.status, .ok)
@@ -154,7 +166,7 @@ class RefreshDataTests: AppTests {
     )
 
     try await app.test(
-      .POST, "/api/data/refresh",
+      .GET, "/api/data/refresh",
       headers: ["Authorization": "Bearer 123"]
     ) { res async in
       let latestChampionsUrl = requestUrls.riotChampions("15.23.5")
@@ -170,7 +182,7 @@ class RefreshDataTests: AppTests {
     )
 
     try await app.test(
-      .POST, "/api/data/refresh",
+      .GET, "/api/data/refresh",
       headers: ["Authorization": "Bearer 123"]
     ) { res async in
       let latestChampionsUrl = requestUrls.riotChampions("15.23.5")
@@ -186,7 +198,7 @@ class RefreshDataTests: AppTests {
     )
 
     try await app.test(
-      .POST, "/api/data/refresh",
+      .GET, "/api/data/refresh",
       headers: ["Authorization": "Bearer 123"]
     ) { res async throws in
       let versions = try await localPatchVersions()
@@ -207,7 +219,7 @@ class RefreshDataTests: AppTests {
     )
 
     try await app.test(
-      .POST, "/api/data/refresh",
+      .GET, "/api/data/refresh",
       headers: ["Authorization": "Bearer 123"]
     ) { res async throws in
       let versions = try await localPatchVersions()
@@ -221,14 +233,14 @@ class RefreshDataTests: AppTests {
   }
 
   func testNoLocalVersion() async throws {
-     _ = try await testConfigureWith(
+    _ = try await testConfigureWith(
       appManagementKey: "123",
       dbPatchVersions: [],
       riotPatchVersions: ["15.23.5"]
     )
 
     try await app.test(
-      .POST, "/api/data/refresh",
+      .GET, "/api/data/refresh",
       headers: ["Authorization": "Bearer 123"]
     ) { res async throws in
       let versions = try await localPatchVersions()

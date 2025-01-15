@@ -5,11 +5,14 @@ import XCTVapor
 class CurrentRotationTests: AppTests {
   func testSimpleResult() async throws {
     _ = try await testConfigureWith(
-      dbChampionRotation: .init(
-        observedAt: .iso("2024-11-14T12:00:00Z"),
-        beginnerMaxLevel: 10,
-        beginnerChampions: ["Nocturne"],
-        regularChampions: ["Garen", "Sett"]
+      dbRegularRotation: .init(
+        observedAt: .iso("2024-11-14T12:00:00Z")!,
+        champions: ["Garen", "Sett"]
+      ),
+      dbBeginnerRotation: .init(
+        observedAt: .iso("2024-11-14T12:00:00Z")!,
+        maxLevel: 10,
+        champions: ["Nocturne"]
       ),
       dbChampions: [
         .init(id: uuid("1"), riotId: "Nocturne", name: "Nocturne"),
@@ -56,10 +59,14 @@ class CurrentRotationTests: AppTests {
 
   func testChampionsAreSortedById() async throws {
     _ = try await testConfigureWith(
-      dbChampionRotation: .init(
-        beginnerMaxLevel: 10,
-        beginnerChampions: ["Nocturne", "Ashe", "Shen"],
-        regularChampions: ["Jax", "Sett", "Garen"]
+      dbRegularRotation: .init(
+        observedAt: Date.now,
+        champions: ["Jax", "Sett", "Garen"]
+      ),
+      dbBeginnerRotation: .init(
+        observedAt: Date.now,
+        maxLevel: 10,
+        champions: ["Nocturne", "Ashe", "Shen"]
       ),
       dbChampions: [
         .init(id: uuid("1"), riotId: "Ashe", name: "Ashe"),
@@ -97,10 +104,14 @@ class CurrentRotationTests: AppTests {
 
   func testSameChampionIsBeginnerAndRegular() async throws {
     _ = try await testConfigureWith(
-      dbChampionRotation: .init(
-        beginnerMaxLevel: 10,
-        beginnerChampions: ["Garen", "Sett"],
-        regularChampions: ["Nocturne", "Sett"]
+      dbRegularRotation: .init(
+        observedAt: Date.now,
+        champions: ["Nocturne", "Sett"]
+      ),
+      dbBeginnerRotation: .init(
+        observedAt: Date.now,
+        maxLevel: 10,
+        champions: ["Garen", "Sett"]
       ),
       dbChampions: [
         .init(id: uuid("1"), riotId: "Garen", name: "Garen"),
@@ -133,11 +144,14 @@ class CurrentRotationTests: AppTests {
 
   func testOptionalDataUnavailable() async throws {
     _ = try await testConfigureWith(
-      dbChampionRotation: .init(
-        observedAt: .iso("2024-11-14T12:00:00Z"),
-        beginnerMaxLevel: 10,
-        beginnerChampions: [],
-        regularChampions: []
+      dbRegularRotation: .init(
+        observedAt: .iso("2024-11-14T12:00:00Z")!,
+        champions: []
+      ),
+      dbBeginnerRotation: .init(
+        observedAt: .iso("2024-11-14T12:00:00Z")!,
+        maxLevel: 10,
+        champions: []
       ),
       dbChampions: [],
       dbPatchVersions: []
@@ -150,7 +164,6 @@ class CurrentRotationTests: AppTests {
       XCTAssertBody(
         res.body,
         [
-          // "patchVersion": null,
           "duration": [
             "start": "2024-11-14T12:00:00Z",
             "end": "2024-11-28T12:00:00Z",

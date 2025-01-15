@@ -9,7 +9,8 @@ typealias InitDbModel<T> = (T) -> Void where T: Model
 extension AppTests {
   func testConfigureWith(
     appManagementKey: String? = nil,
-    dbChampionRotation: ChampionRotationModel? = nil,
+    dbRegularRotation: RegularChampionRotationModel? = nil,
+    dbBeginnerRotation: BeginnerChampionRotationModel? = nil,
     dbChampions: [ChampionModel] = [],
     dbPatchVersions: [PatchVersionModel] = [],
     b2AuthorizeDownloadData: AuthorizationData? = nil,
@@ -38,14 +39,8 @@ extension AppTests {
         httpClient: httpClient
       ),
       initDb: { db async throws in
-        if let initRotation = dbChampionRotation {
-          let observedAt = initRotation.observedAt
-          try await initRotation.create(on: db)
-          if let observedAt {
-            initRotation.observedAt = observedAt
-            try await initRotation.update(on: db)
-          }
-        }
+        try await dbRegularRotation?.create(on: db)
+        try await dbBeginnerRotation?.create(on: db)
         for champion in dbChampions {
           try await champion.create(on: db)
         }
