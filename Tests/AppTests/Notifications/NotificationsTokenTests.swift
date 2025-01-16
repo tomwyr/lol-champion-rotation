@@ -1,0 +1,66 @@
+import XCTVapor
+
+@testable import App
+
+class PutNotificationsTokenTests: AppTests {
+  func testInvalidAuth() async throws {
+    _ = try await testConfigureWith()
+
+    try await app.test(
+      .PUT, "/api/notifications/token",
+      headers: reqHeaders(),
+      body: ["token": "abc"]
+    ) { res async in
+      XCTAssertEqual(res.status, .unauthorized)
+      XCTAssertBodyError(res.body, "Invalid device id")
+    }
+  }
+
+  func testValidAuth() async throws {
+    _ = try await testConfigureWith()
+
+    try await app.test(
+      .PUT, "/api/notifications/token",
+      headers: reqHeaders(deviceId: "123"),
+      body: ["token": "abc"]
+    ) { res async in
+      XCTAssertEqual(res.status, .noContent)
+    }
+  }
+
+  func testAddingNewToken() async throws {
+    let existingConfig = NotificationsConfigModel(deviceId: "456", token: "def", enabled: true)
+
+    _ = try await testConfigureWith(dbNotificationsConfigs: [existingConfig])
+
+    try await app.test(
+      .PUT, "/api/notifications/token",
+      headers: reqHeaders(deviceId: "123"),
+      body: ["token": "abc"]
+    ) { res async throws in
+      let addedConfig = NotificationsConfigModel(deviceId: "123", token: "abc", enabled: false)
+      let configs = try await dbNotificationConfigs()
+
+      XCTAssertEqual(res.status, .noContent)
+      XCTAssertEqual(configs, [existingConfig, addedConfig])
+    }
+  }
+
+  func testUpdatingExistingToken() async throws {
+    let existingConfig = NotificationsConfigModel(deviceId: "123", token: "def", enabled: true)
+
+    _ = try await testConfigureWith(dbNotificationsConfigs: [existingConfig])
+
+    try await app.test(
+      .PUT, "/api/notifications/token",
+      headers: reqHeaders(deviceId: "123"),
+      body: ["token": "abc"]
+    ) { res async throws in
+      let updatedConfig = NotificationsConfigModel(deviceId: "123", token: "abc", enabled: true)
+      let configs = try await dbNotificationConfigs()
+
+      XCTAssertEqual(res.status, .noContent)
+      XCTAssertEqual(configs, [updatedConfig])
+    }
+  }
+}

@@ -201,7 +201,7 @@ class RefreshDataTests: AppTests {
       .GET, "/api/data/refresh",
       headers: ["Authorization": "Bearer 123"]
     ) { res async throws in
-      let versions = try await localPatchVersions()
+      let versions = try await dbPatchVersions()
       XCTAssertEqual(versions, ["14.0.0", "15.23.5"])
       XCTAssertEqual(res.status, .ok)
       XCTAssertBody(
@@ -222,7 +222,7 @@ class RefreshDataTests: AppTests {
       .GET, "/api/data/refresh",
       headers: ["Authorization": "Bearer 123"]
     ) { res async throws in
-      let versions = try await localPatchVersions()
+      let versions = try await dbPatchVersions()
       XCTAssertEqual(versions, ["15.23.5"])
       XCTAssertEqual(res.status, .ok)
       XCTAssertBody(
@@ -243,7 +243,7 @@ class RefreshDataTests: AppTests {
       .GET, "/api/data/refresh",
       headers: ["Authorization": "Bearer 123"]
     ) { res async throws in
-      let versions = try await localPatchVersions()
+      let versions = try await dbPatchVersions()
       XCTAssertEqual(versions, ["15.23.5"])
       XCTAssertEqual(res.status, .ok)
       XCTAssertBody(
@@ -251,11 +251,5 @@ class RefreshDataTests: AppTests {
         ["latestVersion": "15.23.5", "versionChanged": true]
       )
     }
-  }
-}
-
-extension RefreshDataTests {
-  func localPatchVersions() async throws -> [String?] {
-    try await PatchVersionModel.query(on: app.db).all().map(\.value)
   }
 }
