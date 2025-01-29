@@ -1,4 +1,5 @@
 import Fluent
+import Foundation
 
 struct AppDatabase {
   let runner: DatabaseRunner
@@ -25,6 +26,27 @@ extension AppDatabase {
   func mostRecentBeginnerRotation() async throws -> BeginnerChampionRotationModel? {
     try await runner.run { db in
       try await BeginnerChampionRotationModel.query(on: db).sort(\.$observedAt, .descending).first()
+    }
+  }
+
+  func findPreviousRegularRotation(before rotationId: String) async throws
+    -> RegularChampionRotationModel?
+  {
+    try await runner.run { db in
+      let uuid = try UUID(unsafe: rotationId)
+      let nextRotation = try await RegularChampionRotationModel.query(on: db)
+        .filter(\.$id == uuid)
+        .field(\.$observedAt)
+        .first()
+
+      guard let nextDate = nextRotation?.observedAt else {
+        return nil
+      }
+
+      return try await RegularChampionRotationModel.query(on: db)
+        .sort(\.$observedAt, .descending)
+        .filter(\.$observedAt < nextDate)
+        .first()
     }
   }
 
@@ -57,6 +79,14 @@ extension AppDatabase {
   func latestPatchVersion() async throws -> PatchVersionModel? {
     try await runner.run { db in
       try await PatchVersionModel.query(on: db).sort(\.$observedAt, .descending).first()
+    }
+  }
+
+  func patchVersion(olderThan: Date) async throws -> PatchVersionModel? {
+    try await runner.run { db in
+      try await PatchVersionModel.query(on: db)
+        .sort(\.$observedAt, .descending)
+        .filter(\.$observedAt < olderThan).first()
     }
   }
 

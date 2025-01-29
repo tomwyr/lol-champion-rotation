@@ -1,5 +1,8 @@
+import Foundation
+
 protocol VersionService {
   func latestVersion() async throws(PatchVersionError) -> String
+  func findVersion(olderThan: Date) async throws(PatchVersionError) -> String
   func refreshVersion() async throws(PatchVersionError) -> RefreshVersionResult
 }
 
@@ -9,14 +12,25 @@ struct DefaultVersionService<Version: RiotPatchVersion>: VersionService {
   let appDatabase: AppDatabase
 
   func latestVersion() async throws(PatchVersionError) -> String {
-    guard let version = try await getLatestLocalVersion()?.rawValue else {
+    let data = try await getLocalVersion(using: appDatabase.latestPatchVersion)
+    guard let version = data?.rawValue else {
+      throw .latestVersionUnknown
+    }
+    return version
+  }
+
+  func findVersion(olderThan: Date) async throws(PatchVersionError) -> String {
+    let data = try await getLocalVersion {
+      try await appDatabase.patchVersion(olderThan: olderThan)
+    }
+    guard let version = data?.rawValue else {
       throw .latestVersionUnknown
     }
     return version
   }
 
   func refreshVersion() async throws(PatchVersionError) -> RefreshVersionResult {
-    let localVersion = try await getLatestLocalVersion()
+    let localVersion = try await getLocalVersion(using: appDatabase.latestPatchVersion)
     let riotVersion = try await getLatestRiotVersion()
 
     let (versionChanged, latestVersion) = resolveVersion(localVersion, riotVersion)
@@ -44,10 +58,12 @@ struct DefaultVersionService<Version: RiotPatchVersion>: VersionService {
     return latestVersion
   }
 
-  private func getLatestLocalVersion() async throws(PatchVersionError) -> Version? {
+  private func getLocalVersion(using queryModel: () async throws -> PatchVersionModel?)
+    async throws(PatchVersionError) -> Version?
+  {
     let value: String?
     do {
-      value = try await appDatabase.latestPatchVersion()?.value
+      value = try await queryModel()?.value
     } catch {
       throw .dataUnavailable(cause: error)
     }
@@ -92,6 +108,7 @@ private typealias ResolveVersionResult<Version: RiotPatchVersion> = (
 enum PatchVersionError: Error {
   case dataUnavailable(cause: Error)
   case latestVersionUnknown
+  case versionNotFound(olderThan: Date)
   case localVersionInvalid(value: String?)
   case noValidRiotVersion(allVersions: [String])
   case dataOperationFailed(cause: Error)

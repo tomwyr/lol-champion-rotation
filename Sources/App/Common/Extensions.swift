@@ -62,3 +62,16 @@ extension AsyncMapSequence {
     try await Array(self)
   }
 }
+
+extension UUID {
+  init(unsafe uuidString: String) throws {
+    guard let result = UUID(uuidString) else {
+      throw UUIDError.invalidValue(uuidString)
+    }
+    self = result
+  }
+}
+
+enum UUIDError: Error {
+  case invalidValue(_ value: String)
+}

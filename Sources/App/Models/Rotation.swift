@@ -8,6 +8,12 @@ struct ChampionRotation: Content {
   let regularChampions: [Champion]
 }
 
+struct RegularChampionRotation: Content {
+  let patchVersion: String?
+  let duration: ChampionRotationDuration
+  let champions: [Champion]
+}
+
 struct ChampionRotationDuration: Content {
   let start: Date
   let end: Date
