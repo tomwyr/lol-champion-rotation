@@ -6,12 +6,14 @@ struct ChampionRotation: Content {
   let beginnerMaxLevel: Int
   let beginnerChampions: [Champion]
   let regularChampions: [Champion]
+  let nextRotationToken: String?
 }
 
 struct RegularChampionRotation: Content {
   let patchVersion: String?
   let duration: ChampionRotationDuration
   let champions: [Champion]
+  let nextRotationToken: String?
 }
 
 struct ChampionRotationDuration: Content {

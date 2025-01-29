@@ -16,11 +16,11 @@ func routes(_ app: Application, _ deps: Dependencies) throws {
 
     api.protected(with: userGuard).get("rotation") { req in
       try req.auth.require(UserAuth.self)
-      guard let nextRotationId = req.parameters.get("nextRotationId") else {
+      guard let nextRotationToken = req.parameters.get("nextRotationToken") else {
         throw Abort(.badRequest)
       }
       let rotationService = deps.rotationService(request: req)
-      return try await rotationService.rotation(nextRotationId: nextRotationId)
+      return try await rotationService.rotation(nextRotationToken: nextRotationToken)
     }
 
     api.protected(with: mobileUserGuard).get("user") { req in

@@ -29,6 +29,13 @@ extension AppDatabase {
     }
   }
 
+  func regularRotation(rotationId: String) async throws -> RegularChampionRotationModel? {
+    let uuid = try UUID(unsafe: rotationId)
+    return try await runner.run { db in
+      try await RegularChampionRotationModel.query(on: db).filter(\.$id == uuid).first()
+    }
+  }
+
   func findPreviousRegularRotation(before rotationId: String) async throws
     -> RegularChampionRotationModel?
   {

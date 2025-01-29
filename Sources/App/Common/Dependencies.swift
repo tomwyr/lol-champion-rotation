@@ -18,7 +18,8 @@ struct Dependencies {
       riotApiClient: riotApiClient(),
       appDatabase: appDatabase(request: request),
       versionService: versionService(request: request),
-      notificationsService: notificationsService(request: request)
+      notificationsService: notificationsService(request: request),
+      tokenMapper: tokenMapper()
     )
   }
 
@@ -66,5 +67,9 @@ struct Dependencies {
     AppDatabase(
       runner: StartupRetryRunner(database: request.db)
     )
+  }
+
+  func tokenMapper() -> TokenMapper {
+    TokenMapper()
   }
 }
