@@ -56,7 +56,12 @@ extension AppTests {
           try await champion.create(on: db)
         }
         for version in dbPatchVersions {
+          let observedAt = version.observedAt
           try await version.create(on: db)
+          if let observedAt {
+            version.observedAt = observedAt
+            try await version.update(on: db)
+          }
         }
         for config in dbNotificationsConfigs {
           try await config.create(on: db)

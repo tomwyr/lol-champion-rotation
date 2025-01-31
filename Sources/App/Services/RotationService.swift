@@ -3,7 +3,7 @@ import Foundation
 protocol RotationService {
   func currentRotation() async throws(ChampionRotationError) -> ChampionRotation
   func rotation(nextRotationToken: String) async throws(ChampionRotationError)
-    -> RegularChampionRotation
+    -> RegularChampionRotation?
   func refreshRotation() async throws(ChampionRotationError) -> RefreshRotationResult
 }
 
@@ -23,9 +23,10 @@ struct DefaultRotationService: RotationService {
   }
 
   func rotation(nextRotationToken: String) async throws(ChampionRotationError)
-    -> RegularChampionRotation
+    -> RegularChampionRotation?
   {
     let localData = try await loadRegularRotationLocalData(nextRotationToken: nextRotationToken)
+    guard let localData else { return nil }
     let nextRotationTime = localData.rotation.observedAt
     let patchVersion = try? await versionService.findVersion(olderThan: nextRotationTime)
     let imageUrlsByChampionId = try await fetchImageUrls(localData)
@@ -254,7 +255,7 @@ extension DefaultRotationService {
   }
 
   private func loadRegularRotationLocalData(nextRotationToken: String)
-    async throws(ChampionRotationError) -> RegularRotationLocalData
+    async throws(ChampionRotationError) -> RegularRotationLocalData?
   {
     let nextRotationId: String
     do {
@@ -279,7 +280,7 @@ extension DefaultRotationService {
       throw .dataOperationFailed(cause: error)
     }
     guard let rotation else {
-      throw .previousRotationNotFound(nextRotationId: nextRotationToken)
+      return nil
     }
     return (rotation, champions, hasPreviousRegularRotation)
   }
@@ -359,7 +360,6 @@ enum ChampionRotationError: Error {
   case currentRotationDataMissing
   case rotationDurationInvalid
   case tokenHasingFailed(cause: Error)
-  case previousRotationNotFound(nextRotationId: String)
   case dataOperationFailed(cause: Error)
 }
 

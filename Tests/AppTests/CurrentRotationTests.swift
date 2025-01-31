@@ -250,12 +250,12 @@ class CurrentRotationTests: AppTests {
       dbRegularRotations: [
         .init(
           id: uuid("1"),
-          observedAt: .iso("2024-11-14T12:00:00Z")!,
+          observedAt: .iso("2024-11-13T12:00:00Z")!,
           champions: []
         ),
         .init(
           id: uuid("2"),
-          observedAt: .iso("2024-11-13T12:00:00Z")!,
+          observedAt: .iso("2024-11-14T12:00:00Z")!,
           champions: []
         ),
       ],
@@ -277,7 +277,7 @@ class CurrentRotationTests: AppTests {
       XCTAssertBody(
         res.body,
         [
-          "nextRotationToken": nextRotationToken("1"),
+          "nextRotationToken": nextRotationToken("2"),
           "duration": [
             "start": "2024-11-14T12:00:00Z",
             "end": "2024-11-28T12:00:00Z",
@@ -297,22 +297,22 @@ class CurrentRotationTests: AppTests {
       dbRegularRotations: [
         .init(
           id: uuid("1"),
-          observedAt: .iso("2024-11-14T12:00:00Z")!,
+          observedAt: .iso("2024-11-11T12:00:00Z")!,
           champions: []
         ),
         .init(
           id: uuid("2"),
-          observedAt: .iso("2024-11-13T12:00:00Z")!,
-          champions: []
-        ),
-        .init(
-          id: uuid("3"),
           observedAt: .iso("2024-11-12T12:00:00Z")!,
           champions: []
         ),
         .init(
+          id: uuid("3"),
+          observedAt: .iso("2024-11-13T12:00:00Z")!,
+          champions: []
+        ),
+        .init(
           id: uuid("4"),
-          observedAt: .iso("2024-11-11T12:00:00Z")!,
+          observedAt: .iso("2024-11-14T12:00:00Z")!,
           champions: []
         ),
       ],
@@ -334,7 +334,7 @@ class CurrentRotationTests: AppTests {
       XCTAssertBody(
         res.body,
         [
-          "nextRotationToken": nextRotationToken("1"),
+          "nextRotationToken": nextRotationToken("4"),
           "duration": [
             "start": "2024-11-14T12:00:00Z",
             "end": "2024-11-28T12:00:00Z",
@@ -346,36 +346,4 @@ class CurrentRotationTests: AppTests {
       )
     }
   }
-}
-
-let idHasherSecretKey = "cc6598efe834325043ff59b2627be29c"
-let idHasherNonce = "75b7292db9cb"
-
-func nextRotationToken(_ rotationId: String) -> String? {
-  let tokens = [
-    "1": "XxrgFnhEBxznCnZMEKsGTvZAAZ53aMeaxUVt1GRL1mipwuHs",
-    "2": "XxrgFnhEBxznCnZMEKsGTvZAAZ53aMeaxUVt1GRL1mipwuHv",
-    "3": "XxrgFnhEBxznCnZMEKsGTvZAAZ53aMeaxUVt1GRL1mipwuHu",
-    "4": "XxrgFnhEBxznCnZMEKsGTvZAAZ53aMeaxUVt1GRL1mipwuHp",
-    "5": "XxrgFnhEBxznCnZMEKsGTvZAAZ53aMeaxUVt1GRL1mipwuHo",
-  ]
-  return tokens[rotationId]
-}
-
-func imageUrl(_ championId: String) -> String {
-  "https://api003.backblazeb2.com/file/lol-champion-rotation/champions/\(championId).jpg"
-}
-
-func uuid(_ id: String) -> UUID? {
-  UUID(uuidString(id))
-}
-
-func uuidString(_ id: String) -> String {
-  let maxLength = 32
-  guard id.count <= maxLength else {
-    fatalError("The id must not be longer than \(maxLength) bytes.")
-  }
-  let leadingZeros = String(repeating: "0", count: maxLength - id.count)
-  let str = leadingZeros + id
-  return "\(str[0..<8])-\(str[8..<12])-\(str[12..<16])-\(str[16..<20])-\(str[20..<32])"
 }

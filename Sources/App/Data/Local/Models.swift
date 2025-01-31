@@ -143,7 +143,11 @@ final class PatchVersionModel: Model, @unchecked Sendable {
 
   init() {}
 
-  init(value: String) {
+  init(
+    observedAt: Date? = nil,
+    value: String
+  ) {
+    self.observedAt = observedAt
     self.value = value
   }
 }
