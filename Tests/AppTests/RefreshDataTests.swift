@@ -44,15 +44,19 @@ class RefreshDataTests: AppTests {
   func testRotationChampionsChanged() async throws {
     _ = try await testConfigureWith(
       appManagementKey: "123",
-      dbRegularRotation: .init(
-        observedAt: Date.now,
-        champions: ["Sett", "Sett"]
-      ),
-      dbBeginnerRotation: .init(
-        observedAt: Date.now,
-        maxLevel: 10,
-        champions: ["Nocturne"]
-      ),
+      dbRegularRotations: [
+        .init(
+          observedAt: Date.now,
+          champions: ["Sett", "Sett"]
+        )
+      ],
+      dbBeginnerRotations: [
+        .init(
+          observedAt: Date.now,
+          maxLevel: 10,
+          champions: ["Nocturne"]
+        )
+      ],
       dbPatchVersions: [.init(value: "1")],
       riotPatchVersions: ["1"],
       riotChampionRotationsData: .init(
@@ -82,15 +86,19 @@ class RefreshDataTests: AppTests {
   func testRotationMaxLevelChanged() async throws {
     _ = try await testConfigureWith(
       appManagementKey: "123",
-      dbRegularRotation: .init(
-        observedAt: Date.now,
-        champions: ["Sett", "Garen"]
-      ),
-      dbBeginnerRotation: .init(
-        observedAt: Date.now,
-        maxLevel: 5,
-        champions: ["Nocturne"]
-      ),
+      dbRegularRotations: [
+        .init(
+          observedAt: Date.now,
+          champions: ["Sett", "Garen"]
+        )
+      ],
+      dbBeginnerRotations: [
+        .init(
+          observedAt: Date.now,
+          maxLevel: 5,
+          champions: ["Nocturne"]
+        )
+      ],
       dbPatchVersions: [.init(value: "1")],
       riotPatchVersions: ["1"],
       riotChampionRotationsData: .init(
@@ -120,15 +128,19 @@ class RefreshDataTests: AppTests {
   func testRotationDidNotChange() async throws {
     _ = try await testConfigureWith(
       appManagementKey: "123",
-      dbRegularRotation: .init(
-        observedAt: Date.now,
-        champions: ["Sett", "Garen"]
-      ),
-      dbBeginnerRotation: .init(
-        observedAt: Date.now,
-        maxLevel: 10,
-        champions: ["Nocturne"]
-      ),
+      dbRegularRotations: [
+        .init(
+          observedAt: Date.now,
+          champions: ["Sett", "Garen"]
+        )
+      ],
+      dbBeginnerRotations: [
+        .init(
+          observedAt: Date.now,
+          maxLevel: 10,
+          champions: ["Nocturne"]
+        )
+      ],
       dbPatchVersions: [.init(value: "1")],
       riotPatchVersions: ["1"],
       riotChampionRotationsData: .init(

@@ -51,6 +51,13 @@ extension Date {
 }
 
 extension String {
+  subscript(range: Range<Int>) -> String {
+    let safeRange = max(0, range.startIndex)..<min(count, range.endIndex)
+    let start = index(startIndex, offsetBy: safeRange.startIndex)
+    let end = index(startIndex, offsetBy: safeRange.endIndex)
+    return String(self[start..<end])
+  }
+
   func split(separator: Character) -> [String] {
     // Pass maxSplits to avoid method ambiguity.
     split(separator: separator, maxSplits: Int.max).map(String.init)

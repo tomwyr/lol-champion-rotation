@@ -5,15 +5,22 @@ import XCTVapor
 class CurrentRotationTests: AppTests {
   func testSimpleResult() async throws {
     _ = try await testConfigureWith(
-      dbRegularRotation: .init(
-        observedAt: .iso("2024-11-14T12:00:00Z")!,
-        champions: ["Garen", "Sett"]
-      ),
-      dbBeginnerRotation: .init(
-        observedAt: .iso("2024-11-14T12:00:00Z")!,
-        maxLevel: 10,
-        champions: ["Nocturne"]
-      ),
+      idHasherSecretKey: idHasherSecretKey,
+      idHasherNonce: idHasherNonce,
+      dbRegularRotations: [
+        .init(
+          id: uuid("1"),
+          observedAt: .iso("2024-11-14T12:00:00Z")!,
+          champions: ["Garen", "Sett"]
+        )
+      ],
+      dbBeginnerRotations: [
+        .init(
+          observedAt: .iso("2024-11-14T12:00:00Z")!,
+          maxLevel: 10,
+          champions: ["Nocturne"]
+        )
+      ],
       dbChampions: [
         .init(id: uuid("1"), riotId: "Nocturne", name: "Nocturne"),
         .init(id: uuid("2"), riotId: "Garen", name: "Garen"),
@@ -38,17 +45,17 @@ class CurrentRotationTests: AppTests {
           "beginnerMaxLevel": 10,
           "beginnerChampions": [
             [
-              "id": id("1"), "name": "Nocturne",
+              "id": uuidString("1"), "name": "Nocturne",
               "imageUrl": imageUrl("Nocturne"),
             ]
           ],
           "regularChampions": [
             [
-              "id": id("2"), "name": "Garen",
+              "id": uuidString("2"), "name": "Garen",
               "imageUrl": imageUrl("Garen"),
             ],
             [
-              "id": id("3"), "name": "Sett",
+              "id": uuidString("3"), "name": "Sett",
               "imageUrl": imageUrl("Sett"),
             ],
           ],
@@ -59,15 +66,21 @@ class CurrentRotationTests: AppTests {
 
   func testChampionsAreSortedById() async throws {
     _ = try await testConfigureWith(
-      dbRegularRotation: .init(
-        observedAt: Date.now,
-        champions: ["Jax", "Sett", "Garen"]
-      ),
-      dbBeginnerRotation: .init(
-        observedAt: Date.now,
-        maxLevel: 10,
-        champions: ["Nocturne", "Ashe", "Shen"]
-      ),
+      idHasherSecretKey: idHasherSecretKey,
+      idHasherNonce: idHasherNonce,
+      dbRegularRotations: [
+        .init(
+          observedAt: Date.now,
+          champions: ["Jax", "Sett", "Garen"]
+        )
+      ],
+      dbBeginnerRotations: [
+        .init(
+          observedAt: Date.now,
+          maxLevel: 10,
+          champions: ["Nocturne", "Ashe", "Shen"]
+        )
+      ],
       dbChampions: [
         .init(id: uuid("1"), riotId: "Ashe", name: "Ashe"),
         .init(id: uuid("2"), riotId: "Nocturne", name: "Nocturne"),
@@ -86,17 +99,17 @@ class CurrentRotationTests: AppTests {
       XCTAssertBody(
         res.body, at: "beginnerChampions",
         [
-          ["id": id("1"), "name": "Ashe", "imageUrl": imageUrl("Ashe")],
-          ["id": id("2"), "name": "Nocturne", "imageUrl": imageUrl("Nocturne")],
-          ["id": id("3"), "name": "Shen", "imageUrl": imageUrl("Shen")],
+          ["id": uuidString("1"), "name": "Ashe", "imageUrl": imageUrl("Ashe")],
+          ["id": uuidString("2"), "name": "Nocturne", "imageUrl": imageUrl("Nocturne")],
+          ["id": uuidString("3"), "name": "Shen", "imageUrl": imageUrl("Shen")],
         ]
       )
       XCTAssertBody(
         res.body, at: "regularChampions",
         [
-          ["id": id("4"), "name": "Garen", "imageUrl": imageUrl("Garen")],
-          ["id": id("5"), "name": "Jax", "imageUrl": imageUrl("Jax")],
-          ["id": id("6"), "name": "Sett", "imageUrl": imageUrl("Sett")],
+          ["id": uuidString("4"), "name": "Garen", "imageUrl": imageUrl("Garen")],
+          ["id": uuidString("5"), "name": "Jax", "imageUrl": imageUrl("Jax")],
+          ["id": uuidString("6"), "name": "Sett", "imageUrl": imageUrl("Sett")],
         ]
       )
     }
@@ -104,15 +117,21 @@ class CurrentRotationTests: AppTests {
 
   func testSameChampionIsBeginnerAndRegular() async throws {
     _ = try await testConfigureWith(
-      dbRegularRotation: .init(
-        observedAt: Date.now,
-        champions: ["Nocturne", "Sett"]
-      ),
-      dbBeginnerRotation: .init(
-        observedAt: Date.now,
-        maxLevel: 10,
-        champions: ["Garen", "Sett"]
-      ),
+      idHasherSecretKey: idHasherSecretKey,
+      idHasherNonce: idHasherNonce,
+      dbRegularRotations: [
+        .init(
+          observedAt: Date.now,
+          champions: ["Nocturne", "Sett"]
+        )
+      ],
+      dbBeginnerRotations: [
+        .init(
+          observedAt: Date.now,
+          maxLevel: 10,
+          champions: ["Garen", "Sett"]
+        )
+      ],
       dbChampions: [
         .init(id: uuid("1"), riotId: "Garen", name: "Garen"),
         .init(id: uuid("2"), riotId: "Sett", name: "Sett"),
@@ -128,15 +147,15 @@ class CurrentRotationTests: AppTests {
       XCTAssertBody(
         res.body, at: "beginnerChampions",
         [
-          ["id": id("1"), "name": "Garen", "imageUrl": imageUrl("Garen")],
-          ["id": id("2"), "name": "Sett", "imageUrl": imageUrl("Sett")],
+          ["id": uuidString("1"), "name": "Garen", "imageUrl": imageUrl("Garen")],
+          ["id": uuidString("2"), "name": "Sett", "imageUrl": imageUrl("Sett")],
         ]
       )
       XCTAssertBody(
         res.body, at: "regularChampions",
         [
-          ["id": id("3"), "name": "Nocturne", "imageUrl": imageUrl("Nocturne")],
-          ["id": id("2"), "name": "Sett", "imageUrl": imageUrl("Sett")],
+          ["id": uuidString("3"), "name": "Nocturne", "imageUrl": imageUrl("Nocturne")],
+          ["id": uuidString("2"), "name": "Sett", "imageUrl": imageUrl("Sett")],
         ]
       )
     }
@@ -144,15 +163,22 @@ class CurrentRotationTests: AppTests {
 
   func testOptionalDataUnavailable() async throws {
     _ = try await testConfigureWith(
-      dbRegularRotation: .init(
-        observedAt: .iso("2024-11-14T12:00:00Z")!,
-        champions: []
-      ),
-      dbBeginnerRotation: .init(
-        observedAt: .iso("2024-11-14T12:00:00Z")!,
-        maxLevel: 10,
-        champions: []
-      ),
+      idHasherSecretKey: idHasherSecretKey,
+      idHasherNonce: idHasherNonce,
+      dbRegularRotations: [
+        .init(
+          id: uuid("1"),
+          observedAt: .iso("2024-11-14T12:00:00Z")!,
+          champions: []
+        )
+      ],
+      dbBeginnerRotations: [
+        .init(
+          observedAt: .iso("2024-11-14T12:00:00Z")!,
+          maxLevel: 10,
+          champions: []
+        )
+      ],
       dbChampions: [],
       dbPatchVersions: []
     )
@@ -175,16 +201,181 @@ class CurrentRotationTests: AppTests {
       )
     }
   }
+
+  func testNoNextRotation() async throws {
+    _ = try await testConfigureWith(
+      idHasherSecretKey: idHasherSecretKey,
+      idHasherNonce: idHasherNonce,
+      dbRegularRotations: [
+        .init(
+          id: uuid("1"),
+          observedAt: .iso("2024-11-14T12:00:00Z")!,
+          champions: []
+        )
+      ],
+      dbBeginnerRotations: [
+        .init(
+          observedAt: .iso("2024-11-14T12:00:00Z")!,
+          maxLevel: 10,
+          champions: []
+        )
+      ],
+      dbChampions: [],
+      dbPatchVersions: []
+    )
+
+    try await app.test(
+      .GET, "/api/rotation/current"
+    ) { res async in
+      XCTAssertEqual(res.status, .ok)
+      XCTAssertBody(
+        res.body,
+        [
+          "duration": [
+            "start": "2024-11-14T12:00:00Z",
+            "end": "2024-11-28T12:00:00Z",
+          ],
+          "beginnerMaxLevel": 10,
+          "beginnerChampions": [],
+          "regularChampions": [],
+        ]
+      )
+    }
+  }
+
+  func testSingleNextRotation() async throws {
+    _ = try await testConfigureWith(
+      idHasherSecretKey: idHasherSecretKey,
+      idHasherNonce: idHasherNonce,
+      dbRegularRotations: [
+        .init(
+          id: uuid("1"),
+          observedAt: .iso("2024-11-14T12:00:00Z")!,
+          champions: []
+        ),
+        .init(
+          id: uuid("2"),
+          observedAt: .iso("2024-11-13T12:00:00Z")!,
+          champions: []
+        ),
+      ],
+      dbBeginnerRotations: [
+        .init(
+          observedAt: .iso("2024-11-14T12:00:00Z")!,
+          maxLevel: 10,
+          champions: []
+        )
+      ],
+      dbChampions: [],
+      dbPatchVersions: []
+    )
+
+    try await app.test(
+      .GET, "/api/rotation/current"
+    ) { res async in
+      XCTAssertEqual(res.status, .ok)
+      XCTAssertBody(
+        res.body,
+        [
+          "nextRotationToken": nextRotationToken("1"),
+          "duration": [
+            "start": "2024-11-14T12:00:00Z",
+            "end": "2024-11-28T12:00:00Z",
+          ],
+          "beginnerMaxLevel": 10,
+          "beginnerChampions": [],
+          "regularChampions": [],
+        ]
+      )
+    }
+  }
+
+  func testMultipleNextRotations() async throws {
+    _ = try await testConfigureWith(
+      idHasherSecretKey: idHasherSecretKey,
+      idHasherNonce: idHasherNonce,
+      dbRegularRotations: [
+        .init(
+          id: uuid("1"),
+          observedAt: .iso("2024-11-14T12:00:00Z")!,
+          champions: []
+        ),
+        .init(
+          id: uuid("2"),
+          observedAt: .iso("2024-11-13T12:00:00Z")!,
+          champions: []
+        ),
+        .init(
+          id: uuid("3"),
+          observedAt: .iso("2024-11-12T12:00:00Z")!,
+          champions: []
+        ),
+        .init(
+          id: uuid("4"),
+          observedAt: .iso("2024-11-11T12:00:00Z")!,
+          champions: []
+        ),
+      ],
+      dbBeginnerRotations: [
+        .init(
+          observedAt: .iso("2024-11-14T12:00:00Z")!,
+          maxLevel: 10,
+          champions: []
+        )
+      ],
+      dbChampions: [],
+      dbPatchVersions: []
+    )
+
+    try await app.test(
+      .GET, "/api/rotation/current"
+    ) { res async in
+      XCTAssertEqual(res.status, .ok)
+      XCTAssertBody(
+        res.body,
+        [
+          "nextRotationToken": nextRotationToken("1"),
+          "duration": [
+            "start": "2024-11-14T12:00:00Z",
+            "end": "2024-11-28T12:00:00Z",
+          ],
+          "beginnerMaxLevel": 10,
+          "beginnerChampions": [],
+          "regularChampions": [],
+        ]
+      )
+    }
+  }
+}
+
+let idHasherSecretKey = "cc6598efe834325043ff59b2627be29c"
+let idHasherNonce = "75b7292db9cb"
+
+func nextRotationToken(_ rotationId: String) -> String? {
+  let tokens = [
+    "1": "XxrgFnhEBxznCnZMEKsGTvZAAZ53aMeaxUVt1GRL1mipwuHs",
+    "2": "XxrgFnhEBxznCnZMEKsGTvZAAZ53aMeaxUVt1GRL1mipwuHv",
+    "3": "XxrgFnhEBxznCnZMEKsGTvZAAZ53aMeaxUVt1GRL1mipwuHu",
+    "4": "XxrgFnhEBxznCnZMEKsGTvZAAZ53aMeaxUVt1GRL1mipwuHp",
+    "5": "XxrgFnhEBxznCnZMEKsGTvZAAZ53aMeaxUVt1GRL1mipwuHo",
+  ]
+  return tokens[rotationId]
 }
 
 func imageUrl(_ championId: String) -> String {
   "https://api003.backblazeb2.com/file/lol-champion-rotation/champions/\(championId).jpg"
 }
 
-func uuid(_ value: String) -> UUID? {
-  UUID(id(value))
+func uuid(_ id: String) -> UUID? {
+  UUID(uuidString(id))
 }
 
-func id(_ value: String) -> String {
-  "00000000-0000-0000-0000-00000000000\(value)"
+func uuidString(_ id: String) -> String {
+  let maxLength = 32
+  guard id.count <= maxLength else {
+    fatalError("The id must not be longer than \(maxLength) bytes.")
+  }
+  let leadingZeros = String(repeating: "0", count: maxLength - id.count)
+  let str = leadingZeros + id
+  return "\(str[0..<8])-\(str[8..<12])-\(str[12..<16])-\(str[16..<20])-\(str[20..<32])"
 }

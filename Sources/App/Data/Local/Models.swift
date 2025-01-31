@@ -71,9 +71,11 @@ final class RegularChampionRotationModel: Model, @unchecked Sendable {
   init() {}
 
   init(
+    id: UUID? = nil,
     observedAt: Date,
     champions: [String]
   ) {
+    self.id = id
     self.observedAt = observedAt
     self.champions = champions
   }

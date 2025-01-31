@@ -9,8 +9,10 @@ typealias InitDbModel<T> = (T) -> Void where T: Model
 extension AppTests {
   func testConfigureWith(
     appManagementKey: String? = nil,
-    dbRegularRotation: RegularChampionRotationModel? = nil,
-    dbBeginnerRotation: BeginnerChampionRotationModel? = nil,
+    idHasherSecretKey: String? = nil,
+    idHasherNonce: String? = nil,
+    dbRegularRotations: [RegularChampionRotationModel] = [],
+    dbBeginnerRotations: [BeginnerChampionRotationModel] = [],
     dbChampions: [ChampionModel] = [],
     dbPatchVersions: [PatchVersionModel] = [],
     dbNotificationsConfigs: [NotificationsConfigModel] = [],
@@ -36,12 +38,20 @@ extension AppTests {
 
     try await testConfigure(
       deps: .mock(
-        appConfig: .empty(appManagementKey: appManagementKey ?? ""),
+        appConfig: .empty(
+          appManagementKey: appManagementKey ?? "",
+          idHasherSecretKey: idHasherSecretKey ?? "",
+          idHasherNonce: idHasherNonce ?? ""
+        ),
         httpClient: httpClient
       ),
       initDb: { db async throws in
-        try await dbRegularRotation?.create(on: db)
-        try await dbBeginnerRotation?.create(on: db)
+        for rotation in dbRegularRotations {
+          try await rotation.create(on: db)
+        }
+        for rotation in dbBeginnerRotations {
+          try await rotation.create(on: db)
+        }
         for champion in dbChampions {
           try await champion.create(on: db)
         }

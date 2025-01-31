@@ -7,7 +7,7 @@ func XCTAssertBodyError(_ body: ByteBuffer, _ reason: String) {
 func XCTAssertBody(
   _ body: ByteBuffer,
   at path: String? = nil,
-  _ expected: NSDictionary,
+  _ expected: [String: Any?],
   file: StaticString = #filePath, line: UInt = #line
 ) {
   let fail = { (message: String) in XCTFail(message, file: file, line: line) }
@@ -30,7 +30,7 @@ func XCTAssertBody(
     actual = jsonObject
   }
 
-  XCTAssertEqual(expected, actual)
+  XCTAssertEqual(expected as NSDictionary, actual)
 }
 
 func XCTAssertBody(
