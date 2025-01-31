@@ -13,7 +13,7 @@ struct DefaultRotationService: RotationService {
   let appDatabase: AppDatabase
   let versionService: VersionService
   let notificationsService: NotificationsService
-  let tokenMapper: TokenMapper
+  let idHasher: IdHasher
 
   func currentRotation() async throws(ChampionRotationError) -> ChampionRotation {
     let patchVersion = try? await versionService.latestVersion()
@@ -119,7 +119,7 @@ extension DefaultRotationService {
     }
     let duration = ChampionRotationDuration(start: startDate, end: endDate)
 
-    let nextRotationToken = getNextRotationToken(data.regularRotation)
+    let nextRotationToken = try getNextRotationToken(data.regularRotation)
 
     return ChampionRotation(
       patchVersion: patchVersion,
@@ -160,7 +160,7 @@ extension DefaultRotationService {
     }
     let duration = ChampionRotationDuration(start: startDate, end: endDate)
 
-    let nextRotationToken = getNextRotationToken(data.rotation)
+    let nextRotationToken = try getNextRotationToken(data.rotation)
 
     return RegularChampionRotation(
       patchVersion: patchVersion,
@@ -170,11 +170,14 @@ extension DefaultRotationService {
     )
   }
 
-  private func getNextRotationToken(_ rotation: RegularChampionRotationModel) -> String? {
-    if let rotationId = rotation.id?.uuidString {
-      tokenMapper.modelIdToToken(rotationId)
-    } else {
-      nil as String?
+  private func getNextRotationToken(_ rotation: RegularChampionRotationModel)
+    throws(ChampionRotationError) -> String?
+  {
+    let rotationId = rotation.id!.uuidString
+    do {
+      return try idHasher.idToToken(rotationId)
+    } catch {
+      throw .tokenHasingFailed(cause: error)
     }
   }
 
@@ -234,7 +237,13 @@ extension DefaultRotationService {
   private func loadRegularRotationLocalData(nextRotationToken: String)
     async throws(ChampionRotationError) -> RegularRotationLocalData
   {
-    let nextRotationId = tokenMapper.tokenToModelId(nextRotationToken)
+    let nextRotationId: String
+    do {
+      nextRotationId = try idHasher.tokenToId(nextRotationToken)
+    } catch {
+      throw .tokenHasingFailed(cause: error)
+    }
+
     let rotation: RegularChampionRotationModel?
     let champions: [ChampionModel]
     do {
@@ -321,6 +330,7 @@ enum ChampionRotationError: Error {
   case championDataMissing(championId: String)
   case currentRotationDataMissing
   case rotationDurationInvalid
+  case tokenHasingFailed(cause: Error)
   case previousRotationNotFound(nextRotationId: String)
   case dataOperationFailed(cause: Error)
 }
@@ -333,15 +343,5 @@ struct ChampionImageUrls {
       throw .championImageMissing(championId: championRiotId)
     }
     return imageUrl
-  }
-}
-
-struct TokenMapper {
-  func tokenToModelId(_ token: String) -> String {
-    fatalError("TODO")
-  }
-
-  func modelIdToToken(_ modelId: String) -> String {
-    fatalError("TODO")
   }
 }

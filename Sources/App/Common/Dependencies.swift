@@ -19,7 +19,7 @@ struct Dependencies {
       appDatabase: appDatabase(request: request),
       versionService: versionService(request: request),
       notificationsService: notificationsService(request: request),
-      tokenMapper: tokenMapper()
+      idHasher: idHasher()
     )
   }
 
@@ -69,7 +69,10 @@ struct Dependencies {
     )
   }
 
-  func tokenMapper() -> TokenMapper {
-    TokenMapper()
+  func idHasher() -> IdHasher {
+    IdHasher(
+      secretKey: appConfig.idHasherSecretKey,
+      nonce: appConfig.idHasherNonce
+    )
   }
 }
