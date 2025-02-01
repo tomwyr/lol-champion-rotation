@@ -18,11 +18,11 @@ final class IdHasherTests: XCTestCase {
   ]
 
   let tokens = [
-    "sL21JAo5lMjHN2PuU51gYl6957w30qbbfgrZKJQonLPWkhyE",
-    "sbu/Iwpqn8vHMmC6AJ1gZVzt5700gqLbeV2OKMMnn7WHxU+P",
-    "tr/iJA9qyMjHbmHjAZ1gYlzv57w+h/TbfF+NL5AkmubWx0ne",
-    "t7+zIgBsnM/HZzS6XZ1gYQi+57w+gP/bLV3dK8J1zbTaxh2E",
-    "t+m3IFo+mc3HYWXtUJ1gP13u5+UzgvXbfVuOf5AlmOaBwk3Z",
+    "b0bdb5240a3994c8c73763ee539d60625ebde7bc37d2a6db7e0ad92894289cb3d6921c84",
+    "b1bbbf230a6a9fcbc73260ba009d60655cede7bd3482a2db795d8e28c3279fb587c54f8f",
+    "b6bfe2240f6ac8c8c76e61e3019d60625cefe7bc3e87f4db7c5f8d2f90249ae6d6c749de",
+    "b7bfb322006c9ccfc76734ba5d9d606108bee7bc3e80ffdb2d5ddd2bc275cdb4dac61d84",
+    "b7e9b7205a3e99cdc76165ed509d603f5deee7e53382f5db7d5b8e7f902598e681c24dd9",
   ]
 
   func testIdToToken() throws {

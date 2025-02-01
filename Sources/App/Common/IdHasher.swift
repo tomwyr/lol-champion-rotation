@@ -14,14 +14,20 @@ struct IdHasher {
   }
 
   private func chaCha20Encrypt(value: String) throws -> String {
-    try value.encryptToBase64(cipher: cipher())
+    try cipher().encrypt(value.bytes).hex
   }
 
   private func chaCha20Decrypt(value: String) throws -> String {
-    try value.decryptBase64ToString(cipher: cipher())
+    try cipher().decrypt(Array(hex: value)).string
   }
 
   private func cipher() throws -> ChaCha20 {
     try ChaCha20(key: secretKey, iv: nonce)
+  }
+}
+
+extension [UInt8] {
+  var string: String {
+    String(bytes: self, encoding: .utf8)!
   }
 }

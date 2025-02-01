@@ -190,7 +190,7 @@ extension DefaultRotationService {
     do {
       return try idHasher.idToToken(rotationId)
     } catch {
-      throw .tokenHasingFailed(cause: error)
+      throw .tokenHashingFailed(cause: error)
     }
   }
 
@@ -261,7 +261,7 @@ extension DefaultRotationService {
     do {
       nextRotationId = try idHasher.tokenToId(nextRotationToken)
     } catch {
-      throw .tokenHasingFailed(cause: error)
+      throw .tokenHashingFailed(cause: error)
     }
 
     let rotation: RegularChampionRotationModel?
@@ -359,7 +359,7 @@ enum ChampionRotationError: Error {
   case championDataMissing(championId: String)
   case currentRotationDataMissing
   case rotationDurationInvalid
-  case tokenHasingFailed(cause: Error)
+  case tokenHashingFailed(cause: Error)
   case dataOperationFailed(cause: Error)
 }
 

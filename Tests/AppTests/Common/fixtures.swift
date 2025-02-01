@@ -7,11 +7,11 @@ let idHasherNonce = "75b7292db9cb"
 
 func nextRotationToken(_ rotationId: String) -> String {
   let tokens = [
-    "1": "XxrgFnhEBxznCnZMEKsGTvZAAZ53aMeaxUVt1GRL1mipwuHs",
-    "2": "XxrgFnhEBxznCnZMEKsGTvZAAZ53aMeaxUVt1GRL1mipwuHv",
-    "3": "XxrgFnhEBxznCnZMEKsGTvZAAZ53aMeaxUVt1GRL1mipwuHu",
-    "4": "XxrgFnhEBxznCnZMEKsGTvZAAZ53aMeaxUVt1GRL1mipwuHp",
-    "5": "XxrgFnhEBxznCnZMEKsGTvZAAZ53aMeaxUVt1GRL1mipwuHo",
+    "1": "5f1ae0167844071ce70a764c10ab064ef640019e7768c79ac5456dd4644bd668a9c2e1ec",
+    "2": "5f1ae0167844071ce70a764c10ab064ef640019e7768c79ac5456dd4644bd668a9c2e1ef",
+    "3": "5f1ae0167844071ce70a764c10ab064ef640019e7768c79ac5456dd4644bd668a9c2e1ee",
+    "4": "5f1ae0167844071ce70a764c10ab064ef640019e7768c79ac5456dd4644bd668a9c2e1e9",
+    "5": "5f1ae0167844071ce70a764c10ab064ef640019e7768c79ac5456dd4644bd668a9c2e1e8",
   ]
   guard let token = tokens[rotationId] else {
     fatalError("Next rotation token not found for rotation \(rotationId).")
