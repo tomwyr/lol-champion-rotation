@@ -14,7 +14,8 @@ struct DefaultRotationService: RotationService {
   let versionService: VersionService
   let notificationsService: NotificationsService
   let idHasher: IdHasher
-
+}
+extension DefaultRotationService {
   func currentRotation() async throws(ChampionRotationError) -> ChampionRotation {
     let patchVersion = try? await versionService.latestVersion()
     let localData = try await loadCurrentRotationLocalData()
@@ -22,41 +23,40 @@ struct DefaultRotationService: RotationService {
     return try createChampionRotation(patchVersion, localData, imageUrls)
   }
 
-  func rotation(nextRotationToken: String) async throws(ChampionRotationError)
-    -> RegularChampionRotation?
+  private func loadCurrentRotationLocalData() async throws(ChampionRotationError)
+    -> CurrentRotationLocalData
   {
-    let localData = try await loadRegularRotationLocalData(nextRotationToken: nextRotationToken)
-    guard let localData else { return nil }
-    let nextRotationTime = localData.rotation.observedAt
-    let patchVersion = try? await versionService.findVersion(olderThan: nextRotationTime)
-    let imageUrlsByChampionId = try await fetchImageUrls(localData)
-    return try createRegularRotation(patchVersion, localData, imageUrlsByChampionId)
-  }
-
-  func refreshRotation() async throws(ChampionRotationError) -> RefreshRotationResult {
-    let riotData = try await fetchRotationRiotData()
-    let rotations = try createRotationModels(riotData)
-    let rotationChanged = try await saveRotationsIfChanged(rotations)
-    try await saveChampionsData(riotData)
-    if rotationChanged {
-      try? await notificationsService.notifyRotationChanged()
-    }
-    return RefreshRotationResult(rotationChanged: rotationChanged)
-  }
-}
-
-extension DefaultRotationService {
-  private func fetchRotationRiotData() async throws(ChampionRotationError)
-    -> CurrentRotationRiotData
-  {
+    let regularRotation: RegularChampionRotationModel?
+    let beginnerRotation: BeginnerChampionRotationModel?
+    let champions: [ChampionModel]
+    let hasPreviousRegularRotation: Bool
+    let nextRegularRotationDate: Date?
     do {
-      let championRotations = try await riotApiClient.championRotations()
-      let version = try await versionService.latestVersion()
-      let champions = try await riotApiClient.champions(version: version)
-      return CurrentRotationRiotData(championRotations, champions)
+      regularRotation = try await appDatabase.mostRecentRegularRotation()
+      beginnerRotation = try await appDatabase.mostRecentBeginnerRotation()
+      champions = try await appDatabase.champions()
+      if let rotationId = regularRotation?.id?.uuidString {
+        let previousRotation = try await appDatabase.findPreviousRegularRotation(before: rotationId)
+        let nextRotation = try await appDatabase.findNextRegularRotation(after: rotationId)
+        hasPreviousRegularRotation = previousRotation != nil
+        nextRegularRotationDate = nextRotation?.observedAt
+      } else {
+        hasPreviousRegularRotation = false
+        nextRegularRotationDate = nil
+      }
     } catch {
-      throw .riotDataUnavailable(cause: error)
+      throw .dataOperationFailed(cause: error)
     }
+    guard let regularRotation, let beginnerRotation else {
+      throw .currentRotationDataMissing
+    }
+    return (
+      regularRotation,
+      beginnerRotation,
+      champions,
+      hasPreviousRegularRotation,
+      nextRegularRotationDate
+    )
   }
 
   private func fetchImageUrls(_ localData: CurrentRotationLocalData)
@@ -73,21 +73,6 @@ extension DefaultRotationService {
     }
   }
 
-  private func fetchImageUrls(_ localData: RegularRotationLocalData)
-    async throws(ChampionRotationError) -> ChampionImageUrls
-  {
-    do {
-      let championIds = localData.rotation.champions
-      let imageUrls = try await imageUrlProvider.champions(with: championIds)
-      let urlsById = Dictionary(uniqueKeysWithValues: zip(championIds, imageUrls))
-      return ChampionImageUrls(imageUrlsByChampionId: urlsById)
-    } catch {
-      throw .championImagesUnavailable(cause: error)
-    }
-  }
-}
-
-extension DefaultRotationService {
   private func createChampionRotation(
     _ patchVersion: String?,
     _ data: CurrentRotationLocalData,
@@ -133,6 +118,67 @@ extension DefaultRotationService {
       nextRotationToken: nextRotationToken
     )
   }
+}
+
+extension DefaultRotationService {
+  func rotation(nextRotationToken: String) async throws(ChampionRotationError)
+    -> RegularChampionRotation?
+  {
+    let localData = try await loadRegularRotationLocalData(nextRotationToken: nextRotationToken)
+    guard let localData else { return nil }
+    let nextRotationTime = localData.rotation.observedAt
+    let patchVersion = try? await versionService.findVersion(olderThan: nextRotationTime)
+    let imageUrlsByChampionId = try await fetchImageUrls(localData)
+    return try createRegularRotation(patchVersion, localData, imageUrlsByChampionId)
+  }
+
+  private func loadRegularRotationLocalData(nextRotationToken: String)
+    async throws(ChampionRotationError) -> RegularRotationLocalData?
+  {
+    let nextRotationId: String
+    do {
+      nextRotationId = try idHasher.tokenToId(nextRotationToken)
+    } catch {
+      throw .tokenHashingFailed(cause: error)
+    }
+
+    let rotation: RegularChampionRotationModel?
+    let champions: [ChampionModel]
+    let hasPreviousRegularRotation: Bool
+    let nextRegularRotationDate: Date?
+    do {
+      rotation = try await appDatabase.findPreviousRegularRotation(before: nextRotationId)
+      champions = try await appDatabase.champions()
+      if let rotationId = rotation?.id?.uuidString {
+        let previousRotation = try await appDatabase.findPreviousRegularRotation(before: rotationId)
+        let nextRotation = try await appDatabase.findNextRegularRotation(after: rotationId)
+        hasPreviousRegularRotation = previousRotation != nil
+        nextRegularRotationDate = nextRotation?.observedAt
+      } else {
+        hasPreviousRegularRotation = false
+        nextRegularRotationDate = nil
+      }
+    } catch {
+      throw .dataOperationFailed(cause: error)
+    }
+    guard let rotation else {
+      return nil
+    }
+    return (rotation, champions, hasPreviousRegularRotation, nextRegularRotationDate)
+  }
+
+  private func fetchImageUrls(_ localData: RegularRotationLocalData)
+    async throws(ChampionRotationError) -> ChampionImageUrls
+  {
+    do {
+      let championIds = localData.rotation.champions
+      let imageUrls = try await imageUrlProvider.champions(with: championIds)
+      let urlsById = Dictionary(uniqueKeysWithValues: zip(championIds, imageUrls))
+      return ChampionImageUrls(imageUrlsByChampionId: urlsById)
+    } catch {
+      throw .championImagesUnavailable(cause: error)
+    }
+  }
 
   private func createRegularRotation(
     _ patchVersion: String?,
@@ -174,26 +220,30 @@ extension DefaultRotationService {
       nextRotationToken: nextRotationToken
     )
   }
+}
 
-  private func getRotationDuration(
-    _ rotation: RegularChampionRotationModel,
-    _ nextRotationDate: Date?
-  ) throws(ChampionRotationError) -> ChampionRotationDuration {
-    let startDate = rotation.observedAt
-    guard let endDate = nextRotationDate ?? startDate.adding(2, .weekOfYear) else {
-      throw .rotationDurationInvalid
+extension DefaultRotationService {
+  func refreshRotation() async throws(ChampionRotationError) -> RefreshRotationResult {
+    let riotData = try await fetchRotationRiotData()
+    let rotations = try createRotationModels(riotData)
+    let rotationChanged = try await saveRotationsIfChanged(rotations)
+    try await saveChampionsData(riotData)
+    if rotationChanged {
+      try? await notificationsService.notifyRotationChanged()
     }
-    return ChampionRotationDuration(start: startDate, end: endDate)
+    return RefreshRotationResult(rotationChanged: rotationChanged)
   }
 
-  private func getNextRotationToken(_ rotation: RegularChampionRotationModel)
-    throws(ChampionRotationError) -> String?
+  private func fetchRotationRiotData() async throws(ChampionRotationError)
+    -> CurrentRotationRiotData
   {
-    let rotationId = rotation.id!.uuidString
     do {
-      return try idHasher.idToToken(rotationId)
+      let championRotations = try await riotApiClient.championRotations()
+      let version = try await versionService.latestVersion()
+      let champions = try await riotApiClient.champions(version: version)
+      return CurrentRotationRiotData(championRotations, champions)
     } catch {
-      throw .tokenHashingFailed(cause: error)
+      throw .riotDataUnavailable(cause: error)
     }
   }
 
@@ -231,85 +281,29 @@ extension DefaultRotationService {
 }
 
 extension DefaultRotationService {
-  private func loadCurrentRotationLocalData() async throws(ChampionRotationError)
-    -> CurrentRotationLocalData
-  {
-    let regularRotation: RegularChampionRotationModel?
-    let beginnerRotation: BeginnerChampionRotationModel?
-    let champions: [ChampionModel]
-    let hasPreviousRegularRotation: Bool
-    let nextRegularRotationDate: Date?
-    do {
-      regularRotation = try await appDatabase.mostRecentRegularRotation()
-      beginnerRotation = try await appDatabase.mostRecentBeginnerRotation()
-      champions = try await appDatabase.champions()
-      if let rotationId = regularRotation?.id?.uuidString {
-        let previousRotation = try await appDatabase.findPreviousRegularRotation(before: rotationId)
-        let nextRotation = try await appDatabase.findNextRegularRotation(after: rotationId)
-        hasPreviousRegularRotation = previousRotation != nil
-        nextRegularRotationDate = nextRotation?.observedAt
-      } else {
-        hasPreviousRegularRotation = false
-        nextRegularRotationDate = nil
-      }
-    } catch {
-      throw .dataOperationFailed(cause: error)
+}
+
+extension DefaultRotationService {
+
+  private func getRotationDuration(
+    _ rotation: RegularChampionRotationModel,
+    _ nextRotationDate: Date?
+  ) throws(ChampionRotationError) -> ChampionRotationDuration {
+    let startDate = rotation.observedAt
+    guard let endDate = nextRotationDate ?? startDate.adding(2, .weekOfYear) else {
+      throw .rotationDurationInvalid
     }
-    guard let regularRotation, let beginnerRotation else {
-      throw .currentRotationDataMissing
-    }
-    return (
-      regularRotation,
-      beginnerRotation,
-      champions,
-      hasPreviousRegularRotation,
-      nextRegularRotationDate
-    )
+    return ChampionRotationDuration(start: startDate, end: endDate)
   }
 
-  private func loadRegularRotationLocalData(nextRotationToken: String)
-    async throws(ChampionRotationError) -> RegularRotationLocalData?
+  private func getNextRotationToken(_ rotation: RegularChampionRotationModel)
+    throws(ChampionRotationError) -> String?
   {
-    let nextRotationId: String
+    let rotationId = rotation.id!.uuidString
     do {
-      nextRotationId = try idHasher.tokenToId(nextRotationToken)
+      return try idHasher.idToToken(rotationId)
     } catch {
       throw .tokenHashingFailed(cause: error)
-    }
-
-    let rotation: RegularChampionRotationModel?
-    let champions: [ChampionModel]
-    let hasPreviousRegularRotation: Bool
-    let nextRegularRotationDate: Date?
-    do {
-      rotation = try await appDatabase.findPreviousRegularRotation(before: nextRotationId)
-      champions = try await appDatabase.champions()
-      if let rotationId = rotation?.id?.uuidString {
-        let previousRotation = try await appDatabase.findPreviousRegularRotation(before: rotationId)
-        let nextRotation = try await appDatabase.findNextRegularRotation(after: rotationId)
-        hasPreviousRegularRotation = previousRotation != nil
-        nextRegularRotationDate = nextRotation?.observedAt
-      } else {
-        hasPreviousRegularRotation = false
-        nextRegularRotationDate = nil
-      }
-    } catch {
-      throw .dataOperationFailed(cause: error)
-    }
-    guard let rotation else {
-      return nil
-    }
-    return (rotation, champions, hasPreviousRegularRotation, nextRegularRotationDate)
-  }
-
-  private func saveChampionsData(_ riotData: CurrentRotationRiotData)
-    async throws(ChampionRotationError)
-  {
-    do {
-      let data = riotData.champions.data.values.toModels()
-      try await appDatabase.saveChampionsFillingIds(data: data)
-    } catch {
-      throw .dataOperationFailed(cause: error)
     }
   }
 
@@ -344,6 +338,16 @@ extension DefaultRotationService {
     return true
   }
 
+  private func saveChampionsData(_ riotData: CurrentRotationRiotData)
+    async throws(ChampionRotationError)
+  {
+    do {
+      let data = riotData.champions.data.values.toModels()
+      try await appDatabase.saveChampionsFillingIds(data: data)
+    } catch {
+      throw .dataOperationFailed(cause: error)
+    }
+  }
 }
 
 private typealias ChampionRotationModels = (
