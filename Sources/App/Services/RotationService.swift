@@ -62,7 +62,7 @@ extension DefaultRotationService {
   private func fetchImageUrls(_ localData: CurrentRotationLocalData)
     async throws(ChampionRotationError) -> ChampionImageUrls
   {
-    let (regularRotation, beginnerRotation, _, _) = localData
+    let (regularRotation, beginnerRotation, _, _, _) = localData
     do {
       let championIds = (regularRotation.champions + beginnerRotation.champions).uniqued()
       let imageUrls = try await imageUrlProvider.champions(with: championIds)
@@ -114,11 +114,7 @@ extension DefaultRotationService {
     let regularChampions = try data.regularRotation.champions
       .map(createChampion).sorted { $0.name < $1.name }
 
-    let startDate = data.regularRotation.observedAt
-    guard let endDate = startDate.adding(2, .weekOfYear) else {
-      throw .rotationDurationInvalid
-    }
-    let duration = ChampionRotationDuration(start: startDate, end: endDate)
+    let duration = try getRotationDuration(data.regularRotation, data.nextRegularRotationDate)
 
     let nextRotationToken =
       // Rotation is `previous` chronologically but `next` from the loading more data point of view.
@@ -161,11 +157,7 @@ extension DefaultRotationService {
     let champions = try data.rotation.champions
       .map(createChampion).sorted { $0.name < $1.name }
 
-    let startDate = data.rotation.observedAt
-    guard let endDate = startDate.adding(2, .weekOfYear) else {
-      throw .rotationDurationInvalid
-    }
-    let duration = ChampionRotationDuration(start: startDate, end: endDate)
+    let duration = try getRotationDuration(data.rotation, data.nextRegularRotationDate)
 
     let nextRotationToken =
       // Rotation is `previous` chronologically but `next` from the loading more data point of view.
@@ -181,6 +173,17 @@ extension DefaultRotationService {
       champions: champions,
       nextRotationToken: nextRotationToken
     )
+  }
+
+  private func getRotationDuration(
+    _ rotation: RegularChampionRotationModel,
+    _ nextRotationDate: Date?
+  ) throws(ChampionRotationError) -> ChampionRotationDuration {
+    let startDate = rotation.observedAt
+    guard let endDate = nextRotationDate ?? startDate.adding(2, .weekOfYear) else {
+      throw .rotationDurationInvalid
+    }
+    return ChampionRotationDuration(start: startDate, end: endDate)
   }
 
   private func getNextRotationToken(_ rotation: RegularChampionRotationModel)
@@ -235,23 +238,33 @@ extension DefaultRotationService {
     let beginnerRotation: BeginnerChampionRotationModel?
     let champions: [ChampionModel]
     let hasPreviousRegularRotation: Bool
+    let nextRegularRotationDate: Date?
     do {
       regularRotation = try await appDatabase.mostRecentRegularRotation()
       beginnerRotation = try await appDatabase.mostRecentBeginnerRotation()
       champions = try await appDatabase.champions()
-      hasPreviousRegularRotation =
-        if let rotationId = regularRotation?.id?.uuidString {
-          try await appDatabase.findPreviousRegularRotation(before: rotationId) != nil
-        } else {
-          false
-        }
+      if let rotationId = regularRotation?.id?.uuidString {
+        let previousRotation = try await appDatabase.findPreviousRegularRotation(before: rotationId)
+        let nextRotation = try await appDatabase.findNextRegularRotation(after: rotationId)
+        hasPreviousRegularRotation = previousRotation != nil
+        nextRegularRotationDate = nextRotation?.observedAt
+      } else {
+        hasPreviousRegularRotation = false
+        nextRegularRotationDate = nil
+      }
     } catch {
       throw .dataOperationFailed(cause: error)
     }
     guard let regularRotation, let beginnerRotation else {
       throw .currentRotationDataMissing
     }
-    return (regularRotation, beginnerRotation, champions, hasPreviousRegularRotation)
+    return (
+      regularRotation,
+      beginnerRotation,
+      champions,
+      hasPreviousRegularRotation,
+      nextRegularRotationDate
+    )
   }
 
   private func loadRegularRotationLocalData(nextRotationToken: String)
@@ -267,22 +280,26 @@ extension DefaultRotationService {
     let rotation: RegularChampionRotationModel?
     let champions: [ChampionModel]
     let hasPreviousRegularRotation: Bool
+    let nextRegularRotationDate: Date?
     do {
       rotation = try await appDatabase.findPreviousRegularRotation(before: nextRotationId)
       champions = try await appDatabase.champions()
-      hasPreviousRegularRotation =
-        if let rotationId = rotation?.id?.uuidString {
-          try await appDatabase.findPreviousRegularRotation(before: rotationId) != nil
-        } else {
-          false
-        }
+      if let rotationId = rotation?.id?.uuidString {
+        let previousRotation = try await appDatabase.findPreviousRegularRotation(before: rotationId)
+        let nextRotation = try await appDatabase.findNextRegularRotation(after: rotationId)
+        hasPreviousRegularRotation = previousRotation != nil
+        nextRegularRotationDate = nextRotation?.observedAt
+      } else {
+        hasPreviousRegularRotation = false
+        nextRegularRotationDate = nil
+      }
     } catch {
       throw .dataOperationFailed(cause: error)
     }
     guard let rotation else {
       return nil
     }
-    return (rotation, champions, hasPreviousRegularRotation)
+    return (rotation, champions, hasPreviousRegularRotation, nextRegularRotationDate)
   }
 
   private func saveChampionsData(_ riotData: CurrentRotationRiotData)
@@ -326,6 +343,7 @@ extension DefaultRotationService {
     try await appDatabase.addBeginnerRotation(data: rotation)
     return true
   }
+
 }
 
 private typealias ChampionRotationModels = (
@@ -337,13 +355,15 @@ private typealias CurrentRotationLocalData = (
   regularRotation: RegularChampionRotationModel,
   beginnerRotation: BeginnerChampionRotationModel,
   champions: [ChampionModel],
-  hasPreviousRegularRotation: Bool
+  hasPreviousRegularRotation: Bool,
+  nextRegularRotationDate: Date?
 )
 
 private typealias RegularRotationLocalData = (
   rotation: RegularChampionRotationModel,
   champions: [ChampionModel],
-  hasPreviousRegularRotation: Bool
+  hasPreviousRegularRotation: Bool,
+  nextRegularRotationDate: Date?
 )
 
 private typealias CurrentRotationRiotData = (

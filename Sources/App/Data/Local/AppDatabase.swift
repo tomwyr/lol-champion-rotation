@@ -57,6 +57,27 @@ extension AppDatabase {
     }
   }
 
+  func findNextRegularRotation(after rotationId: String) async throws
+    -> RegularChampionRotationModel?
+  {
+    try await runner.run { db in
+      let uuid = try UUID(unsafe: rotationId)
+      let previousRotation = try await RegularChampionRotationModel.query(on: db)
+        .filter(\.$id == uuid)
+        .field(\.$observedAt)
+        .first()
+
+      guard let previousDate = previousRotation?.observedAt else {
+        return nil
+      }
+
+      return try await RegularChampionRotationModel.query(on: db)
+        .sort(\.$observedAt, .ascending)
+        .filter(\.$observedAt > previousDate)
+        .first()
+    }
+  }
+
   func champions() async throws -> [ChampionModel] {
     try await runner.run { db in
       try await ChampionModel.query(on: db).all()

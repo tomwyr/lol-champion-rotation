@@ -124,7 +124,7 @@ class RotationTests: AppTests {
           "patchVersion": "15.0.1",
           "duration": [
             "start": "2024-11-14T12:00:00Z",
-            "end": "2024-11-28T12:00:00Z",
+            "end": "2024-11-15T12:00:00Z",
           ],
           "champions": [
             [
@@ -187,7 +187,7 @@ class RotationTests: AppTests {
           "patchVersion": "15.0.1",
           "duration": [
             "start": "2024-11-14T12:00:00Z",
-            "end": "2024-11-28T12:00:00Z",
+            "end": "2024-11-15T12:00:00Z",
           ],
           "champions": [
             [
