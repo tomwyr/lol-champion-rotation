@@ -290,7 +290,7 @@ extension DefaultRotationService {
     _ nextRotationDate: Date?
   ) throws(ChampionRotationError) -> ChampionRotationDuration {
     let startDate = rotation.observedAt
-    guard let endDate = nextRotationDate ?? startDate.adding(2, .weekOfYear) else {
+    guard let endDate = nextRotationDate ?? startDate.adding(1, .weekOfYear) else {
       throw .rotationDurationInvalid
     }
     return ChampionRotationDuration(start: startDate, end: endDate)
