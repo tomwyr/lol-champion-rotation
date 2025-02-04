@@ -7,7 +7,7 @@ class UserTests: AppTests {
     _ = try await testConfigureWith()
 
     try await app.test(
-      .GET, "/api/user"
+      .GET, "/user"
     ) { res async in
       XCTAssertEqual(res.status, .unauthorized)
       XCTAssertBodyError(res.body, "Invalid device id")
@@ -18,7 +18,7 @@ class UserTests: AppTests {
     _ = try await testConfigureWith()
 
     try await app.test(
-      .GET, "/api/user",
+      .GET, "/user",
       headers: ["X-Device-Id": "123"]
     ) { res async in
       XCTAssertEqual(res.status, .ok)
@@ -33,7 +33,7 @@ class UserTests: AppTests {
     )
 
     try await app.test(
-      .GET, "/api/user",
+      .GET, "/user",
       headers: ["X-Device-Id": "123"]
     ) { res async in
       XCTAssertEqual(res.status, .ok)
@@ -49,7 +49,7 @@ class UserTests: AppTests {
     )
 
     try await app.test(
-      .GET, "/api/user",
+      .GET, "/user",
       headers: ["X-Device-Id": "123"]
     ) { res async in
       XCTAssertEqual(res.status, .ok)

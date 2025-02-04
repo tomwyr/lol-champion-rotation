@@ -7,7 +7,7 @@ class RefreshDataTests: AppTests {
     _ = try await testConfigureWith(appManagementKey: "123")
 
     try await app.test(
-      .GET, "/api/data/refresh"
+      .GET, "/data/refresh"
     ) { res async in
       XCTAssertEqual(res.status, .unauthorized)
       XCTAssertBodyError(res.body, "Invalid auth token")
@@ -18,7 +18,7 @@ class RefreshDataTests: AppTests {
     _ = try await testConfigureWith(appManagementKey: "abc")
 
     try await app.test(
-      .GET, "/api/data/refresh",
+      .GET, "/data/refresh",
       headers: ["Authorization": "Bearer 123"]
     ) { res async in
       XCTAssertEqual(res.status, .unauthorized)
@@ -34,7 +34,7 @@ class RefreshDataTests: AppTests {
     )
 
     try await app.test(
-      .GET, "/api/data/refresh",
+      .GET, "/data/refresh",
       headers: ["Authorization": "Bearer 123"]
     ) { res async in
       XCTAssertEqual(res.status, .ok)
@@ -72,7 +72,7 @@ class RefreshDataTests: AppTests {
     )
 
     try await app.test(
-      .GET, "/api/data/refresh",
+      .GET, "/data/refresh",
       headers: ["Authorization": "Bearer 123"]
     ) { res async in
       XCTAssertEqual(res.status, .ok)
@@ -114,7 +114,7 @@ class RefreshDataTests: AppTests {
     )
 
     try await app.test(
-      .GET, "/api/data/refresh",
+      .GET, "/data/refresh",
       headers: ["Authorization": "Bearer 123"]
     ) { res async in
       XCTAssertEqual(res.status, .ok)
@@ -156,7 +156,7 @@ class RefreshDataTests: AppTests {
     )
 
     try await app.test(
-      .GET, "/api/data/refresh",
+      .GET, "/data/refresh",
       headers: ["Authorization": "Bearer 123"]
     ) { res async in
       XCTAssertEqual(res.status, .ok)
@@ -178,7 +178,7 @@ class RefreshDataTests: AppTests {
     )
 
     try await app.test(
-      .GET, "/api/data/refresh",
+      .GET, "/data/refresh",
       headers: ["Authorization": "Bearer 123"]
     ) { res async in
       let latestChampionsUrl = requestUrls.riotChampions("15.23.5")
@@ -194,7 +194,7 @@ class RefreshDataTests: AppTests {
     )
 
     try await app.test(
-      .GET, "/api/data/refresh",
+      .GET, "/data/refresh",
       headers: ["Authorization": "Bearer 123"]
     ) { res async in
       let latestChampionsUrl = requestUrls.riotChampions("15.23.5")
@@ -210,7 +210,7 @@ class RefreshDataTests: AppTests {
     )
 
     try await app.test(
-      .GET, "/api/data/refresh",
+      .GET, "/data/refresh",
       headers: ["Authorization": "Bearer 123"]
     ) { res async throws in
       let versions = try await dbPatchVersions()
@@ -231,7 +231,7 @@ class RefreshDataTests: AppTests {
     )
 
     try await app.test(
-      .GET, "/api/data/refresh",
+      .GET, "/data/refresh",
       headers: ["Authorization": "Bearer 123"]
     ) { res async throws in
       let versions = try await dbPatchVersions()
@@ -252,7 +252,7 @@ class RefreshDataTests: AppTests {
     )
 
     try await app.test(
-      .GET, "/api/data/refresh",
+      .GET, "/data/refresh",
       headers: ["Authorization": "Bearer 123"]
     ) { res async throws in
       let versions = try await dbPatchVersions()

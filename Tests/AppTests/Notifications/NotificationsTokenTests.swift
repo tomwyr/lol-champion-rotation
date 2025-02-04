@@ -7,7 +7,7 @@ class PutNotificationsTokenTests: AppTests {
     _ = try await testConfigureWith()
 
     try await app.test(
-      .PUT, "/api/notifications/token",
+      .PUT, "/notifications/token",
       headers: reqHeaders(),
       body: ["token": "abc"]
     ) { res async in
@@ -20,7 +20,7 @@ class PutNotificationsTokenTests: AppTests {
     _ = try await testConfigureWith()
 
     try await app.test(
-      .PUT, "/api/notifications/token",
+      .PUT, "/notifications/token",
       headers: reqHeaders(deviceId: "123"),
       body: ["token": "abc"]
     ) { res async in
@@ -34,7 +34,7 @@ class PutNotificationsTokenTests: AppTests {
     _ = try await testConfigureWith(dbNotificationsConfigs: [existingConfig])
 
     try await app.test(
-      .PUT, "/api/notifications/token",
+      .PUT, "/notifications/token",
       headers: reqHeaders(deviceId: "123"),
       body: ["token": "abc"]
     ) { res async throws in
@@ -52,7 +52,7 @@ class PutNotificationsTokenTests: AppTests {
     _ = try await testConfigureWith(dbNotificationsConfigs: [existingConfig])
 
     try await app.test(
-      .PUT, "/api/notifications/token",
+      .PUT, "/notifications/token",
       headers: reqHeaders(deviceId: "123"),
       body: ["token": "abc"]
     ) { res async throws in

@@ -7,7 +7,7 @@ class GetNotificationsSettingsTests: AppTests {
     _ = try await testConfigureWith()
 
     try await app.test(
-      .GET, "/api/notifications/settings",
+      .GET, "/notifications/settings",
       headers: reqHeaders()
     ) { res async in
       XCTAssertEqual(res.status, .unauthorized)
@@ -19,7 +19,7 @@ class GetNotificationsSettingsTests: AppTests {
     _ = try await testConfigureWith()
 
     try await app.test(
-      .GET, "/api/notifications/settings",
+      .GET, "/notifications/settings",
       headers: reqHeaders(deviceId: "123")
     ) { res async in
       XCTAssertEqual(res.status, .notFound)
@@ -32,7 +32,7 @@ class GetNotificationsSettingsTests: AppTests {
     _ = try await testConfigureWith(dbNotificationsConfigs: [existingConfig])
 
     try await app.test(
-      .GET, "/api/notifications/settings",
+      .GET, "/notifications/settings",
       headers: reqHeaders(deviceId: "123")
     ) { res async throws in
       XCTAssertEqual(res.status, .notFound)
@@ -45,7 +45,7 @@ class GetNotificationsSettingsTests: AppTests {
     _ = try await testConfigureWith(dbNotificationsConfigs: [existingConfig])
 
     try await app.test(
-      .GET, "/api/notifications/settings",
+      .GET, "/notifications/settings",
       headers: reqHeaders(deviceId: "123")
     ) { res async throws in
       XCTAssertEqual(res.status, .ok)
@@ -59,7 +59,7 @@ class PutNotificationsSettingsTests: AppTests {
     _ = try await testConfigureWith()
 
     try await app.test(
-      .PUT, "/api/notifications/settings",
+      .PUT, "/notifications/settings",
       headers: reqHeaders(),
       body: ["enabled": true]
     ) { res async in
@@ -72,7 +72,7 @@ class PutNotificationsSettingsTests: AppTests {
     _ = try await testConfigureWith()
 
     try await app.test(
-      .PUT, "/api/notifications/settings",
+      .PUT, "/notifications/settings",
       headers: reqHeaders(deviceId: "123"),
       body: ["enabled": true]
     ) { res async in
@@ -86,7 +86,7 @@ class PutNotificationsSettingsTests: AppTests {
     _ = try await testConfigureWith(dbNotificationsConfigs: [existingConfig])
 
     try await app.test(
-      .PUT, "/api/notifications/settings",
+      .PUT, "/notifications/settings",
       headers: reqHeaders(deviceId: "123"),
       body: ["enabled": true]
     ) { res async throws in
@@ -104,7 +104,7 @@ class PutNotificationsSettingsTests: AppTests {
     _ = try await testConfigureWith(dbNotificationsConfigs: [existingConfig])
 
     try await app.test(
-      .PUT, "/api/notifications/settings",
+      .PUT, "/notifications/settings",
       headers: reqHeaders(deviceId: "123"),
       body: ["enabled": true]
     ) { res async throws in
