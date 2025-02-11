@@ -27,8 +27,8 @@ func routes(_ app: Application, _ deps: Dependencies) throws {
   app.protected(with: mobileUserGuard).get("user") { req in
     let auth = try req.auth.require(MobileUserAuth.self)
     let notificationsService = deps.notificationsService(request: req)
-    let tokenSynced = try await notificationsService.hasSettings(deviceId: auth.deviceId)
-    return MobileUser(notificationsTokenSynced: tokenSynced)
+    let settings = try await notificationsService.getSettings(deviceId:  auth.deviceId)
+    return MobileUser(notificationsStatus: .init(from: settings))
   }
 
   app.protected(with: mobileUserGuard).grouped("notifications") { routes in

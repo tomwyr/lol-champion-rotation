@@ -25,7 +25,7 @@ class UserTests: AppTests {
     }
   }
 
-  func testAddingNotificationsConfig() async throws {
+  func testUninitializedNotifications() async throws {
     _ = try await testConfigureWith(
       dbNotificationsConfigs: [
         .init(deviceId: "456", token: "abc", enabled: true)
@@ -37,11 +37,27 @@ class UserTests: AppTests {
       headers: ["X-Device-Id": "123"]
     ) { res async in
       XCTAssertEqual(res.status, .ok)
-      XCTAssertBody(res.body, ["notificationsTokenSynced": false])
+      XCTAssertBody(res.body, ["notificationsStatus": "uninitialized"])
     }
   }
 
-  func testUpdatingNotificationsConfig() async throws {
+  func testDisabledNotifications() async throws {
+    _ = try await testConfigureWith(
+      dbNotificationsConfigs: [
+        .init(deviceId: "123", token: "abc", enabled: false)
+      ]
+    )
+
+    try await app.test(
+      .GET, "/user",
+      headers: ["X-Device-Id": "123"]
+    ) { res async in
+      XCTAssertEqual(res.status, .ok)
+      XCTAssertBody(res.body, ["notificationsStatus": "disabled"])
+    }
+  }
+
+  func testEnabledNotifications() async throws {
     _ = try await testConfigureWith(
       dbNotificationsConfigs: [
         .init(deviceId: "123", token: "abc", enabled: true)
@@ -53,7 +69,7 @@ class UserTests: AppTests {
       headers: ["X-Device-Id": "123"]
     ) { res async in
       XCTAssertEqual(res.status, .ok)
-      XCTAssertBody(res.body, ["notificationsTokenSynced": true])
+      XCTAssertBody(res.body, ["notificationsStatus": "enabled"])
     }
   }
 }
