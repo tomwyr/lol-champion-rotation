@@ -78,7 +78,10 @@ extension AppTests {
   }
 
   func database(_ deps: Dependencies, _ initDb: InitDb) async throws {
-    app.databases.use(.sqlite(.memory), as: .sqlite)
+    guard let dbUrl = Environment.get("TEST_DATABASE_URL") else {
+      fatalError("Database url environment variable not set.")
+    }
+    app.databases.use(try .postgres(url: dbUrl), as: .psql)
     app.migrations.addAppMigrations()
     try await app.autoRevert()
     try await app.autoMigrate()
