@@ -32,7 +32,6 @@ struct RefreshRotationResult: Content {
 }
 
 struct FilterRotationsResult: Content {
-  let query: String
   let rotations: [FilteredRotation]
 }
 

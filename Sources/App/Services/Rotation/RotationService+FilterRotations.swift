@@ -5,9 +5,7 @@ extension DefaultRotationService {
     let localData = try await loadFilterRotationsData(championName)
     let imageUrls = try await fetchImageUrls(localData)
     let filteredRotations = try await createFilteredRotations(championName, localData, imageUrls)
-
     return FilterRotationsResult(
-      query: championName,
       rotations: filteredRotations
     )
   }
