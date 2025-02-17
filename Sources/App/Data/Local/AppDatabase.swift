@@ -84,6 +84,26 @@ extension AppDatabase {
     }
   }
 
+  func filterChampions(name: String) async throws -> [ChampionModel] {
+    try await runner.run { db in
+      try await ChampionModel.query(on: db)
+        // PSQL specific ILIKE operator.
+        .filter(\.$name, .custom("ilike"), "%\(name)%")
+        .all()
+    }
+  }
+
+  func filterRegularRotations(withChampions championRiotIds: [String]) async throws
+    -> [RegularChampionRotationModel]
+  {
+    try await runner.run { db in
+      try await RegularChampionRotationModel.query(on: db)
+        // PSQL specific && operator.
+        .filter(\.$champions, .custom("&&"), championRiotIds)
+        .all()
+    }
+  }
+
   func saveChampionsFillingIds(data: [ChampionModel]) async throws {
     let championsByRiotId = try await champions().associateBy(\.riotId)
 

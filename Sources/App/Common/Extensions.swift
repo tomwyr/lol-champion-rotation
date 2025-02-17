@@ -70,6 +70,17 @@ extension AsyncMapSequence {
   }
 }
 
+extension Array {
+  func asyncMap<T, E: Error>(_ mapper: (Element) async throws(E) -> T) async throws(E) -> [T] {
+    var results = [T]()
+    for element in self {
+      let result = try await mapper(element)
+      results.append(result)
+    }
+    return results
+  }
+}
+
 extension UUID {
   init(unsafe uuidString: String) throws {
     guard let result = UUID(uuidString) else {

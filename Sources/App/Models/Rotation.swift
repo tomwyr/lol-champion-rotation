@@ -30,3 +30,13 @@ struct Champion: Content {
 struct RefreshRotationResult: Content {
   let rotationChanged: Bool
 }
+
+struct FilterRotationsResult: Content {
+  let query: String
+  let rotations: [FilteredRotation]
+}
+
+struct FilteredRotation: Content {
+  let duration: ChampionRotationDuration
+  let champions: [Champion]
+}
