@@ -7,21 +7,32 @@ func routes(_ app: Application, _ deps: Dependencies) throws {
     appManagementKey: deps.appConfig.appManagementKey
   )
 
-  app.protected(with: userGuard).get("rotation", "current") { req in
-    try req.auth.require(UserAuth.self)
-    let rotationService = deps.rotationService(request: req)
-    return try await rotationService.currentRotation()
-  }
-
-  app.protected(with: userGuard).get("rotation") { req in
-    try req.auth.require(UserAuth.self)
-    guard let nextRotationToken = req.query[String.self, at: "nextRotationToken"] else {
-      throw Abort(.badRequest)
+  app.protected(with: userGuard).grouped("rotation") { rotation in
+    rotation.get("current") { req in
+      try req.auth.require(UserAuth.self)
+      let rotationService = deps.rotationService(request: req)
+      return try await rotationService.currentRotation()
     }
-    let rotationService = deps.rotationService(request: req)
-    let rotation = try await rotationService.rotation(nextRotationToken: nextRotationToken)
-    guard let rotation else { throw Abort(.notFound) }
-    return rotation
+
+    rotation.get { req in
+      try req.auth.require(UserAuth.self)
+      guard let nextRotationToken = req.query[String.self, at: "nextRotationToken"] else {
+        throw Abort(.badRequest)
+      }
+      let rotationService = deps.rotationService(request: req)
+      let rotation = try await rotationService.rotation(nextRotationToken: nextRotationToken)
+      guard let rotation else { throw Abort(.notFound) }
+      return rotation
+    }
+
+    rotation.get("search") { req in
+      try req.auth.require(UserAuth.self)
+      guard let championName = req.query[String.self, at: "championName"] else {
+        throw Abort(.badRequest)
+      }
+      let rotationService = deps.rotationService(request: req)
+      return try await rotationService.filterRotations(by: championName)
+    }
   }
 
   app.protected(with: mobileUserGuard).get("user") { req in
@@ -31,8 +42,8 @@ func routes(_ app: Application, _ deps: Dependencies) throws {
     return MobileUser(notificationsStatus: .init(from: settings))
   }
 
-  app.protected(with: mobileUserGuard).grouped("notifications") { routes in
-    routes.put("token") { req in
+  app.protected(with: mobileUserGuard).grouped("notifications") { notifications in
+    notifications.put("token") { req in
       let auth = try req.auth.require(MobileUserAuth.self)
       let input = try req.content.decode(NotificationsTokenInput.self)
       let notificationsService = deps.notificationsService(request: req)
@@ -40,7 +51,7 @@ func routes(_ app: Application, _ deps: Dependencies) throws {
       return Response(status: .noContent)
     }
 
-    routes.get("settings") { req in
+    notifications.get("settings") { req in
       let auth = try req.auth.require(MobileUserAuth.self)
       let notificationsService = deps.notificationsService(request: req)
       let settings = try await notificationsService.getSettings(deviceId: auth.deviceId)
@@ -48,7 +59,7 @@ func routes(_ app: Application, _ deps: Dependencies) throws {
       return settings
     }
 
-    routes.put("settings") { req in
+    notifications.put("settings") { req in
       let auth = try req.auth.require(MobileUserAuth.self)
       let input = try req.content.decode(NotificationsSettings.self)
       let notificationsService = deps.notificationsService(request: req)

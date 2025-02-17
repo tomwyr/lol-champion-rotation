@@ -5,7 +5,7 @@ protocol RotationService {
   func rotation(nextRotationToken: String) async throws(ChampionRotationError)
     -> RegularChampionRotation?
   func refreshRotation() async throws(ChampionRotationError) -> RefreshRotationResult
-  func filterRotations(by query: String) async throws(ChampionRotationError)
+  func filterRotations(by championName: String) async throws(ChampionRotationError)
     -> FilterRotationsResult
 }
 

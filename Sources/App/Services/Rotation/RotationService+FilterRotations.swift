@@ -1,13 +1,13 @@
 extension DefaultRotationService {
-  func filterRotations(by query: String) async throws(ChampionRotationError)
+  func filterRotations(by championName: String) async throws(ChampionRotationError)
     -> FilterRotationsResult
   {
-    let localData = try await loadFilterRotationsData(query)
+    let localData = try await loadFilterRotationsData(championName)
     let imageUrls = try await fetchImageUrls(localData)
-    let filteredRotations = try await createFilteredRotations(query, localData, imageUrls)
+    let filteredRotations = try await createFilteredRotations(championName, localData, imageUrls)
 
     return FilterRotationsResult(
-      query: query,
+      query: championName,
       rotations: filteredRotations
     )
   }
@@ -40,7 +40,7 @@ extension DefaultRotationService {
   }
 
   private func createFilteredRotations(
-    _ query: String,
+    _ championNameQuery: String,
     _ data: FilterRotationsLocalData,
     _ imageUrls: ChampionImageUrls
   ) async throws(ChampionRotationError) -> [FilteredRotation] {
@@ -49,7 +49,7 @@ extension DefaultRotationService {
     let championsByRiotId = data.champions.associateBy(\.riotId)
     func matchesQuery(riotId: String) -> Bool {
       guard let champion = championsByRiotId[riotId] else { return false }
-      return champion.name.lowercased().contains(query.lowercased())
+      return champion.name.lowercased().contains(championNameQuery.lowercased())
     }
 
     return try await data.rotations.asyncMap { rotation async throws(ChampionRotationError) in
