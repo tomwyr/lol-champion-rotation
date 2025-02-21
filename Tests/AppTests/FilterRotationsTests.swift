@@ -220,17 +220,17 @@ class FilterRotationsTests: AppTests {
       dbRegularRotations: [
         .init(
           id: uuid("1"),
-          observedAt: .iso("2024-11-14T12:00:00Z")!,
+          observedAt: .iso("2024-11-21T12:00:00Z")!,
           champions: ["Sett", "Nocturne", "Rengar"]
         ),
         .init(
           id: uuid("2"),
-          observedAt: .iso("2024-11-21T12:00:00Z")!,
+          observedAt: .iso("2024-11-14T12:00:00Z")!,
           champions: ["Garen", "Sett", "Rengar"]
         ),
         .init(
           id: uuid("3"),
-          observedAt: .iso("2024-11-28T12:00:00Z")!,
+          observedAt: .iso("2024-11-07T12:00:00Z")!,
           champions: ["Sett", "Nocturne", "Samira"]
         ),
       ],
@@ -255,8 +255,8 @@ class FilterRotationsTests: AppTests {
           "regularRotations": [
             [
               "duration": [
-                "start": "2024-11-14T12:00:00Z",
-                "end": "2024-11-21T12:00:00Z",
+                "start": "2024-11-21T12:00:00Z",
+                "end": "2024-11-28T12:00:00Z",
               ],
               "champions": [
                 [
@@ -269,8 +269,8 @@ class FilterRotationsTests: AppTests {
             ],
             [
               "duration": [
-                "start": "2024-11-21T12:00:00Z",
-                "end": "2024-11-28T12:00:00Z",
+                "start": "2024-11-14T12:00:00Z",
+                "end": "2024-11-21T12:00:00Z",
               ],
               "champions": [
                 [
@@ -339,4 +339,89 @@ class FilterRotationsTests: AppTests {
       )
     }
   }
+
+  func testRotationsOrderedByDate() async throws {
+    _ = try await testConfigureWith(
+      idHasherSecretKey: idHasherSecretKey,
+      idHasherNonce: idHasherNonce,
+      dbRegularRotations: [
+        .init(
+          id: uuid("1"),
+          observedAt: .iso("2024-11-07T12:00:00Z")!,
+          champions: ["Sett"]
+        ),
+        .init(
+          id: uuid("2"),
+          observedAt: .iso("2024-11-21T12:00:00Z")!,
+          champions: ["Sett"]
+        ),
+        .init(
+          id: uuid("3"),
+          observedAt: .iso("2024-11-14T12:00:00Z")!,
+          champions: ["Sett"]
+        ),
+      ],
+      dbChampions: [
+        .init(id: uuid("1"), riotId: "Sett", name: "Sett")
+      ],
+      dbPatchVersions: [.init(value: "15.0.1")],
+      b2AuthorizeDownloadData: .init(authorizationToken: "123")
+    )
+
+    try await app.test(
+      .GET, "/rotation/search?championName=sett"
+    ) { res async in
+      XCTAssertEqual(res.status, .ok)
+      XCTAssertBody(
+        res.body,
+        [
+          "regularRotations": [
+            [
+              "duration": [
+                "start": "2024-11-21T12:00:00Z",
+                "end": "2024-11-28T12:00:00Z",
+              ],
+              "champions": [
+                [
+                  "id": uuidString("1"),
+                  "imageUrl": imageUrl("Sett"),
+                  "name": "Sett",
+                ]
+              ],
+              "current": true,
+            ],
+            [
+              "duration": [
+                "start": "2024-11-14T12:00:00Z",
+                "end": "2024-11-21T12:00:00Z",
+              ],
+              "champions": [
+                [
+                  "id": uuidString("1"),
+                  "imageUrl": imageUrl("Sett"),
+                  "name": "Sett",
+                ]
+              ],
+              "current": false,
+            ],
+            [
+              "duration": [
+                "start": "2024-11-07T12:00:00Z",
+                "end": "2024-11-14T12:00:00Z",
+              ],
+              "champions": [
+                [
+                  "id": uuidString("1"),
+                  "imageUrl": imageUrl("Sett"),
+                  "name": "Sett",
+                ]
+              ],
+              "current": false,
+            ],
+          ]
+        ]
+      )
+    }
+  }
+
 }

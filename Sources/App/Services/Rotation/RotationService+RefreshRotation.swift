@@ -81,7 +81,7 @@ extension DefaultRotationService {
   }
 
   private func saveRegularRotation(_ rotation: RegularChampionRotationModel) async throws -> Bool {
-    let mostRecentRotation = try await appDatabase.mostRecentRegularRotation()
+    let mostRecentRotation = try await appDatabase.currentRegularRotation()
     if let mostRecentRotation, rotation.same(as: mostRecentRotation) {
       return false
     }
@@ -91,7 +91,7 @@ extension DefaultRotationService {
 
   private func saveBeginnerRotation(_ rotation: BeginnerChampionRotationModel) async throws -> Bool
   {
-    let mostRecentRotation = try await appDatabase.mostRecentBeginnerRotation()
+    let mostRecentRotation = try await appDatabase.currentBeginnerRotation()
     if let mostRecentRotation, rotation.same(as: mostRecentRotation) {
       return false
     }

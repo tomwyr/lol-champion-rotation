@@ -17,21 +17,15 @@ extension AppDatabase {
     }
   }
 
-  func mostRecentRegularRotation() async throws -> RegularChampionRotationModel? {
+  func currentRegularRotation() async throws -> RegularChampionRotationModel? {
     try await runner.run { db in
       try await RegularChampionRotationModel.query(on: db).sort(\.$observedAt, .descending).first()
     }
   }
 
-  func mostRecentBeginnerRotation() async throws -> BeginnerChampionRotationModel? {
+  func currentBeginnerRotation() async throws -> BeginnerChampionRotationModel? {
     try await runner.run { db in
       try await BeginnerChampionRotationModel.query(on: db).sort(\.$observedAt, .descending).first()
-    }
-  }
-
-  func currentRegularRotation() async throws -> RegularChampionRotationModel? {
-    try await runner.run { db in
-      try await RegularChampionRotationModel.query(on: db).first()
     }
   }
 
@@ -106,6 +100,7 @@ extension AppDatabase {
       try await RegularChampionRotationModel.query(on: db)
         // PSQL specific && operator.
         .filter(\.$champions, .custom("&&"), championRiotIds)
+        .sort(\.$observedAt, .descending)
         .all()
     }
   }

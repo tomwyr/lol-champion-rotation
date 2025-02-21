@@ -16,8 +16,8 @@ extension DefaultRotationService {
     let champions: [ChampionModel]
     let hasPreviousRegularRotation: Bool
     do {
-      regularRotation = try await appDatabase.mostRecentRegularRotation()
-      beginnerRotation = try await appDatabase.mostRecentBeginnerRotation()
+      regularRotation = try await appDatabase.currentRegularRotation()
+      beginnerRotation = try await appDatabase.currentBeginnerRotation()
       champions = try await appDatabase.champions()
       if let rotationId = regularRotation?.id?.uuidString {
         let previousRotation = try await appDatabase.findPreviousRegularRotation(before: rotationId)
