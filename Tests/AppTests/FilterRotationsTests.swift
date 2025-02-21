@@ -424,4 +424,125 @@ class FilterRotationsTests: AppTests {
     }
   }
 
+  func testBeginnerRotation() async throws {
+    _ = try await testConfigureWith(
+      idHasherSecretKey: idHasherSecretKey,
+      idHasherNonce: idHasherNonce,
+      dbBeginnerRotations: [
+        .init(
+          id: uuid("1"),
+          observedAt: .iso("2024-11-14T12:00:00Z")!,
+          maxLevel: 10,
+          champions: ["Garen", "Nocturne", "Vi"]
+        ),
+        .init(
+          id: uuid("2"),
+          observedAt: .iso("2024-11-21T12:00:00Z")!,
+          maxLevel: 10,
+          champions: ["Garen", "Zoe", "Diana"]
+        ),
+      ],
+      dbChampions: [
+        .init(id: uuid("1"), riotId: "Nocturne", name: "Nocturne"),
+        .init(id: uuid("2"), riotId: "Garen", name: "Garen"),
+        .init(id: uuid("3"), riotId: "Vi", name: "Vi"),
+        .init(id: uuid("4"), riotId: "Zoe", name: "Zoe"),
+        .init(id: uuid("5"), riotId: "Diana", name: "Diana"),
+      ],
+      dbPatchVersions: [.init(value: "15.0.1")],
+      b2AuthorizeDownloadData: .init(authorizationToken: "123")
+    )
+
+    try await app.test(
+      .GET, "/rotation/search?championName=dia"
+    ) { res async in
+      XCTAssertEqual(res.status, .ok)
+      XCTAssertBody(
+        res.body,
+        [
+          "regularRotations": [],
+          "beginnerRotation": [
+            "champions": [
+              [
+                "id": uuidString("5"),
+                "imageUrl": imageUrl("Diana"),
+                "name": "Diana",
+              ]
+            ]
+          ],
+        ]
+      )
+    }
+  }
+
+  func testMultipleRotationTypes() async throws {
+    _ = try await testConfigureWith(
+      idHasherSecretKey: idHasherSecretKey,
+      idHasherNonce: idHasherNonce,
+      dbRegularRotations: [
+        .init(
+          id: uuid("1"),
+          observedAt: .iso("2024-11-21T12:00:00Z")!,
+          champions: ["Sett", "Nocturne", "Rengar"]
+        )
+      ],
+      dbBeginnerRotations: [
+        .init(
+          id: uuid("1"),
+          observedAt: .iso("2024-11-14T12:00:00Z")!,
+          maxLevel: 10,
+          champions: ["Sett", "Nocturne", "Senna"]
+        )
+      ],
+      dbChampions: [
+        .init(id: uuid("1"), riotId: "Nocturne", name: "Nocturne"),
+        .init(id: uuid("2"), riotId: "Sett", name: "Sett"),
+        .init(id: uuid("3"), riotId: "Rengar", name: "Rengar"),
+        .init(id: uuid("4"), riotId: "Senna", name: "Senna"),
+      ],
+      dbPatchVersions: [.init(value: "15.0.1")],
+      b2AuthorizeDownloadData: .init(authorizationToken: "123")
+    )
+
+    try await app.test(
+      .GET, "/rotation/search?championName=se"
+    ) { res async in
+      XCTAssertEqual(res.status, .ok)
+      XCTAssertBody(
+        res.body,
+        [
+          "regularRotations": [
+            [
+              "duration": [
+                "start": "2024-11-21T12:00:00Z",
+                "end": "2024-11-28T12:00:00Z",
+              ],
+              "champions": [
+                [
+                  "id": uuidString("2"),
+                  "imageUrl": imageUrl("Sett"),
+                  "name": "Sett",
+                ]
+              ],
+              "current": true,
+            ]
+          ],
+          "beginnerRotation": [
+            "champions": [
+              [
+                "id": uuidString("2"),
+                "imageUrl": imageUrl("Sett"),
+                "name": "Sett",
+              ],
+              [
+                "id": uuidString("4"),
+                "imageUrl": imageUrl("Senna"),
+                "name": "Senna",
+              ],
+            ]
+          ],
+        ]
+      )
+    }
+  }
 }
