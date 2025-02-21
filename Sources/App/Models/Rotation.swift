@@ -32,10 +32,16 @@ struct RefreshRotationResult: Content {
 }
 
 struct FilterRotationsResult: Content {
-  let rotations: [FilteredRotation]
+  let regularRotations: [FilteredRegularRotation]
+  let beginnerRotation: FilteredBeginnerRotation?
 }
 
-struct FilteredRotation: Content {
+struct FilteredRegularRotation: Content {
+  let champions: [Champion]
   let duration: ChampionRotationDuration
+  let current: Bool
+}
+
+struct FilteredBeginnerRotation: Content {
   let champions: [Champion]
 }

@@ -29,6 +29,12 @@ extension AppDatabase {
     }
   }
 
+  func currentRegularRotation() async throws -> RegularChampionRotationModel? {
+    try await runner.run { db in
+      try await RegularChampionRotationModel.query(on: db).first()
+    }
+  }
+
   func regularRotation(rotationId: String) async throws -> RegularChampionRotationModel? {
     let uuid = try UUID(unsafe: rotationId)
     return try await runner.run { db in
@@ -101,6 +107,19 @@ extension AppDatabase {
         // PSQL specific && operator.
         .filter(\.$champions, .custom("&&"), championRiotIds)
         .all()
+    }
+  }
+
+  func filterMostRecentBeginnerRotation(withChampions championRiotIds: [String]) async throws
+    -> BeginnerChampionRotationModel?
+  {
+    try await runner.run { db in
+      try await BeginnerChampionRotationModel.query(on: db)
+        .sort(\.$observedAt, .descending)
+        .limit(1)
+        // PSQL specific && operator.
+        .filter(\.$champions, .custom("&&"), championRiotIds)
+        .first()
     }
   }
 

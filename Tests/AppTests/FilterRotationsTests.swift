@@ -57,7 +57,7 @@ class FilterRotationsTests: AppTests {
       XCTAssertBody(
         res.body,
         [
-          "rotations": []
+          "regularRotations": []
         ]
       )
     }
@@ -90,7 +90,7 @@ class FilterRotationsTests: AppTests {
       XCTAssertBody(
         res.body,
         [
-          "rotations": [
+          "regularRotations": [
             [
               "duration": [
                 "start": "2024-11-14T12:00:00Z",
@@ -103,6 +103,7 @@ class FilterRotationsTests: AppTests {
                   "name": "Nocturne",
                 ]
               ],
+              "current": true,
             ]
           ]
         ]
@@ -137,7 +138,7 @@ class FilterRotationsTests: AppTests {
       XCTAssertBody(
         res.body,
         [
-          "rotations": [
+          "regularRotations": [
             [
               "duration": [
                 "start": "2024-11-14T12:00:00Z",
@@ -150,6 +151,7 @@ class FilterRotationsTests: AppTests {
                   "name": "Nocturne",
                 ]
               ],
+              "current": true,
             ]
           ]
         ]
@@ -185,7 +187,7 @@ class FilterRotationsTests: AppTests {
       XCTAssertBody(
         res.body,
         [
-          "rotations": [
+          "regularRotations": [
             [
               "duration": [
                 "start": "2024-11-14T12:00:00Z",
@@ -203,6 +205,7 @@ class FilterRotationsTests: AppTests {
                   "name": "Rengar",
                 ],
               ],
+              "current": true,
             ]
           ]
         ]
@@ -249,7 +252,7 @@ class FilterRotationsTests: AppTests {
       XCTAssertBody(
         res.body,
         [
-          "rotations": [
+          "regularRotations": [
             [
               "duration": [
                 "start": "2024-11-14T12:00:00Z",
@@ -262,6 +265,7 @@ class FilterRotationsTests: AppTests {
                   "name": "Rengar",
                 ]
               ],
+              "current": true,
             ],
             [
               "duration": [
@@ -280,6 +284,7 @@ class FilterRotationsTests: AppTests {
                   "name": "Rengar",
                 ],
               ],
+              "current": false,
             ],
           ]
         ]
@@ -314,7 +319,7 @@ class FilterRotationsTests: AppTests {
       XCTAssertBody(
         res.body,
         [
-          "rotations": [
+          "regularRotations": [
             [
               "duration": [
                 "start": "2024-11-14T12:00:00Z",
@@ -327,6 +332,7 @@ class FilterRotationsTests: AppTests {
                   "name": "Nunu & Willump",
                 ]
               ],
+              "current": true,
             ]
           ]
         ]
