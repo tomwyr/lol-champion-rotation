@@ -363,4 +363,66 @@ class SearchChampionsTests: AppTests {
       )
     }
   }
+
+  func testChampionMatchesOrder() async throws {
+    _ = try await testConfigureWith(
+      idHasherSecretKey: idHasherSecretKey,
+      idHasherNonce: idHasherNonce,
+      dbRegularRotations: [],
+      dbBeginnerRotations: [],
+      dbChampions: [
+        .init(id: uuid("1"), riotId: "Elise", name: "Elise"),
+        .init(id: uuid("2"), riotId: "Sett", name: "Sett"),
+        .init(id: uuid("3"), riotId: "Mordekaiser", name: "Mordekaiser"),
+        .init(id: uuid("4"), riotId: "Senna", name: "Senna"),
+      ],
+      dbPatchVersions: [.init(value: "15.0.1")],
+      b2AuthorizeDownloadData: .init(authorizationToken: "123")
+    )
+
+    try await app.test(
+      .GET, "/champions/search?name=se"
+    ) { res async in
+      XCTAssertEqual(res.status, .ok)
+      XCTAssertBody(
+        res.body,
+        [
+          "matches": [
+            [
+              "champion": [
+                "id": uuidString("4"),
+                "imageUrl": imageUrl("Senna"),
+                "name": "Senna",
+              ],
+              "availableIn": [],
+            ],
+            [
+              "champion": [
+                "id": uuidString("2"),
+                "imageUrl": imageUrl("Sett"),
+                "name": "Sett",
+              ],
+              "availableIn": [],
+            ],
+            [
+              "champion": [
+                "id": uuidString("1"),
+                "imageUrl": imageUrl("Elise"),
+                "name": "Elise",
+              ],
+              "availableIn": [],
+            ],
+            [
+              "champion": [
+                "id": uuidString("3"),
+                "imageUrl": imageUrl("Mordekaiser"),
+                "name": "Mordekaiser",
+              ],
+              "availableIn": [],
+            ],
+          ]
+        ]
+      )
+    }
+  }
 }

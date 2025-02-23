@@ -2,19 +2,19 @@ struct ChampionsService {
   let imageUrlProvider: ImageUrlProvider
   let appDatabase: AppDatabase
 
-  func searchChampions(name championName: String) async throws(ChampionsError)
+  func searchChampions(championName: String) async throws(ChampionsError)
     -> SearchChampionsResult
   {
-    let data = try await loadSearchChampionsLocalData(championName: championName)
+    let data = try await loadSearchChampionsLocalData(championName)
     let imageUrls = try await getImageUrls(data.champions)
-    return try createSearchChampionsResult(data, imageUrls)
+    return try createSearchChampionsResult(championName, data, imageUrls)
   }
 
-  private func loadSearchChampionsLocalData(championName: String) async throws(ChampionsError)
+  private func loadSearchChampionsLocalData(_ searchedName: String) async throws(ChampionsError)
     -> SearchChampionsLocalData
   {
     do {
-      let champions = try await appDatabase.filterChampions(name: championName)
+      let champions = try await appDatabase.filterChampions(name: searchedName)
       let regularRotation = try await appDatabase.currentRegularRotation()
       let beginnerRotation = try await appDatabase.currentBeginnerRotation()
       return (champions, regularRotation, beginnerRotation)
@@ -24,6 +24,7 @@ struct ChampionsService {
   }
 
   private func createSearchChampionsResult(
+    _ searchedName: String,
     _ data: SearchChampionsLocalData,
     _ imageUrls: ChampionImageUrls
   ) throws(ChampionsError) -> SearchChampionsResult {
@@ -33,7 +34,7 @@ struct ChampionsService {
       wrapError: ChampionsError.championError
     )
 
-    let matches = try data.champions.map(\.riotId).map { riotId throws(ChampionsError) in
+    func createMatch(riotId: String) throws(ChampionsError) -> SearchChampionsMatch {
       let champion = try championFactory.create(riotId: riotId)
 
       var availableIn = [ChampionRotationType]()
@@ -52,6 +53,10 @@ struct ChampionsService {
       )
     }
 
+    let matches = try data.champions.map(\.riotId)
+      .map(createMatch)
+      .sortedByMatchIndex(searchedName: searchedName)
+
     return SearchChampionsResult(
       matches: matches
     )
@@ -68,6 +73,15 @@ struct ChampionsService {
     } catch {
       throw .championImagesUnavailable(cause: error)
     }
+  }
+}
+
+extension [SearchChampionsMatch] {
+  func sortedByMatchIndex(searchedName: String) -> [SearchChampionsMatch] {
+    let lowerCaseName = searchedName.lowercased()
+    return sorted(byComparable: { element in
+      element.champion.name.lowercased().range(of: lowerCaseName)?.lowerBound
+    })
   }
 }
 

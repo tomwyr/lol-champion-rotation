@@ -89,6 +89,7 @@ extension AppDatabase {
       try await ChampionModel.query(on: db)
         // PSQL specific ILIKE operator.
         .filter(\.$name, .custom("ilike"), "%\(name)%")
+        .sort(\.$name)
         .all()
     }
   }

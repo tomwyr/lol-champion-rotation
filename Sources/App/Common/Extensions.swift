@@ -32,6 +32,18 @@ extension Array where Element: Any {
   subscript(try index: Int) -> Element? {
     (0..<count) ~= index ? self[index] : nil
   }
+
+  func sorted(byComparable comparableOf: (Element) -> (some Comparable)?) -> [Element] {
+    return map { element in
+      (element: element, comparable: comparableOf(element))
+    }
+    .sorted(by: { lhs, rhs in
+      guard let right = rhs.comparable else { return true }
+      guard let left = lhs.comparable else { return false }
+      return left < right
+    })
+    .map(\.element)
+  }
 }
 
 extension Array where Element: Hashable {

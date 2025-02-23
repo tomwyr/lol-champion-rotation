@@ -42,7 +42,7 @@ func routes(_ app: Application, _ deps: Dependencies) throws {
         throw Abort(.badRequest)
       }
       let championsService = deps.championsService(request: req)
-      return try await championsService.searchChampions(name: championName)
+      return try await championsService.searchChampions(championName: championName)
     }
   }
 
