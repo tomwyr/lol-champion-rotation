@@ -64,4 +64,5 @@ enum ChampionRotationError: Error {
   case rotationDurationInvalid
   case tokenHashingFailed(cause: Error)
   case dataOperationFailed(cause: Error)
+  case championError(cause: ChampionError)
 }

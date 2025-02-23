@@ -23,6 +23,13 @@ struct Dependencies {
     )
   }
 
+  func championsService(request: Request) -> ChampionsService {
+    ChampionsService(
+      imageUrlProvider: imageUrlProvider(request: request),
+      appDatabase: appDatabase(request: request)
+    )
+  }
+
   func notificationsService(request: Request) -> NotificationsService {
     NotificationsService(
       appDatabase: appDatabase(request: request),

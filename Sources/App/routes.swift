@@ -35,6 +35,17 @@ func routes(_ app: Application, _ deps: Dependencies) throws {
     }
   }
 
+  app.protected(with: userGuard).grouped("champions") { champions in
+    champions.get("search") { req in
+      try req.auth.require(UserAuth.self)
+      guard let championName = req.query[String.self, at: "name"] else {
+        throw Abort(.badRequest)
+      }
+      let championsService = deps.championsService(request: req)
+      return try await championsService.searchChampions(name: championName)
+    }
+  }
+
   app.protected(with: mobileUserGuard).get("user") { req in
     let auth = try req.auth.require(MobileUserAuth.self)
     let notificationsService = deps.notificationsService(request: req)

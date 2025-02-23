@@ -4,7 +4,7 @@ extension DefaultRotationService {
   func currentRotation() async throws(ChampionRotationError) -> ChampionRotation {
     let patchVersion = try? await versionService.latestVersion()
     let localData = try await loadCurrentRotationLocalData()
-    let imageUrls = try await fetchImageUrls(localData)
+    let imageUrls = try await getImageUrls(localData)
     return try await createChampionRotation(patchVersion, localData, imageUrls)
   }
 
@@ -39,7 +39,7 @@ extension DefaultRotationService {
     )
   }
 
-  private func fetchImageUrls(_ localData: CurrentRotationLocalData)
+  private func getImageUrls(_ localData: CurrentRotationLocalData)
     async throws(ChampionRotationError) -> ChampionImageUrls
   {
     let (regularRotation, beginnerRotation, _, _) = localData
@@ -58,7 +58,11 @@ extension DefaultRotationService {
     _ data: CurrentRotationLocalData,
     _ imageUrls: ChampionImageUrls
   ) async throws(ChampionRotationError) -> ChampionRotation {
-    let championFactory = ChampionFactory(champions: data.champions, imageUrls: imageUrls)
+    let championFactory = ChampionFactory(
+      champions: data.champions,
+      imageUrls: imageUrls,
+      wrapError: ChampionRotationError.championError
+    )
 
     let beginnerMaxLevel = data.beginnerRotation.maxLevel
     let beginnerChampions = try data.beginnerRotation.champions

@@ -8,7 +8,7 @@ extension DefaultRotationService {
     guard let localData else { return nil }
     let nextRotationTime = localData.rotation.observedAt
     let patchVersion = try? await versionService.findVersion(olderThan: nextRotationTime)
-    let imageUrlsByChampionId = try await fetchImageUrls(localData)
+    let imageUrlsByChampionId = try await getImageUrls(localData)
     return try await createRegularRotation(patchVersion, localData, imageUrlsByChampionId)
   }
 
@@ -43,7 +43,7 @@ extension DefaultRotationService {
     return (rotation, champions, hasPreviousRegularRotation)
   }
 
-  private func fetchImageUrls(_ localData: RegularRotationLocalData)
+  private func getImageUrls(_ localData: RegularRotationLocalData)
     async throws(ChampionRotationError) -> ChampionImageUrls
   {
     do {
@@ -61,7 +61,12 @@ extension DefaultRotationService {
     _ data: RegularRotationLocalData,
     _ imageUrls: ChampionImageUrls
   ) async throws(ChampionRotationError) -> RegularChampionRotation {
-    let championFactory = ChampionFactory(champions: data.champions, imageUrls: imageUrls)
+    let championFactory = ChampionFactory(
+      champions: data.champions,
+      imageUrls: imageUrls,
+      wrapError: ChampionRotationError.championError
+    )
+
     let champions = try data.rotation.champions
       .map(championFactory.create)
       .sorted { $0.name < $1.name }

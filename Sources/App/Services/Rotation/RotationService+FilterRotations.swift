@@ -3,7 +3,7 @@ extension DefaultRotationService {
     -> FilterRotationsResult
   {
     let localData = try await loadFilterRotationsData(championName)
-    let imageUrls = try await fetchImageUrls(localData)
+    let imageUrls = try await getImageUrls(localData)
     let filteredRotations = try await createRegularRotations(championName, localData, imageUrls)
     let beginnerRotation = try await createBeginnerRotation(championName, localData, imageUrls)
     return FilterRotationsResult(
@@ -30,7 +30,7 @@ extension DefaultRotationService {
     }
   }
 
-  private func fetchImageUrls(_ localData: FilterRotationsLocalData)
+  private func getImageUrls(_ localData: FilterRotationsLocalData)
     async throws(ChampionRotationError) -> ChampionImageUrls
   {
     do {
@@ -48,7 +48,11 @@ extension DefaultRotationService {
     _ data: FilterRotationsLocalData,
     _ imageUrls: ChampionImageUrls
   ) async throws(ChampionRotationError) -> [FilteredRegularRotation] {
-    let championFactory = ChampionFactory(champions: data.champions, imageUrls: imageUrls)
+    let championFactory = ChampionFactory(
+      champions: data.champions,
+      imageUrls: imageUrls,
+      wrapError: ChampionRotationError.championError
+    )
 
     let championsByRiotId = data.champions.associateBy(\.riotId)
     func matchesQuery(riotId: String) -> Bool {
@@ -74,7 +78,11 @@ extension DefaultRotationService {
       return nil
     }
 
-    let championFactory = ChampionFactory(champions: data.champions, imageUrls: imageUrls)
+    let championFactory = ChampionFactory(
+      champions: data.champions,
+      imageUrls: imageUrls,
+      wrapError: ChampionRotationError.championError
+    )
 
     let championsByRiotId = data.champions.associateBy(\.riotId)
     func matchesQuery(riotId: String) -> Bool {

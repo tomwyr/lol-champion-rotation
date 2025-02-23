@@ -45,3 +45,7 @@ struct FilteredRegularRotation: Content {
 struct FilteredBeginnerRotation: Content {
   let champions: [Champion]
 }
+
+enum ChampionRotationType: Content {
+  case regular, beginner
+}
