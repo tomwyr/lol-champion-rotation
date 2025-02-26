@@ -13,12 +13,16 @@ final class ChampionModel: Model, @unchecked Sendable {
   @Field(key: "name")
   var name: String
 
+  @Field(key: "title")
+  var title: String
+
   init() {}
 
-  init(id: UUID? = nil, riotId: String, name: String) {
+  init(id: UUID? = nil, riotId: String, name: String, title: String) {
     self.id = id
     self.riotId = riotId
     self.name = name
+    self.title = title
   }
 }
 
@@ -121,7 +125,11 @@ final class BeginnerChampionRotationModel: Model, @unchecked Sendable {
 
 extension ChampionModel {
   convenience init(championData: ChampionData) {
-    self.init(riotId: championData.id, name: championData.name)
+    self.init(
+      riotId: championData.id,
+      name: championData.name,
+      title: championData.title
+    )
   }
 }
 

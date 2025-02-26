@@ -6,6 +6,7 @@ extension Migrations {
     add(AddPatchVersions())
     add(AddNotificationConfigs())
     add(SplitChampionRotations())
+    add(AddChampionTitle())
   }
 }
 
@@ -139,6 +140,20 @@ struct SplitChampionRotations: AsyncMigration {
   func deleteSplitRotationsTables(_ db: Database) async throws {
     try await db.schema("regular-champion-rotations").delete()
     try await db.schema("beginner-champion-rotations").delete()
+  }
+}
+
+struct AddChampionTitle: AsyncMigration {
+  func prepare(on db: any Database) async throws {
+    try await db.schema("champions")
+      .field("title", .string)
+      .update()
+  }
+
+  func revert(on db: any Database) async throws {
+    try await db.schema("champions")
+      .deleteField("title")
+      .update()
   }
 }
 
