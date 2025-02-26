@@ -40,7 +40,7 @@ func routes(_ app: Application, _ deps: Dependencies) throws {
       try req.auth.require(UserAuth.self)
       let championId = req.parameters.get("id")!
       let rotationService = deps.championsService(request: req)
-      let championDetails = try await rotationService.getChampionDetails(championId: championId)
+      let championDetails = try await rotationService.championDetails(championId: championId)
       guard let championDetails else {
         throw Abort(.notFound)
       }
