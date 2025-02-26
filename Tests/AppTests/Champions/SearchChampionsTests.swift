@@ -172,17 +172,17 @@ class SearchChampionsTests: AppTests {
           "matches": [
             [
               "champion": [
-                "id": uuidString("2"),
-                "imageUrl": imageUrl("Garen"),
-                "name": "Garen",
+                "id": uuidString("4"),
+                "imageUrl": imageUrl("Rengar"),
+                "name": "Rengar",
               ],
               "availableIn": ["regular"],
             ],
             [
               "champion": [
-                "id": uuidString("4"),
-                "imageUrl": imageUrl("Rengar"),
-                "name": "Rengar",
+                "id": uuidString("2"),
+                "imageUrl": imageUrl("Garen"),
+                "name": "Garen",
               ],
               "availableIn": ["regular"],
             ],
@@ -243,19 +243,19 @@ class SearchChampionsTests: AppTests {
           "matches": [
             [
               "champion": [
-                "id": uuidString("2"),
-                "imageUrl": imageUrl("Garen"),
-                "name": "Garen",
-              ],
-              "availableIn": ["beginner"],
-            ],
-            [
-              "champion": [
                 "id": uuidString("4"),
                 "imageUrl": imageUrl("Rengar"),
                 "name": "Rengar",
               ],
               "availableIn": ["regular"],
+            ],
+            [
+              "champion": [
+                "id": uuidString("2"),
+                "imageUrl": imageUrl("Garen"),
+                "name": "Garen",
+              ],
+              "availableIn": ["beginner"],
             ],
           ]
         ]
@@ -344,19 +344,19 @@ class SearchChampionsTests: AppTests {
           "matches": [
             [
               "champion": [
-                "id": uuidString("2"),
-                "imageUrl": imageUrl("Sett"),
-                "name": "Sett",
-              ],
-              "availableIn": ["regular", "beginner"],
-            ],
-            [
-              "champion": [
                 "id": uuidString("4"),
                 "imageUrl": imageUrl("Senna"),
                 "name": "Senna",
               ],
               "availableIn": ["beginner"],
+            ],
+            [
+              "champion": [
+                "id": uuidString("2"),
+                "imageUrl": imageUrl("Sett"),
+                "name": "Sett",
+              ],
+              "availableIn": ["regular", "beginner"],
             ],
           ]
         ]
