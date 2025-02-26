@@ -29,6 +29,28 @@ extension AppDatabase {
     }
   }
 
+  func mostRecentRegularRotation(withChampion championId: String) async throws
+    -> RegularChampionRotationModel?
+  {
+    try await runner.run { db in
+      try await RegularChampionRotationModel.query(on: db)
+        .sort(\.$observedAt, .descending)
+        .filter(\.$champions, .custom("&&"), [championId])
+        .first()
+    }
+  }
+
+  func mostRecentBeginnerRotation(withChampion championId: String) async throws
+    -> BeginnerChampionRotationModel?
+  {
+    try await runner.run { db in
+      try await BeginnerChampionRotationModel.query(on: db)
+        .sort(\.$observedAt, .descending)
+        .filter(\.$champions, .custom("&&"), [championId])
+        .first()
+    }
+  }
+
   func regularRotation(rotationId: String) async throws -> RegularChampionRotationModel? {
     let uuid = try UUID(unsafe: rotationId)
     return try await runner.run { db in
@@ -75,6 +97,13 @@ extension AppDatabase {
         .sort(\.$observedAt, .ascending)
         .filter(\.$observedAt > previousDate)
         .first()
+    }
+  }
+
+  func champion(id: String) async throws -> ChampionModel? {
+    let uuid = try UUID(unsafe: id)
+    return try await runner.run { db in
+      try await ChampionModel.query(on: db).filter(\.$id == uuid).first()
     }
   }
 

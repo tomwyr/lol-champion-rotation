@@ -2,6 +2,80 @@ struct ChampionsService {
   let imageUrlProvider: ImageUrlProvider
   let appDatabase: AppDatabase
 
+  func getChampionDetails(championId: String) async throws(ChampionsError) -> ChampionDetails? {
+    let data = try await loadChampionDetailsData(championId)
+    guard let champion = data.champion else {
+      return nil
+    }
+    let imageUrls = try await getImageUrls([champion])
+    return try await createChampionDetails(championId, champion, imageUrls, data)
+  }
+
+  private func loadChampionDetailsData(_ championId: String) async throws(ChampionsError)
+    -> ChampionDetailsLocalData
+  {
+    do {
+      let champion = try await appDatabase.champion(id: championId)
+      let regularRotation = try await appDatabase.mostRecentRegularRotation(
+        withChampion: championId)
+      let beginnerRotation = try await appDatabase.mostRecentBeginnerRotation(
+        withChampion: championId)
+      let currentRegularRotation = try await appDatabase.currentRegularRotation()
+      let currentBeginnerRotation = try await appDatabase.currentBeginnerRotation()
+      return (
+        champion, regularRotation, beginnerRotation, currentRegularRotation, currentBeginnerRotation
+      )
+    } catch {
+      throw .dataOperationFailed(cause: error)
+    }
+  }
+
+  private func createChampionDetails(
+    _ championId: String,
+    _ champion: ChampionModel,
+    _ imageUrls: ChampionImageUrls,
+    _ data: ChampionDetailsLocalData
+  )
+    async throws(ChampionsError) -> ChampionDetails?
+  {
+    let championFactory = ChampionFactory(
+      champions: [champion],
+      imageUrls: imageUrls,
+      wrapError: ChampionsError.championError
+    )
+
+    let rotationsAvailability = createRotationsAvailability(data)
+
+    return try championFactory.createDetails(
+      riotId: championId,
+      rotationsAvailability: rotationsAvailability
+    )
+  }
+
+  private func createRotationsAvailability(_ data: ChampionDetailsLocalData)
+    -> [ChampionDetailsAvailability]
+  {
+    let (_, regularRotation, beginnerRotation, currentRegularRotation, currentBeginnerRotation) =
+      data
+
+    var rotationsAvailability = [ChampionDetailsAvailability]()
+    rotationsAvailability.append(
+      .init(
+        rotationType: .regular,
+        lastAvailable: regularRotation?.observedAt,
+        current: regularRotation?.id != nil && regularRotation?.id == currentRegularRotation?.id
+      ))
+    rotationsAvailability.append(
+      .init(
+        rotationType: .beginner,
+        lastAvailable: beginnerRotation?.observedAt,
+        current: beginnerRotation?.id != nil
+          && beginnerRotation?.id == currentBeginnerRotation?.id
+      ))
+
+    return rotationsAvailability
+  }
+
   func searchChampions(championName: String) async throws(ChampionsError)
     -> SearchChampionsResult
   {
@@ -90,6 +164,14 @@ enum ChampionsError: Error {
   case dataOperationFailed(cause: Error)
   case championError(cause: ChampionError)
 }
+
+private typealias ChampionDetailsLocalData = (
+  champion: ChampionModel?,
+  regularRotation: RegularChampionRotationModel?,
+  beginnerRotation: BeginnerChampionRotationModel?,
+  currentRegularRotation: RegularChampionRotationModel?,
+  currentBeginnerRotation: BeginnerChampionRotationModel?
+)
 
 private typealias SearchChampionsLocalData = (
   champions: [ChampionModel],

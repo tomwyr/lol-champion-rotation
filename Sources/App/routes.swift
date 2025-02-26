@@ -36,6 +36,17 @@ func routes(_ app: Application, _ deps: Dependencies) throws {
   }
 
   app.protected(with: userGuard).grouped("champions") { champions in
+    champions.get(":id/details") { req in
+      try req.auth.require(UserAuth.self)
+      let championId = req.parameters.get("id")!
+      let rotationService = deps.championsService(request: req)
+      let championDetails = try await rotationService.getChampionDetails(championId: championId)
+      guard let championDetails else {
+        throw Abort(.notFound)
+      }
+      return championDetails
+    }
+
     champions.get("search") { req in
       try req.auth.require(UserAuth.self)
       guard let championName = req.query[String.self, at: "name"] else {

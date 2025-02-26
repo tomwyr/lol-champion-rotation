@@ -32,6 +32,33 @@ struct ChampionFactory<OutError: Error> {
       imageUrl: imageUrl
     )
   }
+
+  func createDetails(
+    riotId: String,
+    rotationsAvailability: [ChampionDetailsAvailability]
+  ) throws(OutError) -> ChampionDetails {
+    let imageUrl: String
+    do {
+      imageUrl = try imageUrls.get(for: riotId)
+    } catch {
+      throw wrapError(.dataMissing(championId: riotId))
+    }
+
+    let champion = championsByRiotId[riotId]
+    guard let id = champion?.id?.uuidString,
+      let name = champion?.name, let title = champion?.title
+    else {
+      throw wrapError(.dataMissing(championId: riotId))
+    }
+
+    return ChampionDetails(
+      id: id,
+      name: name,
+      title: title,
+      imageUrl: imageUrl,
+      rotationsAvailability: rotationsAvailability
+    )
+  }
 }
 
 struct ChampionImageUrls {
