@@ -36,7 +36,7 @@ func routes(_ app: Application, _ deps: Dependencies) throws {
   }
 
   app.protected(with: userGuard).grouped("champions") { champions in
-    champions.get(":id/details") { req in
+    champions.get(":id") { req in
       try req.auth.require(UserAuth.self)
       let championId = req.parameters.get("id")!
       let rotationService = deps.championsService(request: req)

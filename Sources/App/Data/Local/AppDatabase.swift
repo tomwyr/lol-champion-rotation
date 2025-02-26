@@ -29,24 +29,24 @@ extension AppDatabase {
     }
   }
 
-  func mostRecentRegularRotation(withChampion championId: String) async throws
+  func mostRecentRegularRotation(withChampion championRiotId: String) async throws
     -> RegularChampionRotationModel?
   {
     try await runner.run { db in
       try await RegularChampionRotationModel.query(on: db)
         .sort(\.$observedAt, .descending)
-        .filter(\.$champions, .custom("&&"), [championId])
+        .filter(\.$champions, .custom("&&"), [championRiotId])
         .first()
     }
   }
 
-  func mostRecentBeginnerRotation(withChampion championId: String) async throws
+  func mostRecentBeginnerRotation(withChampion championRiotId: String) async throws
     -> BeginnerChampionRotationModel?
   {
     try await runner.run { db in
       try await BeginnerChampionRotationModel.query(on: db)
         .sort(\.$observedAt, .descending)
-        .filter(\.$champions, .custom("&&"), [championId])
+        .filter(\.$champions, .custom("&&"), [championRiotId])
         .first()
     }
   }

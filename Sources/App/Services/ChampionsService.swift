@@ -3,27 +3,35 @@ struct ChampionsService {
   let appDatabase: AppDatabase
 
   func getChampionDetails(championId: String) async throws(ChampionsError) -> ChampionDetails? {
-    let data = try await loadChampionDetailsData(championId)
-    guard let champion = data.champion else {
+    guard let champion = try await loadChampionData(championId) else {
       return nil
     }
+    let availavilitiesData = try await loadRotationAvailabilitiesData(champion.riotId)
     let imageUrls = try await getImageUrls([champion])
-    return try await createChampionDetails(championId, champion, imageUrls, data)
+    return try await createChampionDetails(champion, imageUrls, availavilitiesData)
   }
 
-  private func loadChampionDetailsData(_ championId: String) async throws(ChampionsError)
+  private func loadChampionData(_ championId: String) async throws(ChampionsError) -> ChampionModel?
+  {
+    do {
+      return try await appDatabase.champion(id: championId)
+    } catch {
+      throw .dataOperationFailed(cause: error)
+    }
+  }
+
+  private func loadRotationAvailabilitiesData(_ championRiotId: String) async throws(ChampionsError)
     -> ChampionDetailsLocalData
   {
     do {
-      let champion = try await appDatabase.champion(id: championId)
       let regularRotation = try await appDatabase.mostRecentRegularRotation(
-        withChampion: championId)
+        withChampion: championRiotId)
       let beginnerRotation = try await appDatabase.mostRecentBeginnerRotation(
-        withChampion: championId)
+        withChampion: championRiotId)
       let currentRegularRotation = try await appDatabase.currentRegularRotation()
       let currentBeginnerRotation = try await appDatabase.currentBeginnerRotation()
       return (
-        champion, regularRotation, beginnerRotation, currentRegularRotation, currentBeginnerRotation
+        regularRotation, beginnerRotation, currentRegularRotation, currentBeginnerRotation
       )
     } catch {
       throw .dataOperationFailed(cause: error)
@@ -31,7 +39,6 @@ struct ChampionsService {
   }
 
   private func createChampionDetails(
-    _ championId: String,
     _ champion: ChampionModel,
     _ imageUrls: ChampionImageUrls,
     _ data: ChampionDetailsLocalData
@@ -47,7 +54,7 @@ struct ChampionsService {
     let rotationsAvailability = createRotationsAvailability(data)
 
     return try championFactory.createDetails(
-      riotId: championId,
+      riotId: champion.riotId,
       rotationsAvailability: rotationsAvailability
     )
   }
@@ -55,7 +62,7 @@ struct ChampionsService {
   private func createRotationsAvailability(_ data: ChampionDetailsLocalData)
     -> [ChampionDetailsAvailability]
   {
-    let (_, regularRotation, beginnerRotation, currentRegularRotation, currentBeginnerRotation) =
+    let (regularRotation, beginnerRotation, currentRegularRotation, currentBeginnerRotation) =
       data
 
     var rotationsAvailability = [ChampionDetailsAvailability]()
@@ -166,7 +173,6 @@ enum ChampionsError: Error {
 }
 
 private typealias ChampionDetailsLocalData = (
-  champion: ChampionModel?,
   regularRotation: RegularChampionRotationModel?,
   beginnerRotation: BeginnerChampionRotationModel?,
   currentRegularRotation: RegularChampionRotationModel?,
