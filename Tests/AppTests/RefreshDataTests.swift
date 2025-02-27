@@ -47,7 +47,7 @@ class RefreshDataTests: AppTests {
       dbRegularRotations: [
         .init(
           observedAt: Date.now,
-          champions: ["Sett", "Sett"]
+          champions: ["Sett", "Senna"]
         )
       ],
       dbBeginnerRotations: [
@@ -68,6 +68,7 @@ class RefreshDataTests: AppTests {
         "Sett": .init(id: "Sett", key: "1", name: "Sett"),
         "Garen": .init(id: "Garen", key: "2", name: "Garen"),
         "Nocturne": .init(id: "Nocturne", key: "3", name: "Nocturne"),
+        "Senna": .init(id: "Senna", key: "4", name: "Senna"),
       ])
     )
 
