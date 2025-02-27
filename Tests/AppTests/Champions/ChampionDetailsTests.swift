@@ -43,7 +43,7 @@ class ChampionDetailsTests: AppTests {
           "imageUrl": imageUrl("Nocturne"),
           "name": "Nocturne",
           "title": "the Eternal Nightmare",
-          "rotationsAvailability": [
+          "availability": [
             [
               "rotationType": "regular",
               "current": false,
@@ -83,7 +83,7 @@ class ChampionDetailsTests: AppTests {
           "imageUrl": imageUrl("Nocturne"),
           "name": "Nocturne",
           "title": "the Eternal Nightmare",
-          "rotationsAvailability": [
+          "availability": [
             [
               "current": true,
               "rotationType": "regular",
@@ -126,7 +126,7 @@ class ChampionDetailsTests: AppTests {
           "imageUrl": imageUrl("Nocturne"),
           "name": "Nocturne",
           "title": "the Eternal Nightmare",
-          "rotationsAvailability": [
+          "availability": [
             [
               "rotationType": "regular",
               "current": false,

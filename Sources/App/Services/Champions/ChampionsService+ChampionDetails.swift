@@ -48,28 +48,28 @@ extension ChampionsService {
       wrapError: ChampionsError.championError
     )
 
-    let rotationsAvailability = createRotationsAvailability(data)
+    let availability = createAvailability(data)
 
     return try championFactory.createDetails(
       riotId: champion.riotId,
-      rotationsAvailability: rotationsAvailability
+      availability: availability
     )
   }
 
-  private func createRotationsAvailability(_ data: ChampionDetailsLocalData)
+  private func createAvailability(_ data: ChampionDetailsLocalData)
     -> [ChampionDetailsAvailability]
   {
     let (regularRotation, beginnerRotation, currentRegularRotation, currentBeginnerRotation) =
       data
 
-    var rotationsAvailability = [ChampionDetailsAvailability]()
-    rotationsAvailability.append(
+    var availability = [ChampionDetailsAvailability]()
+    availability.append(
       .init(
         rotationType: .regular,
         lastAvailable: regularRotation?.observedAt,
         current: regularRotation?.id != nil && regularRotation?.id == currentRegularRotation?.id
       ))
-    rotationsAvailability.append(
+    availability.append(
       .init(
         rotationType: .beginner,
         lastAvailable: beginnerRotation?.observedAt,
@@ -77,7 +77,7 @@ extension ChampionsService {
           && beginnerRotation?.id == currentBeginnerRotation?.id
       ))
 
-    return rotationsAvailability
+    return availability
   }
 }
 

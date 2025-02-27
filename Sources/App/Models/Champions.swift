@@ -5,8 +5,8 @@ struct ChampionDetails: Content {
   let name: String
   let title: String
   let imageUrl: String
-  let rotationsAvailability: [ChampionDetailsAvailability]
-  // let overvie: ChampionDetailsOverview
+  let availability: [ChampionDetailsAvailability]
+  // let overview: ChampionDetailsOverview
   // let rotation: [ChampionDetailsRotation]
 }
 
