@@ -185,3 +185,14 @@ final class NotificationsConfigModel: Model, @unchecked Sendable {
     self.enabled = enabled
   }
 }
+
+struct ChampionsOccurencesModel: Codable {
+  let champions: [String]
+  let count: Int
+}
+
+struct ChampionStreakModel: Codable {
+  let champion: String
+  let present: Int
+  let absent: Int
+}

@@ -1,4 +1,5 @@
 import Fluent
+import FluentSQL
 import Foundation
 
 struct AppDatabase {
@@ -163,6 +164,66 @@ extension AppDatabase {
           }
         }
       }
+    }
+  }
+
+  func countChampionsOccurrences(of championRiotId: String) async throws
+    -> [ChampionsOccurencesModel]
+  {
+    let query: SQLQueryString = """
+      WITH
+        champions_list AS (
+          SELECT UNNEST(champions) as champion
+          FROM "regular-champion-rotations"
+        ),
+        champions_ranks AS (
+          SELECT champion, COUNT(*) as count
+          FROM champions_list
+          GROUP BY champion
+        )
+      SELECT count, ARRAY_AGG(champion) as champions FROM champions_ranks
+      GROUP BY count
+      ORDER BY count DESC
+      """
+
+    return try await runner.runSql { db in
+      try await db.raw(query).all(decoding: ChampionsOccurencesModel.self)
+    }
+  }
+
+  func championStreak(of championRiotId: String) async throws -> ChampionStreakModel? {
+    let query: SQLQueryString = """
+      WITH 
+        latest_rotation_with_champion AS (
+          SELECT observed_at
+          FROM "regular-champion-rotations"
+          WHERE \(bind: championRiotId) = ANY(champions)
+          ORDER BY "observed_at" DESC
+          LIMIT 1
+        ),
+        champion_absent_streak AS (
+          SELECT COUNT(*) AS count
+          FROM "regular-champion-rotations"
+          WHERE observed_at > (SELECT observed_at FROM latest_rotation_with_champion)
+        ),
+        latest_rotation_without_champion AS (
+          SELECT observed_at
+          FROM "regular-champion-rotations"
+          WHERE NOT \(bind: championRiotId) = ANY(champions)
+          ORDER BY "observed_at" DESC
+          LIMIT 1
+        ),
+        champion_present_streak AS (
+          SELECT COUNT(*) AS count
+          FROM "regular-champion-rotations"
+          WHERE observed_at > (SELECT observed_at FROM latest_rotation_without_champion)
+        )
+      SELECT \(bind: championRiotId) as champion, present_streak.count AS present, absent_streak.count AS absent
+      FROM champion_present_streak present_streak, champion_absent_streak absent_streak;
+      """
+
+    return try await runner.runSql { db in
+      try await db.raw(query).first(decoding: ChampionStreakModel.self)
     }
   }
 }

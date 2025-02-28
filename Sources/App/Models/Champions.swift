@@ -6,7 +6,7 @@ struct ChampionDetails: Content {
   let title: String
   let imageUrl: String
   let availability: [ChampionDetailsAvailability]
-  // let overview: ChampionDetailsOverview
+  let overview: ChampionDetailsOverview
   // let rotation: [ChampionDetailsRotation]
 }
 
@@ -19,8 +19,7 @@ struct ChampionDetailsAvailability: Content {
 struct ChampionDetailsOverview: Content {
   let occurences: Int
   let popularity: Int
-  let lastAvailable: Date?
-  let rotationsSinceLastAvailable: Int?
+  let currentStreak: Int
 }
 
 struct ChampionDetailsRotation: Content {

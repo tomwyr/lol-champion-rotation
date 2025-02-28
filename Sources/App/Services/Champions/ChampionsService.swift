@@ -17,6 +17,7 @@ struct ChampionsService {
 }
 
 enum ChampionsError: Error {
+  case championDataInvalidOrMissing(championId: String?)
   case championImagesUnavailable(cause: Error)
   case dataOperationFailed(cause: Error)
   case championError(cause: ChampionError)

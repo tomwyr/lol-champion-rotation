@@ -27,8 +27,12 @@ extension ChampionsService {
         withChampion: championRiotId)
       let currentRegularRotation = try await appDatabase.currentRegularRotation()
       let currentBeginnerRotation = try await appDatabase.currentBeginnerRotation()
+      let championsOccurences = try await appDatabase.countChampionsOccurrences(of: championRiotId)
+      let championStreak = try await appDatabase.championStreak(of: championRiotId)
       return (
-        regularRotation, beginnerRotation, currentRegularRotation, currentBeginnerRotation
+        regularRotation, beginnerRotation,
+        currentRegularRotation, currentBeginnerRotation,
+        championsOccurences, championStreak
       )
     } catch {
       throw .dataOperationFailed(cause: error)
@@ -48,18 +52,17 @@ extension ChampionsService {
       wrapError: ChampionsError.championError
     )
 
-    let availability = createAvailability(data)
-
     return try championFactory.createDetails(
       riotId: champion.riotId,
-      availability: availability
+      availability: createAvailability(data),
+      overview: createOverview(champion, data)
     )
   }
 
   private func createAvailability(_ data: ChampionDetailsLocalData)
     -> [ChampionDetailsAvailability]
   {
-    let (regularRotation, beginnerRotation, currentRegularRotation, currentBeginnerRotation) =
+    let (regularRotation, beginnerRotation, currentRegularRotation, currentBeginnerRotation, _, _) =
       data
 
     var availability = [ChampionDetailsAvailability]()
@@ -79,11 +82,49 @@ extension ChampionsService {
 
     return availability
   }
+
+  private func createOverview(_ champion: ChampionModel, _ data: ChampionDetailsLocalData)
+    throws(ChampionsError) -> ChampionDetailsOverview
+  {
+    let (_, _, _, _, championsOccurences, championStreak) = data
+
+    let dataInvalidOrMissing = ChampionsError.championDataInvalidOrMissing(
+      championId: champion.id?.uuidString)
+
+    let occurrences =
+      championsOccurences
+      .first { group in group.champions.contains(champion.riotId) }?
+      .count
+    guard let occurrences else {
+      throw dataInvalidOrMissing
+    }
+
+    let morePopularChampions =
+      championsOccurences
+      .filter { group in group.count > occurrences }
+      .reduce(0) { result, next in result + next.champions.count }
+    let popularity = morePopularChampions + 1
+
+    guard let present = championStreak?.present, let absent = championStreak?.absent,
+      (present == 0 && absent > 0) || (present > 0 && absent == 0)
+    else {
+      throw dataInvalidOrMissing
+    }
+    let currentStreak = if present > 0 { present } else { -absent }
+
+    return ChampionDetailsOverview(
+      occurences: occurrences,
+      popularity: popularity,
+      currentStreak: currentStreak
+    )
+  }
 }
 
 private typealias ChampionDetailsLocalData = (
   regularRotation: RegularChampionRotationModel?,
   beginnerRotation: BeginnerChampionRotationModel?,
   currentRegularRotation: RegularChampionRotationModel?,
-  currentBeginnerRotation: BeginnerChampionRotationModel?
+  currentBeginnerRotation: BeginnerChampionRotationModel?,
+  championsOccurences: [ChampionsOccurencesModel],
+  championStreak: ChampionStreakModel?
 )

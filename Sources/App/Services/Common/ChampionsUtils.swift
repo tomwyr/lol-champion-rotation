@@ -35,7 +35,8 @@ struct ChampionFactory<OutError: Error> {
 
   func createDetails(
     riotId: String,
-    availability: [ChampionDetailsAvailability]
+    availability: [ChampionDetailsAvailability],
+    overview: ChampionDetailsOverview
   ) throws(OutError) -> ChampionDetails {
     let imageUrl: String
     do {
@@ -56,7 +57,8 @@ struct ChampionFactory<OutError: Error> {
       name: name,
       title: title,
       imageUrl: imageUrl,
-      availability: availability
+      availability: availability,
+      overview: overview
     )
   }
 }
