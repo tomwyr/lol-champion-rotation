@@ -88,16 +88,10 @@ extension ChampionsService {
   {
     let (_, _, _, _, championsOccurrences, championStreak) = data
 
-    let dataInvalidOrMissing = ChampionsError.dataInvalidOrMissing(
-      championId: champion.id?.uuidString)
-
     let occurrences =
       championsOccurrences
       .first { group in group.champions.contains(champion.riotId) }?
-      .count
-    guard let occurrences else {
-      throw dataInvalidOrMissing
-    }
+      .count ?? 0
 
     let morePopularChampions =
       championsOccurrences
@@ -106,9 +100,9 @@ extension ChampionsService {
     let popularity = morePopularChampions + 1
 
     guard let present = championStreak?.present, let absent = championStreak?.absent,
-      (present == 0 && absent > 0) || (present > 0 && absent == 0)
+      present == 0 || absent == 0
     else {
-      throw dataInvalidOrMissing
+      throw ChampionsError.dataInvalidOrMissing(championId: champion.id?.uuidString)
     }
     let currentStreak = if present > 0 { present } else { -absent }
 
