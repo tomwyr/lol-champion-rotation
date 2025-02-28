@@ -11,14 +11,14 @@ struct ChampionsService {
       let urlsById = Dictionary(uniqueKeysWithValues: zip(championIds, imageUrls))
       return ChampionImageUrls(imageUrlsByChampionId: urlsById)
     } catch {
-      throw .championImagesUnavailable(cause: error)
+      throw .imagesUnavailable(cause: error)
     }
   }
 }
 
 enum ChampionsError: Error {
-  case championDataInvalidOrMissing(championId: String?)
-  case championImagesUnavailable(cause: Error)
+  case dataInvalidOrMissing(championId: String?)
+  case imagesUnavailable(cause: Error)
   case dataOperationFailed(cause: Error)
   case championError(cause: ChampionError)
 }

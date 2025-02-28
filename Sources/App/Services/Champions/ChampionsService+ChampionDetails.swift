@@ -27,12 +27,12 @@ extension ChampionsService {
         withChampion: championRiotId)
       let currentRegularRotation = try await appDatabase.currentRegularRotation()
       let currentBeginnerRotation = try await appDatabase.currentBeginnerRotation()
-      let championsOccurences = try await appDatabase.countChampionsOccurrences(of: championRiotId)
+      let championsOccurrences = try await appDatabase.countChampionsOccurrences(of: championRiotId)
       let championStreak = try await appDatabase.championStreak(of: championRiotId)
       return (
         regularRotation, beginnerRotation,
         currentRegularRotation, currentBeginnerRotation,
-        championsOccurences, championStreak
+        championsOccurrences, championStreak
       )
     } catch {
       throw .dataOperationFailed(cause: error)
@@ -86,13 +86,13 @@ extension ChampionsService {
   private func createOverview(_ champion: ChampionModel, _ data: ChampionDetailsLocalData)
     throws(ChampionsError) -> ChampionDetailsOverview
   {
-    let (_, _, _, _, championsOccurences, championStreak) = data
+    let (_, _, _, _, championsOccurrences, championStreak) = data
 
-    let dataInvalidOrMissing = ChampionsError.championDataInvalidOrMissing(
+    let dataInvalidOrMissing = ChampionsError.dataInvalidOrMissing(
       championId: champion.id?.uuidString)
 
     let occurrences =
-      championsOccurences
+      championsOccurrences
       .first { group in group.champions.contains(champion.riotId) }?
       .count
     guard let occurrences else {
@@ -100,7 +100,7 @@ extension ChampionsService {
     }
 
     let morePopularChampions =
-      championsOccurences
+      championsOccurrences
       .filter { group in group.count > occurrences }
       .reduce(0) { result, next in result + next.champions.count }
     let popularity = morePopularChampions + 1
@@ -113,7 +113,7 @@ extension ChampionsService {
     let currentStreak = if present > 0 { present } else { -absent }
 
     return ChampionDetailsOverview(
-      occurences: occurrences,
+      occurrences: occurrences,
       popularity: popularity,
       currentStreak: currentStreak
     )
@@ -125,6 +125,6 @@ private typealias ChampionDetailsLocalData = (
   beginnerRotation: BeginnerChampionRotationModel?,
   currentRegularRotation: RegularChampionRotationModel?,
   currentBeginnerRotation: BeginnerChampionRotationModel?,
-  championsOccurences: [ChampionsOccurencesModel],
+  championsOccurrences: [ChampionsOccurrencesModel],
   championStreak: ChampionStreakModel?
 )

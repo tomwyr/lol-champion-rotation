@@ -168,7 +168,7 @@ extension AppDatabase {
   }
 
   func countChampionsOccurrences(of championRiotId: String) async throws
-    -> [ChampionsOccurencesModel]
+    -> [ChampionsOccurrencesModel]
   {
     let query: SQLQueryString = """
       WITH
@@ -187,7 +187,7 @@ extension AppDatabase {
       """
 
     return try await runner.runSql { db in
-      try await db.raw(query).all(decoding: ChampionsOccurencesModel.self)
+      try await db.raw(query).all(decoding: ChampionsOccurrencesModel.self)
     }
   }
 

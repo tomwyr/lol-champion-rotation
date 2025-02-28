@@ -186,7 +186,7 @@ final class NotificationsConfigModel: Model, @unchecked Sendable {
   }
 }
 
-struct ChampionsOccurencesModel: Codable {
+struct ChampionsOccurrencesModel: Codable {
   let champions: [String]
   let count: Int
 }
