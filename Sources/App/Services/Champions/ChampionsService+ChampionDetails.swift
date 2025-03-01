@@ -1,3 +1,5 @@
+import Foundation
+
 extension ChampionsService {
   func championDetails(championId: String) async throws(ChampionsError) -> ChampionDetails? {
     guard let champion = try await loadChampionData(championId) else {
@@ -21,18 +23,26 @@ extension ChampionsService {
     -> ChampionDetailsLocalData
   {
     do {
-      let regularRotation = try await appDatabase.mostRecentRegularRotation(
+      let championLatestRegularRotation = try await appDatabase.mostRecentRegularRotation(
         withChampion: championRiotId)
-      let beginnerRotation = try await appDatabase.mostRecentBeginnerRotation(
+      let championLatestBeginnerRotation = try await appDatabase.mostRecentBeginnerRotation(
         withChampion: championRiotId)
+      let championRegularRotationsIds = try await appDatabase.regularRotationsIds(
+        withChampion: championRiotId)
+      let regularRotations = try await appDatabase.regularRotations()
       let currentRegularRotation = try await appDatabase.currentRegularRotation()
       let currentBeginnerRotation = try await appDatabase.currentBeginnerRotation()
       let championsOccurrences = try await appDatabase.countChampionsOccurrences(of: championRiotId)
       let championStreak = try await appDatabase.championStreak(of: championRiotId)
       return (
-        regularRotation, beginnerRotation,
-        currentRegularRotation, currentBeginnerRotation,
-        championsOccurrences, championStreak
+        championLatestRegularRotation,
+        championLatestBeginnerRotation,
+        championRegularRotationsIds,
+        regularRotations,
+        currentRegularRotation,
+        currentBeginnerRotation,
+        championsOccurrences,
+        championStreak
       )
     } catch {
       throw .dataOperationFailed(cause: error)
@@ -52,32 +62,36 @@ extension ChampionsService {
       wrapError: ChampionsError.championError
     )
 
-    return try championFactory.createDetails(
+    return try await championFactory.createDetails(
       riotId: champion.riotId,
       availability: createAvailability(data),
-      overview: createOverview(champion, data)
+      overview: createOverview(champion, data),
+      history: createHistory(champion, data)
     )
   }
 
   private func createAvailability(_ data: ChampionDetailsLocalData)
     -> [ChampionDetailsAvailability]
   {
-    let (regularRotation, beginnerRotation, currentRegularRotation, currentBeginnerRotation, _, _) =
-      data
+    let championRegularRotation = data.championLatestRegularRotation
+    let championBeginnerRotation = data.championLatestBeginnerRotation
+    let currentRegularRotation = data.currentRegularRotation
+    let currentBeginnerRotation = data.currentBeginnerRotation
 
     var availability = [ChampionDetailsAvailability]()
     availability.append(
       .init(
         rotationType: .regular,
-        lastAvailable: regularRotation?.observedAt,
-        current: regularRotation?.id != nil && regularRotation?.id == currentRegularRotation?.id
+        lastAvailable: championRegularRotation?.observedAt,
+        current: championRegularRotation?.id != nil
+          && championRegularRotation?.id == currentRegularRotation?.id
       ))
     availability.append(
       .init(
         rotationType: .beginner,
-        lastAvailable: beginnerRotation?.observedAt,
-        current: beginnerRotation?.id != nil
-          && beginnerRotation?.id == currentBeginnerRotation?.id
+        lastAvailable: championBeginnerRotation?.observedAt,
+        current: championBeginnerRotation?.id != nil
+          && championBeginnerRotation?.id == currentBeginnerRotation?.id
       ))
 
     return availability
@@ -86,7 +100,8 @@ extension ChampionsService {
   private func createOverview(_ champion: ChampionModel, _ data: ChampionDetailsLocalData)
     throws(ChampionsError) -> ChampionDetailsOverview
   {
-    let (_, _, _, _, championsOccurrences, championStreak) = data
+    let championsOccurrences = data.championsOccurrences
+    let championStreak = data.championStreak
 
     let occurrences =
       championsOccurrences
@@ -102,7 +117,7 @@ extension ChampionsService {
     guard let present = championStreak?.present, let absent = championStreak?.absent,
       present == 0 || absent == 0
     else {
-      throw ChampionsError.dataInvalidOrMissing(championId: champion.id?.uuidString)
+      throw .dataInvalidOrMissing(championId: champion.riotId)
     }
     let currentStreak = if present > 0 { present } else { -absent }
 
@@ -112,11 +127,115 @@ extension ChampionsService {
       currentStreak: currentStreak
     )
   }
+
+  private func createHistory(_ champion: ChampionModel, _ data: ChampionDetailsLocalData)
+    async throws(ChampionsError) -> [ChampionDetailsHistoryEvent]
+  {
+    let allRotations = data.regularRotations
+    let championRotationsIds = data.championRegularRotationsIds.uniqued()
+    guard let currentRotation = data.currentRegularRotation else {
+      throw .dataInvalidOrMissing(championId: champion.riotId)
+    }
+
+    var items = [ChampionDetailsHistoryEvent]()
+    var rotationsMissed = 0
+
+    for rotation in allRotations {
+      guard let id = rotation.id else { continue }
+
+      if !championRotationsIds.contains(id) {
+        rotationsMissed += 1
+        continue
+      }
+
+      if rotationsMissed > 0 {
+        items.append(createBench(rotationsMissed))
+        rotationsMissed = 0
+      }
+      try await items.append(createRotation(rotation, currentRotation, champion))
+    }
+
+    if rotationsMissed > 0 {
+      items.append(createBench(rotationsMissed))
+      rotationsMissed = 0
+    }
+
+    return items
+  }
+
+  func createBench(_ rotationsMissed: Int) -> ChampionDetailsHistoryEvent {
+    .bench(.init(rotationsMissed: rotationsMissed))
+  }
+
+  func createRotation(
+    _ rotation: RegularChampionRotationModel,
+    _ currentRotation: RegularChampionRotationModel,
+    _ champion: ChampionModel
+  ) async throws(ChampionsError) -> ChampionDetailsHistoryEvent {
+    guard let id = rotation.id?.uuidString, let currentId = currentRotation.id?.uuidString else {
+      throw .dataInvalidOrMissing(championId: champion.riotId)
+    }
+
+    let duration: ChampionRotationDuration
+    do {
+      duration = try await getRotationDuration(currentRotation)
+    } catch {
+      // TODO Not accurate error.
+      throw .dataOperationFailed(cause: error)
+    }
+
+    let championImageUrls: [String]
+    let championIds = rotation.champions.prefix(5)
+    do {
+      championImageUrls = try await imageUrlProvider.champions(with: championIds)
+    } catch {
+      throw .imagesUnavailable(cause: error)
+    }
+
+    return .rotation(
+      .init(
+        id: id,
+        duration: duration,
+        current: id == currentId,
+        championImageUrls: championImageUrls
+      )
+    )
+  }
+}
+
+// TODO Remove rotation service logic duplication.
+extension ChampionsService {
+  func getRotationDuration(_ rotation: RegularChampionRotationModel)
+    async throws(ChampionRotationError) -> ChampionRotationDuration
+  {
+    let nextRotationDate = try await getNextRotationDate(rotation)
+    let startDate = rotation.observedAt
+    guard let endDate = nextRotationDate ?? startDate.adding(1, .weekOfYear) else {
+      throw .rotationDurationInvalid
+    }
+    return ChampionRotationDuration(start: startDate, end: endDate)
+  }
+
+  func getNextRotationDate(_ rotation: RegularChampionRotationModel)
+    async throws(ChampionRotationError) -> Date?
+  {
+    do {
+      guard let rotationId = try? rotation.requireID().uuidString else {
+        return nil
+      }
+      let nextRotation = try await appDatabase.findNextRegularRotation(after: rotationId)
+      return nextRotation?.observedAt
+    } catch {
+      throw .dataOperationFailed(cause: error)
+    }
+  }
 }
 
 private typealias ChampionDetailsLocalData = (
-  regularRotation: RegularChampionRotationModel?,
-  beginnerRotation: BeginnerChampionRotationModel?,
+  championLatestRegularRotation: RegularChampionRotationModel?,
+  championLatestBeginnerRotation: BeginnerChampionRotationModel?,
+  championRegularRotationsIds: [UUID],
+  regularRotations: [RegularChampionRotationModel],
   currentRegularRotation: RegularChampionRotationModel?,
   currentBeginnerRotation: BeginnerChampionRotationModel?,
   championsOccurrences: [ChampionsOccurrencesModel],

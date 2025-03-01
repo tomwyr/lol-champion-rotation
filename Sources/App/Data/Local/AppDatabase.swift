@@ -38,13 +38,13 @@ extension AppDatabase {
     }
   }
 
-  func regularRotationsIds(withChampion championRiotId: String) async throws -> [String] {
+  func regularRotationsIds(withChampion championRiotId: String) async throws -> [UUID] {
     try await runner.run { db in
       try await RegularChampionRotationModel.query(on: db)
         .sort(\.$observedAt, .descending)
         .filter(\.$champions, .custom("&&"), [championRiotId])
         .all()
-        .compactMap(\.id?.uuidString)
+        .compactMap(\.id)
     }
   }
 

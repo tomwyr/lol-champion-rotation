@@ -46,12 +46,6 @@ extension Array where Element: Any {
   }
 }
 
-extension Array where Element: Hashable {
-  func uniqued() -> [Element] {
-    Array(Set(self))
-  }
-}
-
 extension Date {
   static func iso(_ string: String) -> Date? {
     ISO8601DateFormatter().date(from: string)
