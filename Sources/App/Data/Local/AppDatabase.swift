@@ -30,6 +30,24 @@ extension AppDatabase {
     }
   }
 
+  func regularRotations() async throws -> [RegularChampionRotationModel] {
+    try await runner.run { db in
+      try await RegularChampionRotationModel.query(on: db)
+        .sort(\.$observedAt, .descending)
+        .all()
+    }
+  }
+
+  func regularRotationsIds(withChampion championRiotId: String) async throws -> [String] {
+    try await runner.run { db in
+      try await RegularChampionRotationModel.query(on: db)
+        .sort(\.$observedAt, .descending)
+        .filter(\.$champions, .custom("&&"), [championRiotId])
+        .all()
+        .compactMap(\.id?.uuidString)
+    }
+  }
+
   func mostRecentRegularRotation(withChampion championRiotId: String) async throws
     -> RegularChampionRotationModel?
   {

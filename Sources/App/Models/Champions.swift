@@ -7,7 +7,7 @@ struct ChampionDetails: Content {
   let imageUrl: String
   let availability: [ChampionDetailsAvailability]
   let overview: ChampionDetailsOverview
-  // let rotation: [ChampionDetailsRotation]
+  let history: [ChampionDetailsHistoryEvent]
 }
 
 struct ChampionDetailsAvailability: Content {
@@ -22,12 +22,20 @@ struct ChampionDetailsOverview: Content {
   let currentStreak: Int
 }
 
-struct ChampionDetailsRotation: Content {
+enum ChampionDetailsHistoryEvent: Content {
+  case rotation(ChampionDetailsHistoryRotation)
+  case bench(ChampionDetailsHistoryBench)
+}
+
+struct ChampionDetailsHistoryRotation: Content {
   let id: String
   let duration: ChampionRotationDuration
   let current: Bool
-  let rotationsSinceLastSeen: Int
   let championImageUrls: [String]
+}
+
+struct ChampionDetailsHistoryBench: Content {
+  let rotationsMissed: Int
 }
 
 struct SearchChampionsResult: Content {
