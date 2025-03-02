@@ -58,6 +58,7 @@ class ChampionDetailsTests: AppTests {
             "popularity": 1,
             "currentStreak": 0,
           ],
+          "history": [],
         ]
       )
     }
@@ -103,6 +104,18 @@ class ChampionDetailsTests: AppTests {
             "occurrences": 1,
             "popularity": 1,
             "currentStreak": 0,
+          ],
+          "history": [
+            [
+              "type": "rotation",
+              "id": uuidString("1"),
+              "duration": [
+                "start": "2024-11-14T12:00:00Z",
+                "end": "2024-11-21T12:00:00Z",
+              ],
+              "current": true,
+              "championImageUrls": [imageUrl("Nocturne")],
+            ]
           ],
         ]
       )
@@ -153,6 +166,7 @@ class ChampionDetailsTests: AppTests {
             "popularity": 1,
             "currentStreak": 0,
           ],
+          "history": [],
         ]
       )
     }
@@ -216,6 +230,53 @@ class ChampionDetailsTests: AppTests {
             "popularity": 2,
             "currentStreak": 2,
           ],
+          "history": [
+            [
+              "type": "rotation",
+              "id": uuidString("4"),
+              "duration": [
+                "start": "2024-11-14T12:00:00Z",
+                "end": "2024-11-21T12:00:00Z",
+              ],
+              "current": true,
+              "championImageUrls": [
+                imageUrl("Nocturne"),
+                imageUrl("Senna"),
+              ],
+            ],
+            [
+              "type": "rotation",
+              "id": uuidString("3"),
+              "duration": [
+                "start": "2024-11-13T12:00:00Z",
+                "end": "2024-11-14T12:00:00Z",
+              ],
+              "current": false,
+              "championImageUrls": [
+                imageUrl("Nocturne"),
+                imageUrl("Senna"),
+                imageUrl("Fiora"),
+              ],
+            ],
+            [
+              "type": "bench",
+              "rotationsMissed": 1,
+            ],
+            [
+              "type": "rotation",
+              "id": uuidString("1"),
+              "duration": [
+                "start": "2024-11-11T12:00:00Z",
+                "end": "2024-11-12T12:00:00Z",
+              ],
+              "current": false,
+              "championImageUrls": [
+                imageUrl("Nocturne"),
+                imageUrl("Senna"),
+                imageUrl("Fiora"),
+              ],
+            ],
+          ],
         ]
       )
     }
@@ -278,6 +339,29 @@ class ChampionDetailsTests: AppTests {
             "occurrences": 1,
             "popularity": 3,
             "currentStreak": -2,
+          ],
+          "history": [
+            [
+              "type": "bench",
+              "rotationsMissed": 2,
+            ],
+            [
+              "type": "rotation",
+              "id": uuidString("2"),
+              "duration": [
+                "start": "2024-11-12T12:00:00Z",
+                "end": "2024-11-13T12:00:00Z",
+              ],
+              "current": false,
+              "championImageUrls": [
+                imageUrl("Nocturne"),
+                imageUrl("Senna"),
+              ],
+            ],
+            [
+              "type": "bench",
+              "rotationsMissed": 1,
+            ],
           ],
         ]
       )
