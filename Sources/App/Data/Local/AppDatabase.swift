@@ -71,7 +71,9 @@ extension AppDatabase {
   }
 
   func regularRotation(rotationId: String) async throws -> RegularChampionRotationModel? {
-    let uuid = try UUID(unsafe: rotationId)
+    guard let uuid = try? UUID(unsafe: rotationId) else {
+      return nil
+    }
     return try await runner.run { db in
       try await RegularChampionRotationModel.query(on: db).filter(\.$id == uuid).first()
     }

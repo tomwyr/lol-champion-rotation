@@ -8,6 +8,15 @@ func routes(_ app: Application, _ deps: Dependencies) throws {
   )
 
   app.protected(with: userGuard).grouped("rotation") { rotation in
+    rotation.get(":id") { req in
+      try req.auth.require(UserAuth.self)
+      let rotationId = req.parameters.get("id")!
+      let rotationService = deps.rotationService(request: req)
+      let rotation = try await rotationService.rotation(rotationId: rotationId)
+      guard let rotation else { throw Abort(.notFound) }
+      return rotation
+    }
+
     rotation.get("current") { req in
       try req.auth.require(UserAuth.self)
       let rotationService = deps.rotationService(request: req)
@@ -20,7 +29,7 @@ func routes(_ app: Application, _ deps: Dependencies) throws {
         throw Abort(.badRequest)
       }
       let rotationService = deps.rotationService(request: req)
-      let rotation = try await rotationService.rotation(nextRotationToken: nextRotationToken)
+      let rotation = try await rotationService.nextRotation(nextRotationToken: nextRotationToken)
       guard let rotation else { throw Abort(.notFound) }
       return rotation
     }

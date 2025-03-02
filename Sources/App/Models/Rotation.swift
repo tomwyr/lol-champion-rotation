@@ -14,6 +14,7 @@ struct RegularChampionRotation: Content {
   let duration: ChampionRotationDuration
   let champions: [Champion]
   let nextRotationToken: String?
+  let current: Bool
 }
 
 struct ChampionRotationDuration: Content {
