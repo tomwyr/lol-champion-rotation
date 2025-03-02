@@ -17,30 +17,7 @@ struct DefaultRotationService: RotationService {
   let notificationsService: NotificationsService
   let idHasher: IdHasher
 
-  func getRotationDuration(_ rotation: RegularChampionRotationModel)
-    async throws(ChampionRotationError) -> ChampionRotationDuration
-  {
-    let nextRotationDate = try await getNextRotationDate(rotation)
-    let startDate = rotation.observedAt
-    guard let endDate = nextRotationDate ?? startDate.adding(1, .weekOfYear) else {
-      throw .rotationDurationInvalid
-    }
-    return ChampionRotationDuration(start: startDate, end: endDate)
-  }
-
-  func getNextRotationDate(_ rotation: RegularChampionRotationModel)
-    async throws(ChampionRotationError) -> Date?
-  {
-    do {
-      guard let rotationId = try? rotation.requireID().uuidString else {
-        return nil
-      }
-      let nextRotation = try await appDatabase.findNextRegularRotation(after: rotationId)
-      return nextRotation?.observedAt
-    } catch {
-      throw .dataOperationFailed(cause: error)
-    }
-  }
+  typealias OutError = ChampionRotationError
 
   func getNextRotationToken(_ rotation: RegularChampionRotationModel)
     throws(ChampionRotationError) -> String?
@@ -56,13 +33,10 @@ struct DefaultRotationService: RotationService {
 
 enum ChampionRotationError: Error {
   case riotDataUnavailable(cause: Error)
-  case championImagesUnavailable(cause: Error)
   case unknownChampion(championKey: String)
-  case championImageMissing(championId: String)
-  case championDataMissing(championId: String)
   case currentRotationDataMissing
-  case rotationDurationInvalid
   case tokenHashingFailed(cause: Error)
   case dataOperationFailed(cause: Error)
+  case rotationDurationError(cause: RotationDurationError)
   case championError(cause: ChampionError)
 }

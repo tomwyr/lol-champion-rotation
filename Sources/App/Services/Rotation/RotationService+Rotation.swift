@@ -8,8 +8,7 @@ extension DefaultRotationService {
     guard let localData else { return nil }
     let nextRotationTime = localData.rotation.observedAt
     let patchVersion = try? await versionService.findVersion(olderThan: nextRotationTime)
-    let imageUrlsByChampionId = try await getImageUrls(localData)
-    return try await createRegularRotation(patchVersion, localData, imageUrlsByChampionId)
+    return try await createRegularRotation(patchVersion, localData)
   }
 
   private func loadRegularRotationLocalData(nextRotationToken: String)
@@ -28,7 +27,7 @@ extension DefaultRotationService {
     do {
       rotation = try await appDatabase.findPreviousRegularRotation(before: nextRotationId)
       champions = try await appDatabase.champions()
-      if let rotationId = rotation?.id?.uuidString {
+      if let rotationId = rotation?.idString {
         let previousRotation = try await appDatabase.findPreviousRegularRotation(before: rotationId)
         hasPreviousRegularRotation = previousRotation != nil
       } else {
@@ -43,33 +42,12 @@ extension DefaultRotationService {
     return (rotation, champions, hasPreviousRegularRotation)
   }
 
-  private func getImageUrls(_ localData: RegularRotationLocalData)
-    async throws(ChampionRotationError) -> ChampionImageUrls
+  private func createRegularRotation(_ patchVersion: String?, _ data: RegularRotationLocalData)
+    async throws(ChampionRotationError) -> RegularChampionRotation
   {
-    do {
-      let championIds = localData.rotation.champions
-      let imageUrls = try await imageUrlProvider.champions(with: championIds)
-      let urlsById = Dictionary(uniqueKeysWithValues: zip(championIds, imageUrls))
-      return ChampionImageUrls(imageUrlsByChampionId: urlsById)
-    } catch {
-      throw .championImagesUnavailable(cause: error)
-    }
-  }
-
-  private func createRegularRotation(
-    _ patchVersion: String?,
-    _ data: RegularRotationLocalData,
-    _ imageUrls: ChampionImageUrls
-  ) async throws(ChampionRotationError) -> RegularChampionRotation {
-    let championFactory = ChampionFactory(
-      champions: data.champions,
-      imageUrls: imageUrls,
-      wrapError: ChampionRotationError.championError
-    )
-
-    let champions = try data.rotation.champions
-      .map(championFactory.create)
-      .sorted { $0.name < $1.name }
+    let champions = try createChampions(
+      for: data.rotation.champions, models: data.champions
+    ).sorted { $0.name < $1.name }
 
     let duration = try await getRotationDuration(data.rotation)
 

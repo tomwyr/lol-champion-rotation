@@ -6,8 +6,7 @@ extension ChampionsService {
       return nil
     }
     let availavilitiesData = try await loadRotationAvailabilitiesData(champion.riotId)
-    let imageUrls = try await getImageUrls([champion])
-    return try await createChampionDetails(champion, imageUrls, availavilitiesData)
+    return try await createChampionDetails(champion, availavilitiesData)
   }
 
   private func loadChampionData(_ championId: String) async throws(ChampionsError) -> ChampionModel?
@@ -49,21 +48,11 @@ extension ChampionsService {
     }
   }
 
-  private func createChampionDetails(
-    _ champion: ChampionModel,
-    _ imageUrls: ChampionImageUrls,
-    _ data: ChampionDetailsLocalData
-  )
+  private func createChampionDetails(_ champion: ChampionModel, _ data: ChampionDetailsLocalData)
     async throws(ChampionsError) -> ChampionDetails?
   {
-    let championFactory = ChampionFactory(
-      champions: [champion],
-      imageUrls: imageUrls,
-      wrapError: ChampionsError.championError
-    )
-
-    return try await championFactory.createDetails(
-      riotId: champion.riotId,
+    try await createChampionDetails(
+      model: champion,
       availability: createAvailability(data),
       overview: createOverview(champion, data),
       history: createHistory(champion, data)
@@ -133,9 +122,7 @@ extension ChampionsService {
   {
     let allRotations = data.regularRotations
     let championRotationsIds = data.championRegularRotationsIds.uniqued()
-    guard let currentRotation = data.currentRegularRotation else {
-      throw .dataInvalidOrMissing(championId: champion.riotId)
-    }
+    let currentRotation = data.currentRegularRotation
 
     var items = [ChampionDetailsHistoryEvent]()
     var rotationsMissed = 0
@@ -163,71 +150,31 @@ extension ChampionsService {
     return items
   }
 
-  func createBench(_ rotationsMissed: Int) -> ChampionDetailsHistoryEvent {
+  private func createBench(_ rotationsMissed: Int) -> ChampionDetailsHistoryEvent {
     .bench(.init(rotationsMissed: rotationsMissed))
   }
 
-  func createRotation(
+  private func createRotation(
     _ rotation: RegularChampionRotationModel,
-    _ currentRotation: RegularChampionRotationModel,
+    _ currentRotation: RegularChampionRotationModel?,
     _ champion: ChampionModel
   ) async throws(ChampionsError) -> ChampionDetailsHistoryEvent {
-    guard let id = rotation.id?.uuidString, let currentId = currentRotation.id?.uuidString else {
+    guard let id = rotation.idString else {
       throw .dataInvalidOrMissing(championId: champion.riotId)
     }
 
-    let duration: ChampionRotationDuration
-    do {
-      duration = try await getRotationDuration(currentRotation)
-    } catch {
-      // TODO Not accurate error.
-      throw .dataOperationFailed(cause: error)
-    }
-
-    let championImageUrls: [String]
-    let championIds = rotation.champions.prefix(5)
-    do {
-      championImageUrls = try await imageUrlProvider.champions(with: championIds)
-    } catch {
-      throw .imagesUnavailable(cause: error)
-    }
+    let duration = try await getRotationDuration(rotation)
+    let current = id == currentRotation?.idString
+    let championImageUrls = rotation.champions.prefix(5).map(imageUrlProvider.champion)
 
     return .rotation(
       .init(
         id: id,
         duration: duration,
-        current: id == currentId,
+        current: current,
         championImageUrls: championImageUrls
       )
     )
-  }
-}
-
-// TODO Remove rotation service logic duplication.
-extension ChampionsService {
-  func getRotationDuration(_ rotation: RegularChampionRotationModel)
-    async throws(ChampionRotationError) -> ChampionRotationDuration
-  {
-    let nextRotationDate = try await getNextRotationDate(rotation)
-    let startDate = rotation.observedAt
-    guard let endDate = nextRotationDate ?? startDate.adding(1, .weekOfYear) else {
-      throw .rotationDurationInvalid
-    }
-    return ChampionRotationDuration(start: startDate, end: endDate)
-  }
-
-  func getNextRotationDate(_ rotation: RegularChampionRotationModel)
-    async throws(ChampionRotationError) -> Date?
-  {
-    do {
-      guard let rotationId = try? rotation.requireID().uuidString else {
-        return nil
-      }
-      let nextRotation = try await appDatabase.findNextRegularRotation(after: rotationId)
-      return nextRotation?.observedAt
-    } catch {
-      throw .dataOperationFailed(cause: error)
-    }
   }
 }
 

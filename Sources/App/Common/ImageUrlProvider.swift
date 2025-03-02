@@ -5,11 +5,13 @@ struct ImageUrlProvider {
   let cache: Cache
   let fingerprint: Fingerprint?
 
-  func champions(with championIds: any Sequence<String>) async throws -> [String] {
-    return championIds.map { championId in
-      let fileName = "champions/\(championId).jpg"
-      return b2ApiClient.fileUrl(for: fileName)
-    }
+  func champions(with championIds: any Sequence<String>) -> [String] {
+    championIds.map(champion)
+  }
+
+  func champion(with championId: String) -> String {
+    let fileName = "champions/\(championId).jpg"
+    return b2ApiClient.fileUrl(for: fileName)
   }
 
   private func getDownloadToken() async throws -> String {

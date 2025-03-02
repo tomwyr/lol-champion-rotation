@@ -1,3 +1,4 @@
+import Fluent
 import Vapor
 
 extension MutableCollection {
@@ -76,7 +77,7 @@ extension AsyncMapSequence {
   }
 }
 
-extension Array {
+extension Sequence {
   func asyncMap<T, E: Error>(_ mapper: (Element) async throws(E) -> T) async throws(E) -> [T] {
     var results = [T]()
     for element in self {
@@ -98,4 +99,10 @@ extension UUID {
 
 enum UUIDError: Error {
   case invalidValue(_ value: String)
+}
+
+extension Model where IDValue == UUID {
+  var idString: String? {
+    id?.uuidString
+  }
 }

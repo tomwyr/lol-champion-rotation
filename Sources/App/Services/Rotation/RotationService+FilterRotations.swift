@@ -3,9 +3,8 @@ extension DefaultRotationService {
     -> FilterRotationsResult
   {
     let localData = try await loadFilterRotationsData(championName)
-    let imageUrls = try await getImageUrls(localData)
-    let filteredRotations = try await createRegularRotations(championName, localData, imageUrls)
-    let beginnerRotation = try await createBeginnerRotation(championName, localData, imageUrls)
+    let filteredRotations = try await createRegularRotations(championName, localData)
+    let beginnerRotation = try await createBeginnerRotation(championName, localData)
     return FilterRotationsResult(
       regularRotations: filteredRotations,
       beginnerRotation: beginnerRotation
@@ -16,7 +15,7 @@ extension DefaultRotationService {
     -> FilterRotationsLocalData
   {
     do {
-      let currentRotationId = try await appDatabase.currentRegularRotation()?.id?.uuidString
+      let currentRotationId = try await appDatabase.currentRegularRotation()?.idString
       let champions = try await appDatabase.filterChampions(name: championName)
       let championIds = champions.map(\.riotId)
       let regularRotations =
@@ -30,68 +29,39 @@ extension DefaultRotationService {
     }
   }
 
-  private func getImageUrls(_ localData: FilterRotationsLocalData)
-    async throws(ChampionRotationError) -> ChampionImageUrls
+  private func createRegularRotations(_ championNameQuery: String, _ data: FilterRotationsLocalData)
+    async throws(ChampionRotationError) -> [FilteredRegularRotation]
   {
-    do {
-      let championIds = localData.champions.map(\.riotId)
-      let imageUrls = try await imageUrlProvider.champions(with: championIds)
-      let urlsById = Dictionary(uniqueKeysWithValues: zip(championIds, imageUrls))
-      return ChampionImageUrls(imageUrlsByChampionId: urlsById)
-    } catch {
-      throw .championImagesUnavailable(cause: error)
-    }
-  }
-
-  private func createRegularRotations(
-    _ championNameQuery: String,
-    _ data: FilterRotationsLocalData,
-    _ imageUrls: ChampionImageUrls
-  ) async throws(ChampionRotationError) -> [FilteredRegularRotation] {
-    let championFactory = ChampionFactory(
-      champions: data.champions,
-      imageUrls: imageUrls,
-      wrapError: ChampionRotationError.championError
-    )
-
-    let championsByRiotId = data.champions.associateBy(\.riotId)
-    func matchesQuery(riotId: String) -> Bool {
-      guard let champion = championsByRiotId[riotId] else { return false }
-      return champion.name.lowercased().contains(championNameQuery.lowercased())
-    }
-
     return try await data.regularRotations.asyncMap {
       rotation async throws(ChampionRotationError) in
-      let champions = try rotation.champions.filter(matchesQuery).map(championFactory.create)
+      let matchingRiotIds = filterChampions(rotation.champions, by: championNameQuery, data: data)
+      let champions = try createChampions(for: matchingRiotIds, models: data.champions)
       let duration = try await getRotationDuration(rotation)
-      let current = rotation.id?.uuidString == data.currentRotationId
+      let current = rotation.idString == data.currentRotationId
       return FilteredRegularRotation(champions: champions, duration: duration, current: current)
     }
   }
 
-  private func createBeginnerRotation(
-    _ championNameQuery: String,
-    _ data: FilterRotationsLocalData,
-    _ imageUrls: ChampionImageUrls
-  ) async throws(ChampionRotationError) -> FilteredBeginnerRotation? {
+  private func createBeginnerRotation(_ championNameQuery: String, _ data: FilterRotationsLocalData)
+    async throws(ChampionRotationError) -> FilteredBeginnerRotation?
+  {
     guard let rotation = data.beginnerRotation else {
       return nil
     }
-
-    let championFactory = ChampionFactory(
-      champions: data.champions,
-      imageUrls: imageUrls,
-      wrapError: ChampionRotationError.championError
-    )
-
-    let championsByRiotId = data.champions.associateBy(\.riotId)
-    func matchesQuery(riotId: String) -> Bool {
-      guard let champion = championsByRiotId[riotId] else { return false }
-      return champion.name.lowercased().contains(championNameQuery.lowercased())
-    }
-
-    let champions = try rotation.champions.filter(matchesQuery).map(championFactory.create)
+    let matchingRiotIds = filterChampions(rotation.champions, by: championNameQuery, data: data)
+    let champions = try createChampions(for: matchingRiotIds, models: data.champions)
     return FilteredBeginnerRotation(champions: champions)
+  }
+
+  private func filterChampions(
+    _ champions: [String], by query: String,
+    data: FilterRotationsLocalData
+  ) -> [String] {
+    let championsByRiotId = data.champions.associateBy(\.riotId)
+    return champions.filter { riotId in
+      guard let champion = championsByRiotId[riotId] else { return false }
+      return champion.name.lowercased().contains(query.lowercased())
+    }
   }
 }
 

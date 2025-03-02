@@ -3,8 +3,7 @@ extension ChampionsService {
     -> SearchChampionsResult
   {
     let data = try await loadSearchChampionsLocalData(championName)
-    let imageUrls = try await getImageUrls(data.champions)
-    return try createSearchChampionsResult(championName, data, imageUrls)
+    return try createSearchChampionsResult(championName, data)
   }
 
   private func loadSearchChampionsLocalData(_ searchedName: String) async throws(ChampionsError)
@@ -20,27 +19,19 @@ extension ChampionsService {
     }
   }
 
-  private func createSearchChampionsResult(
-    _ searchedName: String,
-    _ data: SearchChampionsLocalData,
-    _ imageUrls: ChampionImageUrls
-  ) throws(ChampionsError) -> SearchChampionsResult {
-    let championFactory = ChampionFactory(
-      champions: data.champions,
-      imageUrls: imageUrls,
-      wrapError: ChampionsError.championError
-    )
-
-    func createMatch(riotId: String) throws(ChampionsError) -> SearchChampionsMatch {
-      let champion = try championFactory.create(riotId: riotId)
+  private func createSearchChampionsResult(_ searchedName: String, _ data: SearchChampionsLocalData)
+    throws(ChampionsError) -> SearchChampionsResult
+  {
+    func createMatch(model: ChampionModel) throws(ChampionsError) -> SearchChampionsMatch {
+      let champion = try createChampion(model: model)
 
       var availableIn = [ChampionRotationType]()
       let regularChampions = data.regularRotation?.champions ?? []
-      if regularChampions.contains(riotId) {
+      if regularChampions.contains(model.riotId) {
         availableIn.append(.regular)
       }
       let beginnerChampions = data.beginnerRotation?.champions ?? []
-      if beginnerChampions.contains(riotId) {
+      if beginnerChampions.contains(model.riotId) {
         availableIn.append(.beginner)
       }
 
@@ -50,7 +41,7 @@ extension ChampionsService {
       )
     }
 
-    let matches = try data.champions.map(\.riotId)
+    let matches = try data.champions
       .map(createMatch)
       .sortedByMatchIndex(searchedName: searchedName)
 

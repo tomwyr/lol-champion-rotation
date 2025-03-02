@@ -1,30 +1,30 @@
-struct ChampionFactory<OutError: Error> {
-  init(
-    champions: [ChampionModel],
-    imageUrls: ChampionImageUrls,
-    wrapError: @escaping (ChampionError) -> OutError
-  ) {
-    self.championsByRiotId = champions.associateBy(\.riotId)
-    self.imageUrls = imageUrls
-    self.wrapError = wrapError
-  }
+protocol ChampionFactory {
+  associatedtype OutError: Error
 
-  let championsByRiotId: [String: ChampionModel]
-  let imageUrls: ChampionImageUrls
-  let wrapError: (ChampionError) -> OutError
+  var imageUrlProvider: ImageUrlProvider { get }
 
-  func create(riotId: String) throws(OutError) -> Champion {
-    let imageUrl: String
-    do {
-      imageUrl = try imageUrls.get(for: riotId)
-    } catch {
-      throw wrapError(.dataMissing(championId: riotId))
+  func createChampion(model: ChampionModel) throws(OutError) -> Champion
+
+  func createChampions(for riotIds: [String], models: [ChampionModel]) throws(OutError)
+    -> [Champion]
+
+  func createChampionDetails(
+    model: ChampionModel,
+    availability: [ChampionDetailsAvailability],
+    overview: ChampionDetailsOverview,
+    history: [ChampionDetailsHistoryEvent]
+  ) throws(OutError) -> ChampionDetails
+
+  func wrapError(_ error: ChampionError) -> OutError
+}
+
+extension ChampionFactory {
+  func createChampion(model: ChampionModel) throws(OutError) -> Champion {
+    guard let id = model.idString else {
+      throw wrapError(.dataMissing(championId: model.riotId))
     }
-
-    let champion = championsByRiotId[riotId]
-    guard let id = champion?.id?.uuidString, let name = champion?.name else {
-      throw wrapError(.dataMissing(championId: riotId))
-    }
+    let name = model.name
+    let imageUrl = imageUrlProvider.champion(with: model.riotId)
 
     return Champion(
       id: id,
@@ -33,25 +33,30 @@ struct ChampionFactory<OutError: Error> {
     )
   }
 
-  func createDetails(
-    riotId: String,
+  func createChampions(for riotIds: [String], models: [ChampionModel]) throws(OutError)
+    -> [Champion]
+  {
+    let modelsById = models.associateBy(\.riotId)
+    return try riotIds.map { id throws(OutError) in
+      guard let model = modelsById[id] else {
+        throw wrapError(.dataMissing(championId: id))
+      }
+      return try createChampion(model: model)
+    }
+  }
+
+  func createChampionDetails(
+    model: ChampionModel,
     availability: [ChampionDetailsAvailability],
     overview: ChampionDetailsOverview,
     history: [ChampionDetailsHistoryEvent]
   ) throws(OutError) -> ChampionDetails {
-    let imageUrl: String
-    do {
-      imageUrl = try imageUrls.get(for: riotId)
-    } catch {
-      throw wrapError(.dataMissing(championId: riotId))
+    guard let id = model.idString else {
+      throw wrapError(.dataMissing(championId: model.riotId))
     }
-
-    let champion = championsByRiotId[riotId]
-    guard let id = champion?.id?.uuidString,
-      let name = champion?.name, let title = champion?.title
-    else {
-      throw wrapError(.dataMissing(championId: riotId))
-    }
+    let name = model.name
+    let title = model.title
+    let imageUrl = imageUrlProvider.champion(with: model.riotId)
 
     return ChampionDetails(
       id: id,
@@ -65,18 +70,18 @@ struct ChampionFactory<OutError: Error> {
   }
 }
 
-struct ChampionImageUrls {
-  let imageUrlsByChampionId: [String: String]
+enum ChampionError: Error {
+  case dataMissing(championId: String)
+}
 
-  func get(for championRiotId: String) throws(ChampionError) -> String {
-    guard let imageUrl = imageUrlsByChampionId[championRiotId] else {
-      throw .imageMissing(championId: championRiotId)
-    }
-    return imageUrl
+extension ChampionsService: ChampionFactory {
+  func wrapError(_ error: ChampionError) -> ChampionsError {
+    .championError(cause: error)
   }
 }
 
-enum ChampionError: Error {
-  case imageMissing(championId: String)
-  case dataMissing(championId: String)
+extension DefaultRotationService: ChampionFactory {
+  func wrapError(_ error: ChampionError) -> ChampionRotationError {
+    .championError(cause: error)
+  }
 }
