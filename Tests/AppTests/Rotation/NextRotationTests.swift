@@ -24,7 +24,7 @@ class NextRotationTests: AppTests {
     )
 
     try await app.test(
-      .GET, "/rotation"
+      .GET, "/rotations"
     ) { res async in
       XCTAssertEqual(res.status, .badRequest)
     }
@@ -51,7 +51,7 @@ class NextRotationTests: AppTests {
     )
 
     try await app.test(
-      .GET, "/rotation?nextRotationToken=\(nextRotationToken("1"))"
+      .GET, "/rotations?nextRotationToken=\(nextRotationToken("1"))"
     ) { res async in
       XCTAssertEqual(res.status, .notFound)
     }
@@ -78,7 +78,7 @@ class NextRotationTests: AppTests {
     )
 
     try await app.test(
-      .GET, "/rotation?nextRotationToken=\(nextRotationToken("1"))"
+      .GET, "/rotations?nextRotationToken=\(nextRotationToken("1"))"
     ) { res async in
       XCTAssertEqual(res.status, .notFound)
     }
@@ -115,7 +115,7 @@ class NextRotationTests: AppTests {
     )
 
     try await app.test(
-      .GET, "/rotation?nextRotationToken=\(nextRotationToken("2"))"
+      .GET, "/rotations?nextRotationToken=\(nextRotationToken("2"))"
     ) { res async in
       XCTAssertEqual(res.status, .ok)
       XCTAssertBody(
@@ -178,7 +178,7 @@ class NextRotationTests: AppTests {
     )
 
     try await app.test(
-      .GET, "/rotation?nextRotationToken=\(nextRotationToken("3"))"
+      .GET, "/rotations?nextRotationToken=\(nextRotationToken("3"))"
     ) { res async in
       XCTAssertEqual(res.status, .ok)
       XCTAssertBody(

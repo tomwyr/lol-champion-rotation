@@ -24,7 +24,7 @@ class RotationTests: AppTests {
     )
 
     try await app.test(
-      .GET, "/rotation"
+      .GET, "/rotations"
     ) { res async in
       XCTAssertEqual(res.status, .badRequest)
     }
@@ -51,7 +51,7 @@ class RotationTests: AppTests {
     )
 
     try await app.test(
-      .GET, "/rotation/\(uuidString("2"))"
+      .GET, "/rotations/\(uuidString("2"))"
     ) { res async in
       XCTAssertEqual(res.status, .notFound)
     }
@@ -78,7 +78,7 @@ class RotationTests: AppTests {
     )
 
     try await app.test(
-      .GET, "/rotation/\(uuidString("1"))"
+      .GET, "/rotations/\(uuidString("1"))"
     ) { res async in
       XCTAssertEqual(res.status, .ok)
       XCTAssertBody(
@@ -133,7 +133,7 @@ class RotationTests: AppTests {
     )
 
     try await app.test(
-      .GET, "/rotation/\(uuidString("1"))"
+      .GET, "/rotations/\(uuidString("1"))"
     ) { res async in
       XCTAssertEqual(res.status, .ok)
       XCTAssertBody(

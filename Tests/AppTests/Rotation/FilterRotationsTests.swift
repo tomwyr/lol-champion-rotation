@@ -24,7 +24,7 @@ class FilterRotationsTests: AppTests {
     )
 
     try await app.test(
-      .GET, "/rotation/search"
+      .GET, "/rotations/search"
     ) { res async in
       XCTAssertEqual(res.status, .badRequest)
     }
@@ -51,7 +51,7 @@ class FilterRotationsTests: AppTests {
     )
 
     try await app.test(
-      .GET, "/rotation/search?championName=Nocturne"
+      .GET, "/rotations/search?championName=Nocturne"
     ) { res async in
       XCTAssertEqual(res.status, .ok)
       XCTAssertBody(
@@ -84,7 +84,7 @@ class FilterRotationsTests: AppTests {
     )
 
     try await app.test(
-      .GET, "/rotation/search?championName=Nocturne"
+      .GET, "/rotations/search?championName=Nocturne"
     ) { res async in
       XCTAssertEqual(res.status, .ok)
       XCTAssertBody(
@@ -132,7 +132,7 @@ class FilterRotationsTests: AppTests {
     )
 
     try await app.test(
-      .GET, "/rotation/search?championName=oCtuRn"
+      .GET, "/rotations/search?championName=oCtuRn"
     ) { res async in
       XCTAssertEqual(res.status, .ok)
       XCTAssertBody(
@@ -181,7 +181,7 @@ class FilterRotationsTests: AppTests {
     )
 
     try await app.test(
-      .GET, "/rotation/search?championName=En"
+      .GET, "/rotations/search?championName=En"
     ) { res async in
       XCTAssertEqual(res.status, .ok)
       XCTAssertBody(
@@ -246,7 +246,7 @@ class FilterRotationsTests: AppTests {
     )
 
     try await app.test(
-      .GET, "/rotation/search?championName=En"
+      .GET, "/rotations/search?championName=En"
     ) { res async in
       XCTAssertEqual(res.status, .ok)
       XCTAssertBody(
@@ -313,7 +313,7 @@ class FilterRotationsTests: AppTests {
     )
 
     try await app.test(
-      .GET, "/rotation/search?championName=willump"
+      .GET, "/rotations/search?championName=willump"
     ) { res async in
       XCTAssertEqual(res.status, .ok)
       XCTAssertBody(
@@ -369,7 +369,7 @@ class FilterRotationsTests: AppTests {
     )
 
     try await app.test(
-      .GET, "/rotation/search?championName=sett"
+      .GET, "/rotations/search?championName=sett"
     ) { res async in
       XCTAssertEqual(res.status, .ok)
       XCTAssertBody(
@@ -454,7 +454,7 @@ class FilterRotationsTests: AppTests {
     )
 
     try await app.test(
-      .GET, "/rotation/search?championName=dia"
+      .GET, "/rotations/search?championName=dia"
     ) { res async in
       XCTAssertEqual(res.status, .ok)
       XCTAssertBody(
@@ -505,7 +505,7 @@ class FilterRotationsTests: AppTests {
     )
 
     try await app.test(
-      .GET, "/rotation/search?championName=se"
+      .GET, "/rotations/search?championName=se"
     ) { res async in
       XCTAssertEqual(res.status, .ok)
       XCTAssertBody(
