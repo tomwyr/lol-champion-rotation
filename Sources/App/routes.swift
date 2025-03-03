@@ -7,43 +7,6 @@ func routes(_ app: Application, _ deps: Dependencies) throws {
     appManagementKey: deps.appConfig.appManagementKey
   )
 
-  app.protected(with: userGuard).grouped("rotation") { rotation in
-    rotation.get(":id") { req in
-      try req.auth.require(UserAuth.self)
-      let rotationId = req.parameters.get("id")!
-      let rotationService = deps.rotationService(request: req)
-      let rotation = try await rotationService.rotation(rotationId: rotationId)
-      guard let rotation else { throw Abort(.notFound) }
-      return rotation
-    }
-
-    rotation.get("current") { req in
-      try req.auth.require(UserAuth.self)
-      let rotationService = deps.rotationService(request: req)
-      return try await rotationService.currentRotation()
-    }
-
-    rotation.get { req in
-      try req.auth.require(UserAuth.self)
-      guard let nextRotationToken = req.query[String.self, at: "nextRotationToken"] else {
-        throw Abort(.badRequest)
-      }
-      let rotationService = deps.rotationService(request: req)
-      let rotation = try await rotationService.nextRotation(nextRotationToken: nextRotationToken)
-      guard let rotation else { throw Abort(.notFound) }
-      return rotation
-    }
-
-    rotation.get("search") { req in
-      try req.auth.require(UserAuth.self)
-      guard let championName = req.query[String.self, at: "championName"] else {
-        throw Abort(.badRequest)
-      }
-      let rotationService = deps.rotationService(request: req)
-      return try await rotationService.filterRotations(by: championName)
-    }
-  }
-
   app.protected(with: userGuard).grouped("rotations") { rotation in
     rotation.get(":id") { req in
       try req.auth.require(UserAuth.self)
