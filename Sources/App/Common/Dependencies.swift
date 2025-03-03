@@ -26,7 +26,8 @@ struct Dependencies {
   func championsService(request: Request) -> ChampionsService {
     ChampionsService(
       imageUrlProvider: imageUrlProvider(request: request),
-      appDatabase: appDatabase(request: request)
+      appDatabase: appDatabase(request: request),
+      seededSelector: SeededSelector()
     )
   }
 

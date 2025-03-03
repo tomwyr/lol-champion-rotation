@@ -165,7 +165,8 @@ extension ChampionsService {
 
     let duration = try await getRotationDuration(rotation)
     let current = id == currentRotation?.idString
-    let championImageUrls = rotation.champions.prefix(5).map(imageUrlProvider.champion)
+    let championImageUrls = seededSelector.select(from: rotation.champions, taking: 5)
+      .map(imageUrlProvider.champion)
 
     return .rotation(
       .init(

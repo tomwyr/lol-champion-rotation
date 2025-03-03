@@ -1,6 +1,7 @@
 struct ChampionsService {
   let imageUrlProvider: ImageUrlProvider
   let appDatabase: AppDatabase
+  let seededSelector: SeededSelector
 
   typealias OutError = ChampionsError
 }

@@ -240,8 +240,8 @@ class ChampionDetailsTests: AppTests {
               ],
               "current": true,
               "championImageUrls": [
-                imageUrl("Nocturne"),
                 imageUrl("Senna"),
+                imageUrl("Nocturne"),
               ],
             ],
             [
@@ -254,8 +254,8 @@ class ChampionDetailsTests: AppTests {
               "current": false,
               "championImageUrls": [
                 imageUrl("Nocturne"),
-                imageUrl("Senna"),
                 imageUrl("Fiora"),
+                imageUrl("Senna"),
               ],
             ],
             [
@@ -272,8 +272,8 @@ class ChampionDetailsTests: AppTests {
               "current": false,
               "championImageUrls": [
                 imageUrl("Nocturne"),
-                imageUrl("Senna"),
                 imageUrl("Fiora"),
+                imageUrl("Senna"),
               ],
             ],
           ],
@@ -354,8 +354,8 @@ class ChampionDetailsTests: AppTests {
               ],
               "current": false,
               "championImageUrls": [
-                imageUrl("Nocturne"),
                 imageUrl("Senna"),
+                imageUrl("Nocturne"),
               ],
             ],
             [
