@@ -7,8 +7,7 @@ struct AppConfig {
   var b2AppKeyId: String
   var b2AppKeySecret: String
   var riotApiKey: String
-  var idHasherSecretKey: String
-  var idHasherNonce: String
+  var idHasherSeed: String
 
   static func fromEnvironment() -> AppConfig {
     AppConfig(
@@ -18,8 +17,7 @@ struct AppConfig {
       b2AppKeyId: read("B2_APP_KEY_ID"),
       b2AppKeySecret: read("B2_APP_KEY_SECRET"),
       riotApiKey: read("RIOT_API_KEY"),
-      idHasherSecretKey: read("ID_HASHER_SECRET_KEY"),
-      idHasherNonce: read("ID_HASHER_NONCE")
+      idHasherSeed: read("ID_HASHER_SEED")
     )
   }
 }

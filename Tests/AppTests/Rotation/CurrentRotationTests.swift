@@ -5,8 +5,7 @@ import XCTVapor
 class CurrentRotationTests: AppTests {
   func testSimpleResult() async throws {
     _ = try await testConfigureWith(
-      idHasherSecretKey: idHasherSecretKey,
-      idHasherNonce: idHasherNonce,
+      idHasherSeed: idHasherSeed,
       dbRegularRotations: [
         .init(
           id: uuid("1"),
@@ -66,8 +65,7 @@ class CurrentRotationTests: AppTests {
 
   func testChampionsAreSortedById() async throws {
     _ = try await testConfigureWith(
-      idHasherSecretKey: idHasherSecretKey,
-      idHasherNonce: idHasherNonce,
+      idHasherSeed: idHasherSeed,
       dbRegularRotations: [
         .init(
           observedAt: Date.now,
@@ -117,8 +115,7 @@ class CurrentRotationTests: AppTests {
 
   func testSameChampionIsBeginnerAndRegular() async throws {
     _ = try await testConfigureWith(
-      idHasherSecretKey: idHasherSecretKey,
-      idHasherNonce: idHasherNonce,
+      idHasherSeed: idHasherSeed,
       dbRegularRotations: [
         .init(
           observedAt: Date.now,
@@ -163,8 +160,7 @@ class CurrentRotationTests: AppTests {
 
   func testOptionalDataUnavailable() async throws {
     _ = try await testConfigureWith(
-      idHasherSecretKey: idHasherSecretKey,
-      idHasherNonce: idHasherNonce,
+      idHasherSeed: idHasherSeed,
       dbRegularRotations: [
         .init(
           id: uuid("1"),
@@ -204,8 +200,7 @@ class CurrentRotationTests: AppTests {
 
   func testNoNextRotation() async throws {
     _ = try await testConfigureWith(
-      idHasherSecretKey: idHasherSecretKey,
-      idHasherNonce: idHasherNonce,
+      idHasherSeed: idHasherSeed,
       dbRegularRotations: [
         .init(
           id: uuid("1"),
@@ -245,8 +240,7 @@ class CurrentRotationTests: AppTests {
 
   func testSingleNextRotation() async throws {
     _ = try await testConfigureWith(
-      idHasherSecretKey: idHasherSecretKey,
-      idHasherNonce: idHasherNonce,
+      idHasherSeed: idHasherSeed,
       dbRegularRotations: [
         .init(
           id: uuid("1"),
@@ -292,8 +286,7 @@ class CurrentRotationTests: AppTests {
 
   func testMultipleNextRotations() async throws {
     _ = try await testConfigureWith(
-      idHasherSecretKey: idHasherSecretKey,
-      idHasherNonce: idHasherNonce,
+      idHasherSeed: idHasherSeed,
       dbRegularRotations: [
         .init(
           id: uuid("1"),

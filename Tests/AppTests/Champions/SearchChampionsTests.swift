@@ -5,8 +5,7 @@ import XCTVapor
 class SearchChampionsTests: AppTests {
   func testNoQueryParam() async throws {
     _ = try await testConfigureWith(
-      idHasherSecretKey: idHasherSecretKey,
-      idHasherNonce: idHasherNonce,
+      idHasherSeed: idHasherSeed,
       dbRegularRotations: [
         .init(
           id: uuid("1"),
@@ -32,8 +31,7 @@ class SearchChampionsTests: AppTests {
 
   func testNoMatchingChampions() async throws {
     _ = try await testConfigureWith(
-      idHasherSecretKey: idHasherSecretKey,
-      idHasherNonce: idHasherNonce,
+      idHasherSeed: idHasherSeed,
       dbRegularRotations: [],
       dbChampions: [
         .init(id: uuid("1"), riotId: "Nocturne", name: "Nocturne"),
@@ -59,8 +57,7 @@ class SearchChampionsTests: AppTests {
 
   func testChampionsWithExactMatch() async throws {
     _ = try await testConfigureWith(
-      idHasherSecretKey: idHasherSecretKey,
-      idHasherNonce: idHasherNonce,
+      idHasherSeed: idHasherSeed,
       dbRegularRotations: [
         .init(
           id: uuid("1"),
@@ -101,8 +98,7 @@ class SearchChampionsTests: AppTests {
 
   func testChampionsWithNonExactMatch() async throws {
     _ = try await testConfigureWith(
-      idHasherSecretKey: idHasherSecretKey,
-      idHasherNonce: idHasherNonce,
+      idHasherSeed: idHasherSeed,
       dbRegularRotations: [
         .init(
           id: uuid("1"),
@@ -143,8 +139,7 @@ class SearchChampionsTests: AppTests {
 
   func testChampionsWithMultipleMatches() async throws {
     _ = try await testConfigureWith(
-      idHasherSecretKey: idHasherSecretKey,
-      idHasherNonce: idHasherNonce,
+      idHasherSeed: idHasherSeed,
       dbRegularRotations: [
         .init(
           id: uuid("1"),
@@ -194,8 +189,7 @@ class SearchChampionsTests: AppTests {
 
   func testChampionsWithMatchesInMultipleRotations() async throws {
     _ = try await testConfigureWith(
-      idHasherSecretKey: idHasherSecretKey,
-      idHasherNonce: idHasherNonce,
+      idHasherSeed: idHasherSeed,
       dbRegularRotations: [
         .init(
           id: uuid("1"),
@@ -265,8 +259,7 @@ class SearchChampionsTests: AppTests {
 
   func testChampionWithMatchInNameOnly() async throws {
     _ = try await testConfigureWith(
-      idHasherSecretKey: idHasherSecretKey,
-      idHasherNonce: idHasherNonce,
+      idHasherSeed: idHasherSeed,
       dbRegularRotations: [
         .init(
           id: uuid("1"),
@@ -307,8 +300,7 @@ class SearchChampionsTests: AppTests {
 
   func testMultipleRotationTypes() async throws {
     _ = try await testConfigureWith(
-      idHasherSecretKey: idHasherSecretKey,
-      idHasherNonce: idHasherNonce,
+      idHasherSeed: idHasherSeed,
       dbRegularRotations: [
         .init(
           id: uuid("1"),
@@ -366,8 +358,7 @@ class SearchChampionsTests: AppTests {
 
   func testChampionMatchesOrder() async throws {
     _ = try await testConfigureWith(
-      idHasherSecretKey: idHasherSecretKey,
-      idHasherNonce: idHasherNonce,
+      idHasherSeed: idHasherSeed,
       dbRegularRotations: [],
       dbBeginnerRotations: [],
       dbChampions: [

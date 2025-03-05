@@ -2,16 +2,15 @@ import XCTest
 
 @testable import App
 
-let idHasherSecretKey = "cc6598efe834325043ff59b2627be29c"
-let idHasherNonce = "75b7292db9cb"
+let idHasherSeed = "hq9fh01k7tio5l40tdc8uhs4e0pb4i93"
 
 func nextRotationToken(_ rotationId: String) -> String {
   let tokens = [
-    "1": "5f1ae0167844071ce70a764c10ab064ef640019e7768c79ac5456dd4644bd668a9c2e1ec",
-    "2": "5f1ae0167844071ce70a764c10ab064ef640019e7768c79ac5456dd4644bd668a9c2e1ef",
-    "3": "5f1ae0167844071ce70a764c10ab064ef640019e7768c79ac5456dd4644bd668a9c2e1ee",
-    "4": "5f1ae0167844071ce70a764c10ab064ef640019e7768c79ac5456dd4644bd668a9c2e1e9",
-    "5": "5f1ae0167844071ce70a764c10ab064ef640019e7768c79ac5456dd4644bd668a9c2e1e8",
+    "1": "nLzBS1CFLUWAsVHZz7kzWaU36Tr8tEyKIQTLG1loIIidtmez",
+    "2": "nLzBS1CFLUWAsVHZz7kzWaU36Tr8tEyKIQTLG1loIIidtmeW",
+    "3": "nLzBS1CFLUWAsVHZz7kzWaU36Tr8tEyKIQTLG1loIIidtmeJ",
+    "4": "nLzBS1CFLUWAsVHZz7kzWaU36Tr8tEyKIQTLG1loIIidtmeh",
+    "5": "nLzBS1CFLUWAsVHZz7kzWaU36Tr8tEyKIQTLG1loIIidtmeR",
   ]
   guard let token = tokens[rotationId] else {
     fatalError("Next rotation token not found for rotation \(rotationId).")

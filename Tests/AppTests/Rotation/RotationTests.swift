@@ -5,8 +5,7 @@ import XCTVapor
 class RotationTests: AppTests {
   func testNoIdParam() async throws {
     _ = try await testConfigureWith(
-      idHasherSecretKey: idHasherSecretKey,
-      idHasherNonce: idHasherNonce,
+      idHasherSeed: idHasherSeed,
       dbRegularRotations: [
         .init(
           id: uuid("1"),
@@ -32,8 +31,7 @@ class RotationTests: AppTests {
 
   func testUnknownRotation() async throws {
     _ = try await testConfigureWith(
-      idHasherSecretKey: idHasherSecretKey,
-      idHasherNonce: idHasherNonce,
+      idHasherSeed: idHasherSeed,
       dbRegularRotations: [
         .init(
           id: uuid("1"),
@@ -59,8 +57,7 @@ class RotationTests: AppTests {
 
   func testCurrentRotation() async throws {
     _ = try await testConfigureWith(
-      idHasherSecretKey: idHasherSecretKey,
-      idHasherNonce: idHasherNonce,
+      idHasherSeed: idHasherSeed,
       dbRegularRotations: [
         .init(
           id: uuid("1"),
@@ -109,8 +106,7 @@ class RotationTests: AppTests {
 
   func testNonCurrentRotation() async throws {
     _ = try await testConfigureWith(
-      idHasherSecretKey: idHasherSecretKey,
-      idHasherNonce: idHasherNonce,
+      idHasherSeed: idHasherSeed,
       dbRegularRotations: [
         .init(
           id: uuid("2"),

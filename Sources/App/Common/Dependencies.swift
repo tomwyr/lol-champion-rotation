@@ -78,9 +78,8 @@ struct Dependencies {
   }
 
   func idHasher() -> IdHasher {
-    IdHasher(
-      secretKey: appConfig.idHasherSecretKey,
-      nonce: appConfig.idHasherNonce
+    Base62IdHasher(
+      seed: appConfig.idHasherSeed
     )
   }
 }

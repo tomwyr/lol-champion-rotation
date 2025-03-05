@@ -22,8 +22,7 @@ extension AppConfig {
     b2AppKeyId: String = "",
     b2AppKeySecret: String = "",
     riotApiKey: String = "",
-    idHasherSecretKey: String = "",
-    idHasherNonce: String = ""
+    idHasherSeed: String = ""
   ) -> AppConfig {
     .init(
       databaseUrl: databaseUrl,
@@ -32,8 +31,7 @@ extension AppConfig {
       b2AppKeyId: b2AppKeyId,
       b2AppKeySecret: b2AppKeySecret,
       riotApiKey: riotApiKey,
-      idHasherSecretKey: idHasherSecretKey,
-      idHasherNonce: idHasherNonce
+      idHasherSeed: idHasherSeed
     )
   }
 }

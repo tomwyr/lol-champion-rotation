@@ -18,7 +18,7 @@ extension DefaultRotationService {
     do {
       nextRotationId = try idHasher.tokenToId(nextRotationToken)
     } catch {
-      throw .tokenHashingFailed(cause: error)
+      return nil
     }
 
     let rotation: RegularChampionRotationModel?

@@ -19,6 +19,7 @@ let package = Package(
     .package(url: "https://github.com/MihaelIsaev/FCM.git", from: "3.0.0-beta.1"),
     .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", from: "1.8.3"),
     .package(url: "https://github.com/apple/swift-crypto.git", from: "3.11.1"),
+    .package(url: "https://github.com/attaswift/BigInt.git", from: "5.4.0"),
   ],
   targets: [
     .executableTarget(
@@ -31,7 +32,8 @@ let package = Package(
         .product(name: "FluentPostgresDriver", package: "fluent-postgres-driver"),
         .product(name: "FCM", package: "FCM"),
         .product(name: "CryptoSwift", package: "CryptoSwift"),
-        .product(name: "Crypto", package: "swift-crypto")
+        .product(name: "Crypto", package: "swift-crypto"),
+        .product(name: "BigInt", package: "BigInt"),
       ],
       swiftSettings: swiftSettings
     ),

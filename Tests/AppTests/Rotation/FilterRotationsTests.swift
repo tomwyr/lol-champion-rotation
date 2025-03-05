@@ -5,8 +5,7 @@ import XCTVapor
 class FilterRotationsTests: AppTests {
   func testNoQueryParam() async throws {
     _ = try await testConfigureWith(
-      idHasherSecretKey: idHasherSecretKey,
-      idHasherNonce: idHasherNonce,
+      idHasherSeed: idHasherSeed,
       dbRegularRotations: [
         .init(
           id: uuid("1"),
@@ -32,8 +31,7 @@ class FilterRotationsTests: AppTests {
 
   func testNoMatchingRotations() async throws {
     _ = try await testConfigureWith(
-      idHasherSecretKey: idHasherSecretKey,
-      idHasherNonce: idHasherNonce,
+      idHasherSeed: idHasherSeed,
       dbRegularRotations: [
         .init(
           id: uuid("1"),
@@ -65,8 +63,7 @@ class FilterRotationsTests: AppTests {
 
   func testRotationWithExactMatch() async throws {
     _ = try await testConfigureWith(
-      idHasherSecretKey: idHasherSecretKey,
-      idHasherNonce: idHasherNonce,
+      idHasherSeed: idHasherSeed,
       dbRegularRotations: [
         .init(
           id: uuid("1"),
@@ -113,8 +110,7 @@ class FilterRotationsTests: AppTests {
 
   func testRotationWithNonExactMatch() async throws {
     _ = try await testConfigureWith(
-      idHasherSecretKey: idHasherSecretKey,
-      idHasherNonce: idHasherNonce,
+      idHasherSeed: idHasherSeed,
       dbRegularRotations: [
         .init(
           id: uuid("1"),
@@ -161,8 +157,7 @@ class FilterRotationsTests: AppTests {
 
   func testRotationWithMultipleMatches() async throws {
     _ = try await testConfigureWith(
-      idHasherSecretKey: idHasherSecretKey,
-      idHasherNonce: idHasherNonce,
+      idHasherSeed: idHasherSeed,
       dbRegularRotations: [
         .init(
           id: uuid("1"),
@@ -215,8 +210,7 @@ class FilterRotationsTests: AppTests {
 
   func testRotationWithMatchesInMultipleRotations() async throws {
     _ = try await testConfigureWith(
-      idHasherSecretKey: idHasherSecretKey,
-      idHasherNonce: idHasherNonce,
+      idHasherSeed: idHasherSeed,
       dbRegularRotations: [
         .init(
           id: uuid("1"),
@@ -294,8 +288,7 @@ class FilterRotationsTests: AppTests {
 
   func testRotationWithMatchInNameOnly() async throws {
     _ = try await testConfigureWith(
-      idHasherSecretKey: idHasherSecretKey,
-      idHasherNonce: idHasherNonce,
+      idHasherSeed: idHasherSeed,
       dbRegularRotations: [
         .init(
           id: uuid("1"),
@@ -342,8 +335,7 @@ class FilterRotationsTests: AppTests {
 
   func testRotationsOrderedByDate() async throws {
     _ = try await testConfigureWith(
-      idHasherSecretKey: idHasherSecretKey,
-      idHasherNonce: idHasherNonce,
+      idHasherSeed: idHasherSeed,
       dbRegularRotations: [
         .init(
           id: uuid("1"),
@@ -426,8 +418,7 @@ class FilterRotationsTests: AppTests {
 
   func testBeginnerRotation() async throws {
     _ = try await testConfigureWith(
-      idHasherSecretKey: idHasherSecretKey,
-      idHasherNonce: idHasherNonce,
+      idHasherSeed: idHasherSeed,
       dbBeginnerRotations: [
         .init(
           id: uuid("1"),
@@ -477,8 +468,7 @@ class FilterRotationsTests: AppTests {
 
   func testMultipleRotationTypes() async throws {
     _ = try await testConfigureWith(
-      idHasherSecretKey: idHasherSecretKey,
-      idHasherNonce: idHasherNonce,
+      idHasherSeed: idHasherSeed,
       dbRegularRotations: [
         .init(
           id: uuid("1"),

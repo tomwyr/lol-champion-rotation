@@ -9,8 +9,7 @@ typealias InitDbModel<T> = (T) -> Void where T: Model
 extension AppTests {
   func testConfigureWith(
     appManagementKey: String? = nil,
-    idHasherSecretKey: String? = nil,
-    idHasherNonce: String? = nil,
+    idHasherSeed: String? = nil,
     dbRegularRotations: [RegularChampionRotationModel] = [],
     dbBeginnerRotations: [BeginnerChampionRotationModel] = [],
     dbChampions: [ChampionModel] = [],
@@ -40,8 +39,7 @@ extension AppTests {
       deps: .mock(
         appConfig: .empty(
           appManagementKey: appManagementKey ?? "",
-          idHasherSecretKey: idHasherSecretKey ?? "",
-          idHasherNonce: idHasherNonce ?? ""
+          idHasherSeed: idHasherSeed ?? ""
         ),
         httpClient: httpClient
       ),

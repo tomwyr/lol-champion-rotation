@@ -5,8 +5,7 @@ import XCTVapor
 class ChampionDetailsTests: AppTests {
   func testUnknownChampion() async throws {
     _ = try await testConfigureWith(
-      idHasherSecretKey: idHasherSecretKey,
-      idHasherNonce: idHasherNonce,
+      idHasherSeed: idHasherSeed,
       dbChampions: [
         .init(id: uuid("1"), riotId: "Nocturne", name: "Nocturne")
       ],
@@ -23,8 +22,7 @@ class ChampionDetailsTests: AppTests {
 
   func testKnownChampion() async throws {
     _ = try await testConfigureWith(
-      idHasherSecretKey: idHasherSecretKey,
-      idHasherNonce: idHasherNonce,
+      idHasherSeed: idHasherSeed,
       dbChampions: [
         .init(id: uuid("1"), riotId: "Nocturne", name: "Nocturne", title: "the Eternal Nightmare")
       ],
@@ -66,8 +64,7 @@ class ChampionDetailsTests: AppTests {
 
   func testChampionInCurrentRotation() async throws {
     _ = try await testConfigureWith(
-      idHasherSecretKey: idHasherSecretKey,
-      idHasherNonce: idHasherNonce,
+      idHasherSeed: idHasherSeed,
       dbRegularRotations: [
         .init(id: uuid("1"), observedAt: .iso("2024-11-14T12:00:00Z")!, champions: ["Nocturne"])
       ],
@@ -124,8 +121,7 @@ class ChampionDetailsTests: AppTests {
 
   func testChampionInPreviousRotation() async throws {
     _ = try await testConfigureWith(
-      idHasherSecretKey: idHasherSecretKey,
-      idHasherNonce: idHasherNonce,
+      idHasherSeed: idHasherSeed,
       dbBeginnerRotations: [
         .init(
           id: uuid("1"), observedAt: .iso("2024-11-14T12:00:00Z")!, maxLevel: 10,
@@ -174,8 +170,7 @@ class ChampionDetailsTests: AppTests {
 
   func testChampionOverivewWithPositiveStreak() async throws {
     _ = try await testConfigureWith(
-      idHasherSecretKey: idHasherSecretKey,
-      idHasherNonce: idHasherNonce,
+      idHasherSeed: idHasherSeed,
       dbRegularRotations: [
         .init(
           id: uuid("4"), observedAt: .iso("2024-11-14T12:00:00Z")!,
@@ -284,8 +279,7 @@ class ChampionDetailsTests: AppTests {
 
   func testChampionOverivewWithNegativeStreak() async throws {
     _ = try await testConfigureWith(
-      idHasherSecretKey: idHasherSecretKey,
-      idHasherNonce: idHasherNonce,
+      idHasherSeed: idHasherSeed,
       dbRegularRotations: [
         .init(
           id: uuid("4"), observedAt: .iso("2024-11-14T12:00:00Z")!,
