@@ -30,11 +30,14 @@ extension AppDatabase {
     }
   }
 
-  func regularRotations() async throws -> [RegularChampionRotationModel] {
+  func regularRotations(after minDate: Date? = nil) async throws -> [RegularChampionRotationModel] {
     try await runner.run { db in
-      try await RegularChampionRotationModel.query(on: db)
+      var query = RegularChampionRotationModel.query(on: db)
         .sort(\.$observedAt, .descending)
-        .all()
+      if let minDate {
+        query = query.filter(\.$observedAt > minDate)
+      }
+      return try await query.all()
     }
   }
 
@@ -137,7 +140,6 @@ extension AppDatabase {
   func filterChampions(name: String) async throws -> [ChampionModel] {
     try await runner.run { db in
       try await ChampionModel.query(on: db)
-        // PSQL specific ILIKE operator.
         .filter(\.$name, .custom("ilike"), "%\(name)%")
         .sort(\.$name)
         .all()
@@ -149,7 +151,6 @@ extension AppDatabase {
   {
     try await runner.run { db in
       try await RegularChampionRotationModel.query(on: db)
-        // PSQL specific && operator.
         .filter(\.$champions, .custom("&&"), championRiotIds)
         .sort(\.$observedAt, .descending)
         .all()
@@ -163,31 +164,34 @@ extension AppDatabase {
       try await BeginnerChampionRotationModel.query(on: db)
         .sort(\.$observedAt, .descending)
         .limit(1)
-        // PSQL specific && operator.
         .filter(\.$champions, .custom("&&"), championRiotIds)
         .first()
     }
   }
 
-  func saveChampionsFillingIds(data: [ChampionModel]) async throws {
+  func saveChampionsFillingIds(data: [ChampionModel]) async throws -> [String] {
     let championsByRiotId = try await champions().associateBy(\.riotId)
 
-    try await runner.run { db in
+    return try await runner.run { db in
       try await db.transaction { db in
+        var createdChampionsIds = [String]()
         for model in data {
           if let existingId = championsByRiotId[model.riotId]?.id {
             model.id = existingId
             model.$id.exists = true
             try await model.update(on: db)
           } else {
+            model.releasedAt = Date.now.trimTime()
             try await model.create(on: db)
+            createdChampionsIds.append(model.riotId)
           }
         }
+        return createdChampionsIds
       }
     }
   }
 
-  func countChampionsOccurrences(of championRiotId: String) async throws
+  func countChampionsOccurrences() async throws
     -> [ChampionsOccurrencesModel]
   {
     let query: SQLQueryString = """
@@ -214,28 +218,32 @@ extension AppDatabase {
   func championStreak(of championRiotId: String) async throws -> ChampionStreakModel? {
     let query: SQLQueryString = """
       WITH 
+        rotations_after_release AS (
+          SELECT * FROM "regular-champion-rotations"
+          WHERE observed_at >= (SELECT released_at FROM "champions" WHERE riot_id = \(bind: championRiotId))
+        ),
         latest_rotation_with_champion AS (
           SELECT observed_at
-          FROM "regular-champion-rotations"
+          FROM rotations_after_release
           WHERE \(bind: championRiotId) = ANY(champions)
           ORDER BY "observed_at" DESC
           LIMIT 1
         ),
         champion_absent_streak AS (
           SELECT COUNT(*) AS count
-          FROM "regular-champion-rotations"
+          FROM rotations_after_release
           WHERE observed_at > (SELECT observed_at FROM latest_rotation_with_champion)
         ),
         latest_rotation_without_champion AS (
           SELECT observed_at
-          FROM "regular-champion-rotations"
+          FROM rotations_after_release
           WHERE NOT \(bind: championRiotId) = ANY(champions)
           ORDER BY "observed_at" DESC
           LIMIT 1
         ),
         champion_present_streak AS (
           SELECT COUNT(*) AS count
-          FROM "regular-champion-rotations"
+          FROM rotations_after_release
           WHERE observed_at > (SELECT observed_at FROM latest_rotation_without_champion)
         )
       SELECT \(bind: championRiotId) as champion, present_streak.count AS present, absent_streak.count AS absent

@@ -25,6 +25,7 @@ struct ChampionDetailsOverview: Content {
 enum ChampionDetailsHistoryEvent: Content {
   case rotation(ChampionDetailsHistoryRotation)
   case bench(ChampionDetailsHistoryBench)
+  case release(ChampionDetailsHistoryRelease)
 }
 
 struct ChampionDetailsHistoryRotation: Content {
@@ -36,6 +37,10 @@ struct ChampionDetailsHistoryRotation: Content {
 
 struct ChampionDetailsHistoryBench: Content {
   let rotationsMissed: Int
+}
+
+struct ChampionDetailsHistoryRelease: Content {
+  let releasedAt: Date
 }
 
 struct SearchChampionsResult: Content {

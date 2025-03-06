@@ -30,6 +30,7 @@ struct Champion: Content {
 
 struct RefreshRotationResult: Content {
   let rotationChanged: Bool
+  let championsAdded: Bool
 }
 
 struct FilterRotationsResult: Content {

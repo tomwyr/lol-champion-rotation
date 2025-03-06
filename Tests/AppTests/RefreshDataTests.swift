@@ -79,7 +79,10 @@ class RefreshDataTests: AppTests {
       XCTAssertEqual(res.status, .ok)
       XCTAssertBody(
         res.body, at: "rotation",
-        ["rotationChanged": true]
+        [
+          "rotationChanged": true,
+          "championsAdded": true,
+        ]
       )
     }
   }
@@ -121,7 +124,10 @@ class RefreshDataTests: AppTests {
       XCTAssertEqual(res.status, .ok)
       XCTAssertBody(
         res.body, at: "rotation",
-        ["rotationChanged": true]
+        [
+          "rotationChanged": true,
+          "championsAdded": true,
+        ]
       )
     }
   }
@@ -163,7 +169,61 @@ class RefreshDataTests: AppTests {
       XCTAssertEqual(res.status, .ok)
       XCTAssertBody(
         res.body, at: "rotation",
-        ["rotationChanged": false])
+        [
+          "rotationChanged": false,
+          "championsAdded": true,
+        ]
+      )
+    }
+  }
+
+  func testChampionsDidNotChange() async throws {
+    _ = try await testConfigureWith(
+      appManagementKey: "123",
+      dbRegularRotations: [
+        .init(
+          observedAt: Date.now,
+          champions: ["Sett", "Garen"]
+        )
+      ],
+      dbBeginnerRotations: [
+        .init(
+          observedAt: Date.now,
+          maxLevel: 10,
+          champions: ["Nocturne"]
+        )
+      ],
+      dbChampions: [
+        .init(id: uuid("1"), riotId: "Sett", name: "Sett"),
+        .init(id: uuid("2"), riotId: "Garen", name: "Garen"),
+        .init(id: uuid("3"), riotId: "Nocturne", name: "Nocturne"),
+      ],
+      dbPatchVersions: [.init(value: "1")],
+      riotPatchVersions: ["1"],
+      riotChampionRotationsData: .init(
+        freeChampionIds: [1, 2],
+        freeChampionIdsForNewPlayers: [3],
+        maxNewPlayerLevel: 10
+      ),
+      riotChampionsData: .init(data: [
+        "Sett": .init(id: "Sett", key: "1", name: "Sett"),
+        "Garen": .init(id: "Garen", key: "2", name: "Garen"),
+        "Nocturne": .init(id: "Nocturne", key: "3", name: "Nocturne"),
+      ])
+    )
+
+    try await app.test(
+      .GET, "/data/refresh",
+      headers: ["Authorization": "Bearer 123"]
+    ) { res async in
+      XCTAssertEqual(res.status, .ok)
+      XCTAssertBody(
+        res.body, at: "rotation",
+        [
+          "rotationChanged": false,
+          "championsAdded": false,
+        ]
+      )
     }
   }
 

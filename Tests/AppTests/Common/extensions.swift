@@ -3,8 +3,8 @@ import Foundation
 @testable import App
 
 extension ChampionModel {
-  convenience init(id: UUID?, riotId: String, name: String) {
-    self.init(id: id, riotId: riotId, name: name, title: "")
+  convenience init(id: UUID?, releasedAt: Date? = nil, riotId: String, name: String) {
+    self.init(id: id, releasedAt: releasedAt, riotId: riotId, name: name, title: "")
   }
 }
 

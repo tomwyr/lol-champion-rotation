@@ -5,7 +5,7 @@ extension ChampionsService {
     guard let champion = try await loadChampionData(championId) else {
       return nil
     }
-    let availavilitiesData = try await loadRotationAvailabilitiesData(champion.riotId)
+    let availavilitiesData = try await loadRotationAvailabilitiesData(champion)
     return try await createChampionDetails(champion, availavilitiesData)
   }
 
@@ -18,26 +18,29 @@ extension ChampionsService {
     }
   }
 
-  private func loadRotationAvailabilitiesData(_ championRiotId: String) async throws(ChampionsError)
-    -> ChampionDetailsLocalData
+  private func loadRotationAvailabilitiesData(_ champion: ChampionModel)
+    async throws(ChampionsError) -> ChampionDetailsLocalData
   {
+    let riotId = champion.riotId
+    let releasedAt = champion.releasedAt
+
     do {
       let championLatestRegularRotation = try await appDatabase.mostRecentRegularRotation(
-        withChampion: championRiotId)
+        withChampion: riotId)
       let championLatestBeginnerRotation = try await appDatabase.mostRecentBeginnerRotation(
-        withChampion: championRiotId)
+        withChampion: riotId)
       let championRegularRotationsIds = try await appDatabase.regularRotationsIds(
-        withChampion: championRiotId)
-      let regularRotations = try await appDatabase.regularRotations()
+        withChampion: riotId)
+      let rotationsAfterRelease = try await appDatabase.regularRotations(after: releasedAt)
       let currentRegularRotation = try await appDatabase.currentRegularRotation()
       let currentBeginnerRotation = try await appDatabase.currentBeginnerRotation()
-      let championsOccurrences = try await appDatabase.countChampionsOccurrences(of: championRiotId)
-      let championStreak = try await appDatabase.championStreak(of: championRiotId)
+      let championsOccurrences = try await appDatabase.countChampionsOccurrences()
+      let championStreak = try await appDatabase.championStreak(of: riotId)
       return (
         championLatestRegularRotation,
         championLatestBeginnerRotation,
         championRegularRotationsIds,
-        regularRotations,
+        rotationsAfterRelease,
         currentRegularRotation,
         currentBeginnerRotation,
         championsOccurrences,
@@ -120,14 +123,14 @@ extension ChampionsService {
   private func createHistory(_ champion: ChampionModel, _ data: ChampionDetailsLocalData)
     async throws(ChampionsError) -> [ChampionDetailsHistoryEvent]
   {
-    let allRotations = data.regularRotations
+    let rotationsAfterRelease = data.regularRotationsAfterRelease
     let championRotationsIds = data.championRegularRotationsIds.uniqued()
     let currentRotation = data.currentRegularRotation
 
     var items = [ChampionDetailsHistoryEvent]()
     var rotationsMissed = 0
 
-    for rotation in allRotations {
+    for rotation in rotationsAfterRelease {
       guard let id = rotation.id else { continue }
 
       if !championRotationsIds.contains(id) {
@@ -147,11 +150,19 @@ extension ChampionsService {
       rotationsMissed = 0
     }
 
+    if let releasedAt = champion.releasedAt {
+      items.append(createRelease(releasedAt))
+    }
+
     return items
   }
 
   private func createBench(_ rotationsMissed: Int) -> ChampionDetailsHistoryEvent {
     .bench(.init(rotationsMissed: rotationsMissed))
+  }
+
+  private func createRelease(_ releasedAt: Date) -> ChampionDetailsHistoryEvent {
+    .release(.init(releasedAt: releasedAt))
   }
 
   private func createRotation(
@@ -183,7 +194,7 @@ private typealias ChampionDetailsLocalData = (
   championLatestRegularRotation: RegularChampionRotationModel?,
   championLatestBeginnerRotation: BeginnerChampionRotationModel?,
   championRegularRotationsIds: [UUID],
-  regularRotations: [RegularChampionRotationModel],
+  regularRotationsAfterRelease: [RegularChampionRotationModel],
   currentRegularRotation: RegularChampionRotationModel?,
   currentBeginnerRotation: BeginnerChampionRotationModel?,
   championsOccurrences: [ChampionsOccurrencesModel],

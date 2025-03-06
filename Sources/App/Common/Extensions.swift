@@ -55,6 +55,10 @@ extension Date {
   func adding(_ value: Int, _ component: Calendar.Component) -> Date? {
     Calendar.current.date(byAdding: component, value: value, to: self)
   }
+
+  func trimTime() -> Date {
+    Calendar.current.startOfDay(for: self)
+  }
 }
 
 extension String {
