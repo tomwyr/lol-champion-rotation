@@ -7,6 +7,9 @@ final class ChampionModel: Model, @unchecked Sendable {
   @ID(key: .id)
   var id: UUID?
 
+  @Timestamp(key: "released_at", on: .none)
+  var releasedAt: Date?
+
   @Field(key: "riot_id")
   var riotId: String
 
@@ -18,8 +21,9 @@ final class ChampionModel: Model, @unchecked Sendable {
 
   init() {}
 
-  init(id: UUID? = nil, riotId: String, name: String, title: String) {
+  init(id: UUID? = nil, releasedAt: Date? = nil, riotId: String, name: String, title: String) {
     self.id = id
+    self.releasedAt = releasedAt
     self.riotId = riotId
     self.name = name
     self.title = title
