@@ -190,9 +190,11 @@ final class NotificationsConfigModel: Model, @unchecked Sendable {
   }
 }
 
-struct ChampionsOccurrencesModel: Codable {
-  let champions: [String]
-  let count: Int
+struct ChampionRotationsCountModel: Codable {
+  let champion: String
+  let presentIn: Int
+  let afterRelease: Int
+  let total: Int
 }
 
 struct ChampionStreakModel: Codable {

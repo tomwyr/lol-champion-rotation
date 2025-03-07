@@ -191,36 +191,31 @@ extension AppDatabase {
     }
   }
 
-  func countChampionsOccurrences() async throws
-    -> [ChampionsOccurrencesModel]
+  func countChampionsRotations() async throws
+    -> [ChampionRotationsCountModel]
   {
     let query: SQLQueryString = """
-      WITH
-        champions_list AS (
-          SELECT UNNEST(champions) as champion
-          FROM "regular-champion-rotations"
-        ),
-        champions_ranks AS (
-          SELECT champion, COUNT(*) as count
-          FROM champions_list
-          GROUP BY champion
-        )
-      SELECT count, ARRAY_AGG(champion) as champions FROM champions_ranks
-      GROUP BY count
-      ORDER BY count DESC
+      SELECT riot_id as "champion",
+       (SELECT COUNT(*) FROM "regular-champion-rotations" WHERE riot_id = ANY(champions)) as "presentIn",
+       (SELECT COUNT(*) FROM "regular-champion-rotations" WHERE observed_at >= released_at) as "afterRelease",
+       (SELECT COUNT(*) FROM "regular-champion-rotations") as "total"
+      FROM "champions"
       """
 
     return try await runner.runSql { db in
-      try await db.raw(query).all(decoding: ChampionsOccurrencesModel.self)
+      try await db.raw(query).all(decoding: ChampionRotationsCountModel.self)
     }
   }
 
   func championStreak(of championRiotId: String) async throws -> ChampionStreakModel? {
     let query: SQLQueryString = """
       WITH 
+        champion_release_date AS (
+          SELECT released_at FROM "champions" WHERE riot_id = \(bind: championRiotId)
+        ),
         rotations_after_release AS (
           SELECT * FROM "regular-champion-rotations"
-          WHERE observed_at >= (SELECT released_at FROM "champions" WHERE riot_id = \(bind: championRiotId))
+          WHERE observed_at >= (SELECT released_at FROM champion_release_date)
         ),
         latest_rotation_with_champion AS (
           SELECT observed_at
@@ -232,7 +227,8 @@ extension AppDatabase {
         champion_absent_streak AS (
           SELECT COUNT(*) AS count
           FROM rotations_after_release
-          WHERE observed_at > (SELECT observed_at FROM latest_rotation_with_champion)
+          WHERE observed_at > COALESCE((SELECT observed_at FROM latest_rotation_with_champion),
+                                       (SELECT released_at FROM champion_release_date))
         ),
         latest_rotation_without_champion AS (
           SELECT observed_at
@@ -244,7 +240,8 @@ extension AppDatabase {
         champion_present_streak AS (
           SELECT COUNT(*) AS count
           FROM rotations_after_release
-          WHERE observed_at > (SELECT observed_at FROM latest_rotation_without_champion)
+          WHERE observed_at > COALESCE((SELECT observed_at FROM latest_rotation_without_champion),
+                                       (SELECT released_at FROM champion_release_date))
         )
       SELECT \(bind: championRiotId) as champion, present_streak.count AS present, absent_streak.count AS absent
       FROM champion_present_streak present_streak, champion_absent_streak absent_streak;

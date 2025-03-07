@@ -5,8 +5,8 @@ extension ChampionsService {
     guard let champion = try await loadChampionData(championId) else {
       return nil
     }
-    let availavilitiesData = try await loadRotationAvailabilitiesData(champion)
-    return try await createChampionDetails(champion, availavilitiesData)
+    let availabilitiesData = try await loadRotationAvailabilitiesData(champion)
+    return try await createChampionDetails(champion, availabilitiesData)
   }
 
   private func loadChampionData(_ championId: String) async throws(ChampionsError) -> ChampionModel?
@@ -34,7 +34,7 @@ extension ChampionsService {
       let rotationsAfterRelease = try await appDatabase.regularRotations(after: releasedAt)
       let currentRegularRotation = try await appDatabase.currentRegularRotation()
       let currentBeginnerRotation = try await appDatabase.currentBeginnerRotation()
-      let championsOccurrences = try await appDatabase.countChampionsOccurrences()
+      let championsRotationsCount = try await appDatabase.countChampionsRotations()
       let championStreak = try await appDatabase.championStreak(of: riotId)
       return (
         championLatestRegularRotation,
@@ -43,7 +43,7 @@ extension ChampionsService {
         rotationsAfterRelease,
         currentRegularRotation,
         currentBeginnerRotation,
-        championsOccurrences,
+        championsRotationsCount,
         championStreak
       )
     } catch {
@@ -92,32 +92,42 @@ extension ChampionsService {
   private func createOverview(_ champion: ChampionModel, _ data: ChampionDetailsLocalData)
     throws(ChampionsError) -> ChampionDetailsOverview
   {
-    let championsOccurrences = data.championsOccurrences
+    let rotationsCount = data.championsRotationsCount
     let championStreak = data.championStreak
 
-    let occurrences =
-      championsOccurrences
-      .first { group in group.champions.contains(champion.riotId) }?
-      .count ?? 0
-
-    let morePopularChampions =
-      championsOccurrences
-      .filter { group in group.count > occurrences }
-      .reduce(0) { result, next in result + next.champions.count }
-    let popularity = morePopularChampions + 1
+    let occurrences = rotationsCount.first { $0.champion == champion.riotId }?.presentIn ?? 0
+    let popularity = calcPopularity(champion, data)
 
     guard let present = championStreak?.present, let absent = championStreak?.absent,
       present == 0 || absent == 0
     else {
       throw .dataInvalidOrMissing(championId: champion.riotId)
     }
-    let currentStreak = if present > 0 { present } else { -absent }
+    let currentStreak = if present > 0 { present } else if absent > 0 { -absent } else { 0 }
 
     return ChampionDetailsOverview(
       occurrences: occurrences,
       popularity: popularity,
       currentStreak: currentStreak
     )
+  }
+
+  private func calcPopularity(_ champion: ChampionModel, _ data: ChampionDetailsLocalData) -> Int {
+    let rotationsCount = data.championsRotationsCount
+
+    var championScore = 0.0
+    var scores = [Double]()
+    for count in rotationsCount {
+      let relativeScore = Double(count.presentIn) / Double(count.afterRelease)
+      let globalScore = Double(count.presentIn) / Double(count.total)
+      let score = 0.5 * relativeScore + 0.5 * globalScore
+      scores.append(score)
+      if count.champion == champion.riotId {
+        championScore = score
+      }
+    }
+
+    return scores.count { $0 > championScore } + 1
   }
 
   private func createHistory(_ champion: ChampionModel, _ data: ChampionDetailsLocalData)
@@ -197,6 +207,6 @@ private typealias ChampionDetailsLocalData = (
   regularRotationsAfterRelease: [RegularChampionRotationModel],
   currentRegularRotation: RegularChampionRotationModel?,
   currentBeginnerRotation: BeginnerChampionRotationModel?,
-  championsOccurrences: [ChampionsOccurrencesModel],
+  championsRotationsCount: [ChampionRotationsCountModel],
   championStreak: ChampionStreakModel?
 )
