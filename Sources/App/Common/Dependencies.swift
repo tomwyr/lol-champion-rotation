@@ -19,7 +19,8 @@ struct Dependencies {
       appDatabase: appDatabase(request: request),
       versionService: versionService(request: request),
       notificationsService: notificationsService(request: request),
-      idHasher: idHasher()
+      idHasher: idHasher(),
+      rotationForecast: DefaultRotationForecast()
     )
   }
 

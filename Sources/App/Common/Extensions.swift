@@ -45,6 +45,24 @@ extension Array where Element: Any {
     })
     .map(\.element)
   }
+
+  func zipAdjacent() -> [(Element, Element)] {
+    windows(ofCount: 2).map { window in
+      (window[window.startIndex], window[window.startIndex + 1])
+    }
+  }
+}
+
+extension Array where Element: Hashable & Comparable {
+  func mostFrequent(using generator: inout some RandomNumberGenerator) -> Element? {
+    var counts = [Element: Int]()
+    for element in self {
+      counts[element, default: 0] += 1
+    }
+    let maxKeys = counts.max(count: Int.max, sortedBy: { lhs, rhs in lhs.value > rhs.value })
+      .map(\.key).sorted()
+    return maxKeys.randomElement(using: &generator)
+  }
 }
 
 extension Date {
@@ -89,6 +107,12 @@ extension Sequence {
       results.append(result)
     }
     return results
+  }
+}
+
+extension Dictionary where Key: Comparable {
+  func sorted(by keyPath: KeyPath<Self.Element, some Comparable>) -> [(Key, Value)] {
+    sorted { lhs, rhs in lhs[keyPath: keyPath] < rhs[keyPath: keyPath] }
   }
 }
 

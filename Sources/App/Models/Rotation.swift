@@ -17,6 +17,11 @@ struct RegularChampionRotation: Content {
   let current: Bool
 }
 
+struct PredictedChampionRotation: Content {
+  let duration: ChampionRotationDuration
+  let champions: [Champion]
+}
+
 struct ChampionRotationDuration: Content {
   let start: Date
   let end: Date

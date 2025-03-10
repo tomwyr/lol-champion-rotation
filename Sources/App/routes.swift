@@ -23,6 +23,12 @@ func routes(_ app: Application, _ deps: Dependencies) throws {
       return try await rotationService.currentRotation()
     }
 
+    rotation.get("predict") { req in
+      try req.auth.require(UserAuth.self)
+      let rotationService = deps.rotationService(request: req)
+      return try await rotationService.predictRotation()
+    }
+
     rotation.get { req in
       try req.auth.require(UserAuth.self)
       guard let nextRotationToken = req.query[String.self, at: "nextRotationToken"] else {
