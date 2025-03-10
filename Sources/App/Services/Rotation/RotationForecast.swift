@@ -52,7 +52,7 @@ struct DefaultRotationForecast: RotationForecast {
 
     var nextRangeStart = 0.0
     var normalizedWeights = [(Range<Double>, Int)]()
-    for (count, weight) in weights {
+    for (count, weight) in weights.sorted(by: \.key) {
       let normalizedWeight = weight / weightsSum
       let range = nextRangeStart..<nextRangeStart + normalizedWeight
       normalizedWeights.append((range, count))
@@ -98,7 +98,7 @@ struct DefaultRotationForecast: RotationForecast {
     }
 
     var mostFrequentIntervals = [String: Int]()
-    for (champion, rotations) in rotationNumbers {
+    for (champion, rotations) in rotationNumbers.sorted(by: \.key) {
       let interval = rotations.zipAdjacent()
         .map { previous, next in next - previous }
         .mostFrequent(using: &rng)
@@ -150,7 +150,8 @@ struct DefaultRotationForecast: RotationForecast {
   ) {
     for _ in 0..<count {
       let index = Int.random(in: 0..<available.count, using: &rng)
-      selected.append(available.remove(at: index))
+      let champion = available.remove(at: index)
+      selected.append(champion)
     }
   }
 
@@ -158,15 +159,13 @@ struct DefaultRotationForecast: RotationForecast {
     count: Int, from available: inout [String], into selected: inout [String],
     rng: inout some RandomNumberGenerator, weightFor: (String) -> Double
   ) throws(RotationForecastError) {
-    var weightsSum = 0.0
     var weights = [String: Double]()
     for champion in available {
-      let weight = weightFor(champion)
-      weights[champion] = weight
-      weightsSum += weight
+      weights[champion] = weightFor(champion)
     }
 
     func calcNormalizedWeights(_ weights: [String: Double]) -> [(Range<Double>, String)] {
+      let weightsSum = weights.values.reduce(0, +)
       var nextRangeStart = 0.0
       var normalized = [(Range<Double>, String)]()
       for (champion, weight) in weights.sorted(by: \.key) {

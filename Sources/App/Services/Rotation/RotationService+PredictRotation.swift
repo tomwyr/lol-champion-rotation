@@ -3,7 +3,6 @@ extension DefaultRotationService {
     let data = try await loadPredictRotationLocalData()
     let champions = try predictChampions(data)
     return try await createRotation(data, champions)
-
   }
 
   private func loadPredictRotationLocalData() async throws(ChampionRotationError)
