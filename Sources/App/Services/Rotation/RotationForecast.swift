@@ -9,60 +9,62 @@ struct DefaultRotationForecast: RotationForecast {
   func predict(champions: [String], rotations: [[String]], previousRotationId: String)
     throws(RotationForecastError) -> [String]
   {
+    var rng = LinearRandomNumberGenerator(seed: calcSeed(of: previousRotationId))
+
     let allocation = countAllocation(
-      count: try count(
-        rotations: rotations,
-        seedValue: previousRotationId
-      )
+      count: try count(rotations: rotations, rng: &rng)
     )
 
     var champions = champions
     var selection = [String]()
 
     try selectByInterval(
-      from: &champions, into: &selection, count: allocation.interval,
-      rotations: rotations, seedValue: previousRotationId
+      count: allocation.interval, from: &champions, into: &selection,
+      rotations: rotations, rng: &rng
     )
     try selectByFrequency(
-      from: &champions, into: &selection, count: allocation.frequency,
-      rotations: rotations, seedValue: previousRotationId
+      count: allocation.frequency, from: &champions, into: &selection,
+      rotations: rotations, rng: &rng
     )
-    selectByRandom(from: &champions, into: &selection, count: allocation.random)
+    selectByRandom(
+      count: allocation.random, from: &champions, into: &selection,
+      rng: &rng
+    )
 
     return selection.sorted()
   }
 
-  func count(rotations: [[String]], seedValue: String) throws(RotationForecastError) -> Int {
-    var counts = [Int: Int]()
+  func count(rotations: [[String]], rng: inout some RandomNumberGenerator)
+    throws(RotationForecastError) -> Int
+  {
+    var countOccurrences = [Int: Int]()
     for champions in rotations {
-      counts[champions.count, default: 0] += 1
+      countOccurrences[champions.count, default: 0] += 1
     }
 
     var weightsSum = 0.0
-    var countWeights = [Int: Double]()
-    for (count, occurrences) in counts {
+    var weights = [Int: Double]()
+    for (count, occurrences) in countOccurrences {
       let weight = pow(Double(occurrences), 1.5)
-      countWeights[count] = weight
+      weights[count] = weight
       weightsSum += weight
     }
 
     var nextRangeStart = 0.0
     var normalizedWeights = [(Range<Double>, Int)]()
-    for (count, weight) in countWeights {
+    for (count, weight) in weights {
       let normalizedWeight = weight / weightsSum
       let range = nextRangeStart..<nextRangeStart + normalizedWeight
       normalizedWeights.append((range, count))
       nextRangeStart += normalizedWeight
     }
 
-    var rng = LinearRandomNumberGenerator(seed: calcSeed(of: seedValue))
-    let weight = Double(rng.next() % 1000) / 1000
+    let weight = rng.nextFraction()
     let selection = normalizedWeights.first { (range, _) in range.contains(weight) }
-
-    guard let count = selection?.1 else {
-      throw .unexpected
+    guard let selection else {
+      throw .invalidCountWeight
     }
-    return count
+    return selection.1
   }
 
   func countAllocation(count: Int) -> RotationCountAllocation {
@@ -77,9 +79,12 @@ struct DefaultRotationForecast: RotationForecast {
     )
   }
 
+  /// Selects and moves a specified number of champions from the available into
+  /// the selected list based on how close each champion is to its most frequent
+  /// interval between consecutive rotations.
   func selectByInterval(
-    from available: inout [String], into selected: inout [String],
-    count: Int, rotations: [[String]], seedValue: String
+    count: Int, from available: inout [String], into selected: inout [String],
+    rotations: [[String]], rng: inout some RandomNumberGenerator
   ) throws(RotationForecastError) {
     let isAvailable = Set(available).contains
     var rotationNumbers = [String: [Int]]()
@@ -94,118 +99,113 @@ struct DefaultRotationForecast: RotationForecast {
 
     var mostFrequentIntervals = [String: Int]()
     for (champion, rotations) in rotationNumbers {
-      var rng = LinearRandomNumberGenerator(seed: calcSeed(of: seedValue))
       let interval = rotations.zipAdjacent()
         .map { previous, next in next - previous }
         .mostFrequent(using: &rng)
       mostFrequentIntervals[champion] = interval
     }
 
-    var weightsSum = 0.0
-    var weights = [String: Double]()
-    for (champion, interval) in mostFrequentIntervals {
+    return try selectByWeights(
+      count: count, from: &available, into: &selected, rng: &rng
+    ) { champion in
+      guard let interval = mostFrequentIntervals[champion] else {
+        return 0
+      }
       let mostRecentRotation = rotationNumbers[champion]?.last ?? 0
       let currentInterval = rotations.count - mostRecentRotation
-      let weight = 1.0 / Double((1 + abs(interval - currentInterval)))
+      return 1.0 / Double((1 + abs(interval - currentInterval)))
+    }
+  }
+
+  /// Selects and moves a specified number of champions from the available into
+  /// the selected list based on champion's frequency in previous rotations.
+  func selectByFrequency(
+    count: Int, from available: inout [String], into selected: inout [String],
+    rotations: [[String]], rng: inout some RandomNumberGenerator
+  ) throws(RotationForecastError) {
+    let isAvailable = Set(available).contains
+    var occurrences = [String: Int]()
+    for rotation in rotations {
+      for champion in rotation.filter(isAvailable) {
+        occurrences[champion, default: 0] += 1
+      }
+    }
+
+    return try selectByWeights(
+      count: count, from: &available, into: &selected,
+      rng: &rng
+    ) { champion in
+      guard let occurrences = occurrences[champion] else {
+        return 0
+      }
+      return pow(Double(occurrences), 1)
+    }
+  }
+
+  /// Selects and moves a specified number of champions from the available into
+  /// the selected list based on a random selection.
+  func selectByRandom(
+    count: Int, from available: inout [String], into selected: inout [String],
+    rng: inout some RandomNumberGenerator
+  ) {
+    for _ in 0..<count {
+      let index = Int.random(in: 0..<available.count, using: &rng)
+      selected.append(available.remove(at: index))
+    }
+  }
+
+  private func selectByWeights(
+    count: Int, from available: inout [String], into selected: inout [String],
+    rng: inout some RandomNumberGenerator, weightFor: (String) -> Double
+  ) throws(RotationForecastError) {
+    var weightsSum = 0.0
+    var weights = [String: Double]()
+    for champion in available {
+      let weight = weightFor(champion)
       weights[champion] = weight
       weightsSum += weight
     }
 
-    var nextRangeStart = 0.0
-    var normalizedWeights = [(Range<Double>, String)]()
-    for (champion, weight) in weights.sorted(by: \.key) {
-      let normalizedWeight = Double(weight) / Double(weightsSum)
-      let range = nextRangeStart..<nextRangeStart + normalizedWeight
-      normalizedWeights.append((range, champion))
-      nextRangeStart += normalizedWeight
+    func calcNormalizedWeights(_ weights: [String: Double]) -> [(Range<Double>, String)] {
+      var nextRangeStart = 0.0
+      var normalized = [(Range<Double>, String)]()
+      for (champion, weight) in weights.sorted(by: \.key) {
+        let normalizedWeight = Double(weight) / Double(weightsSum)
+        let range = nextRangeStart..<nextRangeStart + normalizedWeight
+        normalized.append((range, champion))
+        nextRangeStart += normalizedWeight
+      }
+      return normalized
     }
 
-    var availableWeights = normalizedWeights
-    var rng = LinearRandomNumberGenerator(seed: calcSeed(of: seedValue))
+    var availableWeights = weights
     for _ in 0..<count {
-      var champion: String?
-      // TODO Use more efficient way of not reselecting the same champion.
-      while champion == nil {
-        let weight = Double(rng.next() % 1000) / 1000
-        let index = availableWeights.firstIndex { (range, _) in range.contains(weight) }
-        if let index {
-          champion = availableWeights.remove(at: index).1
-        }
-      }
+      let normalizedWeights = calcNormalizedWeights(availableWeights)
+      let weight = rng.nextFraction()
+      let champion = normalizedWeights.first { (range, _) in range.contains(weight) }?.1
       guard let champion, let indexToRemove = available.firstIndex(of: champion) else {
-        throw .unexpected
+        throw .invalidChampionWeight
       }
       available.remove(at: indexToRemove)
       selected.append(champion)
-    }
-  }
-
-  func selectByFrequency(
-    from available: inout [String], into selected: inout [String],
-    count: Int, rotations: [[String]], seedValue: String
-  ) throws(RotationForecastError) {
-    let isAvailable = Set(available).contains
-    var counts = [String: Int]()
-    for rotation in rotations {
-      for champion in rotation.filter(isAvailable) {
-        counts[champion, default: 0] += 1
-      }
-    }
-
-    var weightsSum = 0.0
-    var weights = [String: Double]()
-    for (champion, count) in counts {
-      let weight = pow(Double(count), 1)
-      weights[champion, default: 0] = weight
-      weightsSum += weight
-    }
-
-    var nextRangeStart = 0.0
-    var normalizedWeights = [(Range<Double>, String)]()
-    for (champion, weight) in weights.sorted(by: \.key) {
-      let normalizedWeight = Double(weight) / Double(weightsSum)
-      let range = nextRangeStart..<nextRangeStart + normalizedWeight
-      normalizedWeights.append((range, champion))
-      nextRangeStart += normalizedWeight
-    }
-
-    var availableWeights = normalizedWeights
-    var rng = LinearRandomNumberGenerator(seed: calcSeed(of: seedValue))
-    for _ in 0..<count {
-      var champion: String?
-      // TODO Use more efficient way of not reselecting the same champion.
-      while champion == nil {
-        let weight = Double(rng.next() % 1000) / 1000
-        let index = availableWeights.firstIndex { (range, _) in range.contains(weight) }
-        if let index {
-          champion = availableWeights.remove(at: index).1
-        }
-      }
-      guard let champion, let indexToRemove = available.firstIndex(of: champion) else {
-        throw .unexpected
-      }
-      available.remove(at: indexToRemove)
-      selected.append(champion)
-    }
-  }
-
-  func selectByRandom(
-    from available: inout [String], into selected: inout [String],
-    count: Int
-  ) {
-    for _ in 0..<count {
-      let index = Int.random(in: 0..<available.count)
-      selected.append(available.remove(at: index))
+      availableWeights.removeValue(forKey: champion)
     }
   }
 }
 
 enum RotationForecastError: Error {
-  case unexpected
+  case invalidCountWeight
+  case invalidChampionWeight
 }
 
 struct RotationCountAllocation {
   let interval: Int
   let frequency: Int
   let random: Int
+}
+
+extension RandomNumberGenerator {
+  fileprivate mutating func nextFraction() -> Double {
+    Double.random(in: 0..<1, using: &self)
+  }
 }
