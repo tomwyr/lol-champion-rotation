@@ -176,8 +176,9 @@ extension AppDatabase {
       try await db.transaction { db in
         var createdChampionsIds = [String]()
         for model in data {
-          if let existingId = championsByRiotId[model.riotId]?.id {
-            model.id = existingId
+          if let existing = championsByRiotId[model.riotId] {
+            model.id = existing.id
+            model.releasedAt = existing.releasedAt
             model.$id.exists = true
             try await model.update(on: db)
           } else {
