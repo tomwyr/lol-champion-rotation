@@ -17,7 +17,7 @@ struct RegularChampionRotation: Content {
   let current: Bool
 }
 
-struct PredictedChampionRotation: Content {
+struct ChampionRotationPrediction: Content {
   let duration: ChampionRotationDuration
   let champions: [Champion]
 }

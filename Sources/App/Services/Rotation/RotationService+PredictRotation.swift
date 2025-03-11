@@ -1,5 +1,5 @@
 extension DefaultRotationService {
-  func predictRotation() async throws(ChampionRotationError) -> PredictedChampionRotation {
+  func predictRotation() async throws(ChampionRotationError) -> ChampionRotationPrediction {
     let data = try await loadPredictRotationLocalData()
     let champions = try predictChampions(data)
     return try await createRotation(data, champions)
@@ -40,7 +40,7 @@ extension DefaultRotationService {
   }
 
   private func createRotation(_ data: PredictRotationLocalData, _ predictedChampions: [String])
-    async throws(ChampionRotationError) -> PredictedChampionRotation
+    async throws(ChampionRotationError) -> ChampionRotationPrediction
   {
     let champions = try createChampions(for: predictedChampions, models: data.champions)
     guard let currentRotation = data.regularRotations.first else {
@@ -48,7 +48,7 @@ extension DefaultRotationService {
     }
     let duration = try await getRotationDuration(currentRotation)
 
-    return PredictedChampionRotation(
+    return ChampionRotationPrediction(
       duration: duration,
       champions: champions
     )
