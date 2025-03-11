@@ -35,7 +35,11 @@ extension ChampionsService {
       let currentRegularRotation = try await appDatabase.currentRegularRotation()
       let currentBeginnerRotation = try await appDatabase.currentBeginnerRotation()
       let championsRotationsCount = try await appDatabase.countChampionsRotations()
-      let championStreak = try await appDatabase.championStreak(of: riotId)
+      var championStreak: ChampionStreakModel? = nil
+      // Only compute the streak if release is known as, otherwise, it might produce incorrect results.
+      if releasedAt != nil {
+        championStreak = try await appDatabase.championStreak(of: riotId)
+      }
       return (
         championLatestRegularRotation,
         championLatestBeginnerRotation,
@@ -98,12 +102,14 @@ extension ChampionsService {
     let occurrences = rotationsCount.first { $0.champion == champion.riotId }?.presentIn ?? 0
     let popularity = calcPopularity(champion, data)
 
-    guard let present = championStreak?.present, let absent = championStreak?.absent,
-      present == 0 || absent == 0
-    else {
-      throw .dataInvalidOrMissing(championId: champion.riotId)
+    var currentStreak: Int? = nil
+    if let championStreak {
+      let (present, absent) = (championStreak.present, championStreak.absent)
+      guard present == 0 || absent == 0 else {
+        throw .dataInvalidOrMissing(championId: champion.riotId)
+      }
+      currentStreak = if present > 0 { present } else if absent > 0 { -absent } else { 0 }
     }
-    let currentStreak = if present > 0 { present } else if absent > 0 { -absent } else { 0 }
 
     return ChampionDetailsOverview(
       occurrences: occurrences,
