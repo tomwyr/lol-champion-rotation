@@ -71,6 +71,49 @@ class ChampionDetailsTests: AppTests {
     }
   }
 
+  func testChampionWithMissingReleaseDate() async throws {
+    _ = try await testConfigureWith(
+      idHasherSeed: idHasherSeed,
+      dbChampions: [
+        .init(
+          id: uuid("1"), riotId: "Nocturne",
+          name: "Nocturne", title: "the Eternal Nightmare")
+      ],
+      dbPatchVersions: [.init(value: "15.0.1")],
+      b2AuthorizeDownloadData: .init(authorizationToken: "123")
+    )
+
+    try await app.test(
+      .GET, "/champions/\(uuidString("1"))"
+    ) { res async in
+      XCTAssertEqual(res.status, .ok)
+      XCTAssertBody(
+        res.body,
+        [
+          "id": uuidString("1"),
+          "imageUrl": imageUrl("Nocturne"),
+          "name": "Nocturne",
+          "title": "the Eternal Nightmare",
+          "availability": [
+            [
+              "rotationType": "regular",
+              "current": false,
+            ],
+            [
+              "rotationType": "beginner",
+              "current": false,
+            ],
+          ],
+          "overview": [
+            "occurrences": 0,
+            "popularity": 1,
+          ],
+          "history": [],
+        ]
+      )
+    }
+  }
+
   func testChampionInCurrentRotation() async throws {
     _ = try await testConfigureWith(
       idHasherSeed: idHasherSeed,
