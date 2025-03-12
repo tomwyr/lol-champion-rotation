@@ -17,8 +17,19 @@ extension RotationDurationService {
   {
     let nextRotationDate = try await getNextRotationDate(rotation)
     let startDate = rotation.observedAt
-    guard let endDate = nextRotationDate ?? startDate.adding(1, .weekOfYear) else {
-      throw wrapError(.endDateInvalid)
+    guard let endDate = nextRotationDate ?? startDate.addingExpectedDuration() else {
+      throw wrapError(.computedDateInvalid)
+    }
+    return ChampionRotationDuration(start: startDate, end: endDate)
+  }
+
+  func getRotationPredictionDuration(_ currentRotation: RegularChampionRotationModel)
+    async throws(OutError) -> ChampionRotationDuration
+  {
+    guard let startDate = currentRotation.observedAt.addingExpectedDuration(),
+      let endDate = startDate.addingExpectedDuration()
+    else {
+      throw wrapError(.computedDateInvalid)
     }
     return ChampionRotationDuration(start: startDate, end: endDate)
   }
@@ -38,8 +49,14 @@ extension RotationDurationService {
   }
 }
 
+extension Date {
+  func addingExpectedDuration() -> Date? {
+    adding(1, .weekOfYear)
+  }
+}
+
 enum RotationDurationError: Error {
-  case endDateInvalid
+  case computedDateInvalid
   case dataOperationFailed(cause: any Error)
 }
 

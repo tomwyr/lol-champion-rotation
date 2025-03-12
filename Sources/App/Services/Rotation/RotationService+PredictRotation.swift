@@ -46,7 +46,7 @@ extension DefaultRotationService {
     guard let currentRotation = data.regularRotations.first else {
       throw .currentRotationDataMissing
     }
-    let duration = try await getRotationDuration(currentRotation)
+    let duration = try await getRotationPredictionDuration(currentRotation)
 
     return ChampionRotationPrediction(
       duration: duration,
