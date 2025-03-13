@@ -2,7 +2,7 @@ import Vapor
 
 func routes(_ app: Application, _ deps: Dependencies) throws {
   let anyUserGuard = AnyUserGuard()
-  let mobileUserGuard = MobileUserGuard()
+  let mobileUserGuard = deps.mobileUserGuard
   let managementGuard = ManagementGuard(
     appManagementKey: deps.appConfig.appManagementKey
   )

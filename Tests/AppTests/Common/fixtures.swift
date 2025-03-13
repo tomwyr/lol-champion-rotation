@@ -4,6 +4,10 @@ import XCTest
 
 let idHasherSeed = "hq9fh01k7tio5l40tdc8uhs4e0pb4i93"
 
+let mobileUserId = "llWk1mL0BOBD1d0Lm8Gmpw8tcLQTCZWx"
+let mobileToken =
+  "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwidXNlcl9pZCI6ImxsV2sxbUwwQk9CRDFkMExtOEdtcHc4dGNMUVRDWld4IiwiaWF0IjoxNzQxODg0NzM2LCJleHAiOjI3NDE4ODgzMzZ9.7NSDEKSi0SB89XvAIIex6ofCN9kbxXHHsxua4OtxM-U"
+
 func nextRotationToken(_ rotationId: String) -> String {
   let tokens = [
     "1": "nLzBS1CFLUWAsVHZz7kzWaU36Tr8tEyKIQTLG1loIIidtmez",

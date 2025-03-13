@@ -1,3 +1,4 @@
+import Vapor
 import XCTest
 
 @testable import App
@@ -5,11 +6,13 @@ import XCTest
 extension Dependencies {
   static func mock(
     appConfig: AppConfig = .empty(),
-    httpClient: HttpClient = MockHttpClient(respond: { _ in nil })
+    httpClient: HttpClient = MockHttpClient(respond: { _ in nil }),
+    mobileUserGuard: RequestAuthenticatorGuard = MockMobileUserGuard()
   ) -> Dependencies {
     .init(
       appConfig: appConfig,
-      httpClient: httpClient
+      httpClient: httpClient,
+      mobileUserGuard: mobileUserGuard
     )
   }
 }
@@ -22,7 +25,8 @@ extension AppConfig {
     b2AppKeyId: String = "",
     b2AppKeySecret: String = "",
     riotApiKey: String = "",
-    idHasherSeed: String = ""
+    idHasherSeed: String = "",
+    firebaseProjectId: String = ""
   ) -> AppConfig {
     .init(
       databaseUrl: databaseUrl,
@@ -31,7 +35,8 @@ extension AppConfig {
       b2AppKeyId: b2AppKeyId,
       b2AppKeySecret: b2AppKeySecret,
       riotApiKey: riotApiKey,
-      idHasherSeed: idHasherSeed
+      idHasherSeed: idHasherSeed,
+      firebaseProjectId: firebaseProjectId
     )
   }
 }
@@ -74,5 +79,23 @@ final class MockHttpClient: HttpClient, @unchecked Sendable {
       fatalError("Response for request url \(url) is not of expected type \(T.self)")
     }
     return response
+  }
+}
+
+struct MockMobileUserGuard: RequestAuthenticatorGuard {
+  let userId: String
+  let token: String
+
+  init(userId: String = mobileUserId, token: String = mobileToken) {
+    self.userId = userId
+    self.token = token
+  }
+
+  func authenticate(request: Request) throws -> Authenticatable {
+    let authorization = request.headers["Authorization"].first
+    guard authorization == "Bearer \(token)" else {
+      throw Abort(.unauthorized)
+    }
+    return MobileUserAuth(userId: userId)
   }
 }

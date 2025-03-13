@@ -9,10 +9,9 @@ class PutNotificationsTokenTests: AppTests {
     try await app.test(
       .PUT, "/notifications/token",
       headers: reqHeaders(),
-      body: ["token": "abc"]
+      body: ["token": "123"]
     ) { res async in
       XCTAssertEqual(res.status, .unauthorized)
-      XCTAssertBodyError(res.body, "Invalid device id")
     }
   }
 
@@ -21,7 +20,7 @@ class PutNotificationsTokenTests: AppTests {
 
     try await app.test(
       .PUT, "/notifications/token",
-      headers: reqHeaders(accessToken: "123"),
+      headers: reqHeaders(accessToken: mobileToken),
       body: ["token": "abc"]
     ) { res async in
       XCTAssertEqual(res.status, .noContent)
@@ -29,16 +28,16 @@ class PutNotificationsTokenTests: AppTests {
   }
 
   func testAddingNewToken() async throws {
-    let existingConfig = NotificationsConfigModel(userId: "456", token: "def", enabled: true)
+    let existingConfig = NotificationsConfigModel(userId: "123", token: "def", enabled: true)
 
     _ = try await testConfigureWith(dbNotificationsConfigs: [existingConfig])
 
     try await app.test(
       .PUT, "/notifications/token",
-      headers: reqHeaders(accessToken: "123"),
+      headers: reqHeaders(accessToken: mobileToken),
       body: ["token": "abc"]
     ) { res async throws in
-      let addedConfig = NotificationsConfigModel(userId: "123", token: "abc", enabled: false)
+      let addedConfig = NotificationsConfigModel(userId: mobileUserId, token: "abc", enabled: false)
       let configs = try await dbNotificationConfigs()
 
       XCTAssertEqual(res.status, .noContent)
@@ -47,16 +46,17 @@ class PutNotificationsTokenTests: AppTests {
   }
 
   func testUpdatingExistingToken() async throws {
-    let existingConfig = NotificationsConfigModel(userId: "123", token: "def", enabled: true)
+    let existingConfig = NotificationsConfigModel(userId: mobileUserId, token: "def", enabled: true)
 
     _ = try await testConfigureWith(dbNotificationsConfigs: [existingConfig])
 
     try await app.test(
       .PUT, "/notifications/token",
-      headers: reqHeaders(accessToken: "123"),
+      headers: reqHeaders(accessToken: mobileToken),
       body: ["token": "abc"]
     ) { res async throws in
-      let updatedConfig = NotificationsConfigModel(userId: "123", token: "abc", enabled: true)
+      let updatedConfig = NotificationsConfigModel(
+        userId: mobileUserId, token: "abc", enabled: true)
       let configs = try await dbNotificationConfigs()
 
       XCTAssertEqual(res.status, .noContent)

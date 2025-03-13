@@ -10,7 +10,6 @@ class UserTests: AppTests {
       .GET, "/user"
     ) { res async in
       XCTAssertEqual(res.status, .unauthorized)
-      XCTAssertBodyError(res.body, "Invalid device id")
     }
   }
 
@@ -19,7 +18,7 @@ class UserTests: AppTests {
 
     try await app.test(
       .GET, "/user",
-      headers: ["X-Device-Id": "123"]
+      headers: ["Authorization": "Bearer \(mobileToken)"]
     ) { res async in
       XCTAssertEqual(res.status, .ok)
     }
@@ -28,13 +27,13 @@ class UserTests: AppTests {
   func testUninitializedNotifications() async throws {
     _ = try await testConfigureWith(
       dbNotificationsConfigs: [
-        .init(userId: "456", token: "abc", enabled: true)
+        .init(userId: "123", token: "abc", enabled: true)
       ]
     )
 
     try await app.test(
       .GET, "/user",
-      headers: ["X-Device-Id": "123"]
+      headers: ["Authorization": "Bearer \(mobileToken)"]
     ) { res async in
       XCTAssertEqual(res.status, .ok)
       XCTAssertBody(res.body, ["notificationsStatus": "uninitialized"])
@@ -44,13 +43,13 @@ class UserTests: AppTests {
   func testDisabledNotifications() async throws {
     _ = try await testConfigureWith(
       dbNotificationsConfigs: [
-        .init(userId: "123", token: "abc", enabled: false)
+        .init(userId: mobileUserId, token: "abc", enabled: false)
       ]
     )
 
     try await app.test(
       .GET, "/user",
-      headers: ["X-Device-Id": "123"]
+      headers: ["Authorization": "Bearer \(mobileToken)"]
     ) { res async in
       XCTAssertEqual(res.status, .ok)
       XCTAssertBody(res.body, ["notificationsStatus": "disabled"])
@@ -60,13 +59,13 @@ class UserTests: AppTests {
   func testEnabledNotifications() async throws {
     _ = try await testConfigureWith(
       dbNotificationsConfigs: [
-        .init(userId: "123", token: "abc", enabled: true)
+        .init(userId: mobileUserId, token: "abc", enabled: true)
       ]
     )
 
     try await app.test(
       .GET, "/user",
-      headers: ["X-Device-Id": "123"]
+      headers: ["Authorization": "Bearer \(mobileToken)"]
     ) { res async in
       XCTAssertEqual(res.status, .ok)
       XCTAssertBody(res.body, ["notificationsStatus": "enabled"])

@@ -4,11 +4,13 @@ import Vapor
 struct Dependencies {
   var appConfig: AppConfig
   var httpClient: HttpClient
+  var mobileUserGuard: RequestAuthenticatorGuard
 
   static func `default`() -> Dependencies {
     .init(
       appConfig: .fromEnvironment(),
-      httpClient: NetworkHttpClient()
+      httpClient: NetworkHttpClient(),
+      mobileUserGuard: MobileUserGuard()
     )
   }
 
