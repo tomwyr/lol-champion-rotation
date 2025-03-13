@@ -12,7 +12,7 @@ struct ManagementGuard: RequestAuthenticatorGuard {
   }
 }
 
-struct UserGuard: RequestAuthenticatorGuard {
+struct AnyUserGuard: RequestAuthenticatorGuard {
   func authenticate(request: Request) -> Authenticatable {
     return AnyUserAuth()
   }

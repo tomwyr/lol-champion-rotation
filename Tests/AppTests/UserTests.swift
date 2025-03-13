@@ -28,7 +28,7 @@ class UserTests: AppTests {
   func testUninitializedNotifications() async throws {
     _ = try await testConfigureWith(
       dbNotificationsConfigs: [
-        .init(deviceId: "456", token: "abc", enabled: true)
+        .init(userId: "456", token: "abc", enabled: true)
       ]
     )
 
@@ -44,7 +44,7 @@ class UserTests: AppTests {
   func testDisabledNotifications() async throws {
     _ = try await testConfigureWith(
       dbNotificationsConfigs: [
-        .init(deviceId: "123", token: "abc", enabled: false)
+        .init(userId: "123", token: "abc", enabled: false)
       ]
     )
 
@@ -60,7 +60,7 @@ class UserTests: AppTests {
   func testEnabledNotifications() async throws {
     _ = try await testConfigureWith(
       dbNotificationsConfigs: [
-        .init(deviceId: "123", token: "abc", enabled: true)
+        .init(userId: "123", token: "abc", enabled: true)
       ]
     )
 

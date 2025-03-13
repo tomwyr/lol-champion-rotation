@@ -277,9 +277,9 @@ extension AppDatabase {
 }
 
 extension AppDatabase {
-  func getNotificationsConfig(deviceId: String) async throws -> NotificationsConfigModel? {
+  func getNotificationsConfig(userId: String) async throws -> NotificationsConfigModel? {
     try await runner.run { db in
-      try await NotificationsConfigModel.query(on: db).filter(\.$deviceId == deviceId).first()
+      try await NotificationsConfigModel.query(on: db).filter(\.$userId == userId).first()
     }
   }
 
@@ -289,9 +289,9 @@ extension AppDatabase {
     }
   }
 
-  func removeNotificationsConfigs(deviceIds: [String]) async throws {
+  func removeNotificationsConfigs(userIds: [String]) async throws {
     try await runner.run { db in
-      try await NotificationsConfigModel.query(on: db).filter(\.$deviceId ~~ deviceIds).delete()
+      try await NotificationsConfigModel.query(on: db).filter(\.$userId ~~ userIds).delete()
     }
   }
 

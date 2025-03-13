@@ -2,26 +2,26 @@ struct NotificationsService {
   let appDatabase: AppDatabase
   let pushNotificationsClient: PushNotificationsClient
 
-  func updateToken(deviceId: String, input: NotificationsTokenInput) async throws {
-    let config = try await getOrCreateConfig(deviceId)
+  func updateToken(userId: String, input: NotificationsTokenInput) async throws {
+    let config = try await getOrCreateConfig(userId)
     config.token = input.token
     try await appDatabase.updateNotificationsConfig(data: config)
   }
 
-  func hasSettings(deviceId: String) async throws -> Bool {
-    let data = try await appDatabase.getNotificationsConfig(deviceId: deviceId)
+  func hasSettings(userId: String) async throws -> Bool {
+    let data = try await appDatabase.getNotificationsConfig(userId: userId)
     return data != nil
   }
 
-  func getSettings(deviceId: String) async throws -> NotificationsSettings? {
-    guard let data = try await appDatabase.getNotificationsConfig(deviceId: deviceId) else {
+  func getSettings(userId: String) async throws -> NotificationsSettings? {
+    guard let data = try await appDatabase.getNotificationsConfig(userId: userId) else {
       return nil
     }
     return NotificationsSettings(enabled: data.enabled)
   }
 
-  func updateSettings(deviceId: String, input: NotificationsSettings) async throws {
-    let config = try await getOrCreateConfig(deviceId)
+  func updateSettings(userId: String, input: NotificationsSettings) async throws {
+    let config = try await getOrCreateConfig(userId)
     config.enabled = input.enabled
     try await appDatabase.updateNotificationsConfig(data: config)
   }
@@ -39,18 +39,18 @@ struct NotificationsService {
     _ configs: [NotificationsConfigModel],
     _ result: SendNotificationResult
   ) async throws {
-    let staleDeviceIds = configs.filter { config in
+    let staleUserIds = configs.filter { config in
       result.staleTokens.contains(config.token)
-    }.map(\.deviceId)
+    }.map(\.userId)
 
-    if !staleDeviceIds.isEmpty {
-      try await appDatabase.removeNotificationsConfigs(deviceIds: staleDeviceIds)
+    if !staleUserIds.isEmpty {
+      try await appDatabase.removeNotificationsConfigs(userIds: staleUserIds)
     }
   }
 
-  private func getOrCreateConfig(_ deviceId: String) async throws -> NotificationsConfigModel {
-    try await appDatabase.getNotificationsConfig(deviceId: deviceId)
-      ?? .init(deviceId: deviceId, token: "", enabled: false)
+  private func getOrCreateConfig(_ userId: String) async throws -> NotificationsConfigModel {
+    try await appDatabase.getNotificationsConfig(userId: userId)
+      ?? .init(userId: userId, token: "", enabled: false)
   }
 }
 

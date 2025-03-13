@@ -172,8 +172,8 @@ final class NotificationsConfigModel: Model, @unchecked Sendable {
   @ID(key: .id)
   var id: UUID?
 
-  @Field(key: "device_id")
-  var deviceId: String
+  @Field(key: "user_id")
+  var userId: String
 
   @Field(key: "token")
   var token: String
@@ -183,8 +183,8 @@ final class NotificationsConfigModel: Model, @unchecked Sendable {
 
   init() {}
 
-  init(deviceId: String, token: String, enabled: Bool) {
-    self.deviceId = deviceId
+  init(userId: String, token: String, enabled: Bool) {
+    self.userId = userId
     self.token = token
     self.enabled = enabled
   }

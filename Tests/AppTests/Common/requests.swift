@@ -8,12 +8,12 @@ extension ByteBuffer: @retroactive ExpressibleByDictionaryLiteral {
   }
 }
 
-func reqHeaders(deviceId: String? = nil) -> HTTPHeaders {
+func reqHeaders(accessToken: String? = nil) -> HTTPHeaders {
   var headers = [
     "Content-Type": "application/json"
   ]
-  if let deviceId {
-    headers["X-Device-Id"] = deviceId
+  if let accessToken {
+    headers["Authorization"] = "Bearer \(accessToken)"
   }
   return HTTPHeaders(headers.map { ($0, $1) })
 }

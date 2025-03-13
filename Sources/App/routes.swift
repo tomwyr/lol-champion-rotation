@@ -1,13 +1,13 @@
 import Vapor
 
 func routes(_ app: Application, _ deps: Dependencies) throws {
-  let userGuard = UserGuard()
+  let anyUserGuard = AnyUserGuard()
   let mobileUserGuard = MobileUserGuard()
   let managementGuard = ManagementGuard(
     appManagementKey: deps.appConfig.appManagementKey
   )
 
-  app.protected(with: userGuard).grouped("rotations") { rotation in
+  app.protected(with: anyUserGuard).grouped("rotations") { rotation in
     rotation.get(":id") { req in
       try req.auth.require(AnyUserAuth.self)
       let rotationId = req.parameters.get("id")!
@@ -50,7 +50,7 @@ func routes(_ app: Application, _ deps: Dependencies) throws {
     }
   }
 
-  app.protected(with: userGuard).grouped("champions") { champions in
+  app.protected(with: anyUserGuard).grouped("champions") { champions in
     champions.get(":id") { req in
       try req.auth.require(AnyUserAuth.self)
       let championId = req.parameters.get("id")!
@@ -75,7 +75,7 @@ func routes(_ app: Application, _ deps: Dependencies) throws {
   app.protected(with: mobileUserGuard).get("user") { req in
     let auth = try req.auth.require(MobileUserAuth.self)
     let notificationsService = deps.notificationsService(request: req)
-    let settings = try await notificationsService.getSettings(deviceId: auth.deviceId)
+    let settings = try await notificationsService.getSettings(userId: auth.userId)
     return MobileUser(notificationsStatus: .init(from: settings))
   }
 
@@ -84,14 +84,14 @@ func routes(_ app: Application, _ deps: Dependencies) throws {
       let auth = try req.auth.require(MobileUserAuth.self)
       let input = try req.content.decode(NotificationsTokenInput.self)
       let notificationsService = deps.notificationsService(request: req)
-      try await notificationsService.updateToken(deviceId: auth.deviceId, input: input)
+      try await notificationsService.updateToken(userId: auth.userId, input: input)
       return Response(status: .noContent)
     }
 
     notifications.get("settings") { req in
       let auth = try req.auth.require(MobileUserAuth.self)
       let notificationsService = deps.notificationsService(request: req)
-      let settings = try await notificationsService.getSettings(deviceId: auth.deviceId)
+      let settings = try await notificationsService.getSettings(userId: auth.userId)
       guard let settings else { throw Abort(.notFound) }
       return settings
     }
@@ -100,7 +100,7 @@ func routes(_ app: Application, _ deps: Dependencies) throws {
       let auth = try req.auth.require(MobileUserAuth.self)
       let input = try req.content.decode(NotificationsSettings.self)
       let notificationsService = deps.notificationsService(request: req)
-      try await notificationsService.updateSettings(deviceId: auth.deviceId, input: input)
+      try await notificationsService.updateSettings(userId: auth.userId, input: input)
       return Response(status: .noContent)
     }
   }

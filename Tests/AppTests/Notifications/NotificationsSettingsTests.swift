@@ -20,33 +20,33 @@ class GetNotificationsSettingsTests: AppTests {
 
     try await app.test(
       .GET, "/notifications/settings",
-      headers: reqHeaders(deviceId: "123")
+      headers: reqHeaders(accessToken: "123")
     ) { res async in
       XCTAssertEqual(res.status, .notFound)
     }
   }
 
   func testNonExistingConfig() async throws {
-    let existingConfig = NotificationsConfigModel(deviceId: "456", token: "def", enabled: true)
+    let existingConfig = NotificationsConfigModel(userId: "456", token: "def", enabled: true)
 
     _ = try await testConfigureWith(dbNotificationsConfigs: [existingConfig])
 
     try await app.test(
       .GET, "/notifications/settings",
-      headers: reqHeaders(deviceId: "123")
+      headers: reqHeaders(accessToken: "123")
     ) { res async throws in
       XCTAssertEqual(res.status, .notFound)
     }
   }
 
   func testExistingConfig() async throws {
-    let existingConfig = NotificationsConfigModel(deviceId: "123", token: "abc", enabled: true)
+    let existingConfig = NotificationsConfigModel(userId: "123", token: "abc", enabled: true)
 
     _ = try await testConfigureWith(dbNotificationsConfigs: [existingConfig])
 
     try await app.test(
       .GET, "/notifications/settings",
-      headers: reqHeaders(deviceId: "123")
+      headers: reqHeaders(accessToken: "123")
     ) { res async throws in
       XCTAssertEqual(res.status, .ok)
       XCTAssertBody(res.body, ["enabled": true])
@@ -73,7 +73,7 @@ class PutNotificationsSettingsTests: AppTests {
 
     try await app.test(
       .PUT, "/notifications/settings",
-      headers: reqHeaders(deviceId: "123"),
+      headers: reqHeaders(accessToken: "123"),
       body: ["enabled": true]
     ) { res async in
       XCTAssertEqual(res.status, .noContent)
@@ -81,16 +81,16 @@ class PutNotificationsSettingsTests: AppTests {
   }
 
   func testAddingSettings() async throws {
-    let existingConfig = NotificationsConfigModel(deviceId: "456", token: "def", enabled: false)
+    let existingConfig = NotificationsConfigModel(userId: "456", token: "def", enabled: false)
 
     _ = try await testConfigureWith(dbNotificationsConfigs: [existingConfig])
 
     try await app.test(
       .PUT, "/notifications/settings",
-      headers: reqHeaders(deviceId: "123"),
+      headers: reqHeaders(accessToken: "123"),
       body: ["enabled": true]
     ) { res async throws in
-      let addedConfig = NotificationsConfigModel(deviceId: "123", token: "", enabled: true)
+      let addedConfig = NotificationsConfigModel(userId: "123", token: "", enabled: true)
       let configs = try await dbNotificationConfigs()
 
       XCTAssertEqual(res.status, .noContent)
@@ -99,16 +99,16 @@ class PutNotificationsSettingsTests: AppTests {
   }
 
   func testUpdatingSettings() async throws {
-    let existingConfig = NotificationsConfigModel(deviceId: "123", token: "abc", enabled: false)
+    let existingConfig = NotificationsConfigModel(userId: "123", token: "abc", enabled: false)
 
     _ = try await testConfigureWith(dbNotificationsConfigs: [existingConfig])
 
     try await app.test(
       .PUT, "/notifications/settings",
-      headers: reqHeaders(deviceId: "123"),
+      headers: reqHeaders(accessToken: "123"),
       body: ["enabled": true]
     ) { res async throws in
-      let updatedConfig = NotificationsConfigModel(deviceId: "123", token: "abc", enabled: true)
+      let updatedConfig = NotificationsConfigModel(userId: "123", token: "abc", enabled: true)
       let configs = try await dbNotificationConfigs()
 
       XCTAssertEqual(res.status, .noContent)
