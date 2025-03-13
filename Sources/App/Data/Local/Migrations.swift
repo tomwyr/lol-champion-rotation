@@ -8,6 +8,7 @@ extension Migrations {
     add(SplitChampionRotations())
     add(AddChampionTitle())
     add(AddChampionReleaseDate())
+    add(ChangeDeviceIdToUserId())
   }
 }
 
@@ -168,6 +169,24 @@ struct AddChampionReleaseDate: AsyncMigration {
   func revert(on db: any Database) async throws {
     try await db.schema("champions")
       .deleteField("released_at")
+      .update()
+  }
+}
+
+struct ChangeDeviceIdToUserId: AsyncMigration {
+  func prepare(on db: any Database) async throws {
+    try await db.query(NotificationsConfigModel.self).delete()
+    try await db.schema("notifications-configs")
+      .deleteField("device_id")
+      .field("user_id", .string)
+      .update()
+  }
+
+  func revert(on db: any Database) async throws {
+    try await db.query(NotificationsConfigModel.self).delete()
+    try await db.schema("notifications-configs")
+      .deleteField("user_id")
+      .field("device_id", .string)
       .update()
   }
 }
