@@ -8,6 +8,7 @@ struct AppConfig {
   var b2AppKeySecret: String
   var riotApiKey: String
   var idHasherSeed: String
+  var firebaseProjectId: String
 
   static func fromEnvironment() -> AppConfig {
     AppConfig(
@@ -17,7 +18,8 @@ struct AppConfig {
       b2AppKeyId: read("B2_APP_KEY_ID"),
       b2AppKeySecret: read("B2_APP_KEY_SECRET"),
       riotApiKey: read("RIOT_API_KEY"),
-      idHasherSeed: read("ID_HASHER_SEED")
+      idHasherSeed: read("ID_HASHER_SEED"),
+      firebaseProjectId: read("FIREBASE_PROJECT_ID")
     )
   }
 }

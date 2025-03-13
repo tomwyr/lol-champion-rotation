@@ -5,7 +5,7 @@ func configure(_ app: Application, _ deps: Dependencies) async throws {
   try database(app, deps)
   try routes(app, deps)
   try cors(app, deps)
-  try fcm(app)
+  try firebase(app, deps)
 }
 
 private func database(_ app: Application, _ deps: Dependencies) throws {
@@ -25,6 +25,7 @@ private func cors(_ app: Application, _ deps: Dependencies) throws {
   )
 }
 
-private func fcm(_ app: Application) throws {
+private func firebase(_ app: Application, _ deps: Dependencies) throws {
+  app.jwt.firebaseAuth.applicationIdentifier = deps.appConfig.firebaseProjectId
   app.fcm.configuration = .envServiceAccountKey
 }

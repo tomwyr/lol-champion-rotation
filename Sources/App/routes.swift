@@ -9,7 +9,7 @@ func routes(_ app: Application, _ deps: Dependencies) throws {
 
   app.protected(with: userGuard).grouped("rotations") { rotation in
     rotation.get(":id") { req in
-      try req.auth.require(UserAuth.self)
+      try req.auth.require(AnyUserAuth.self)
       let rotationId = req.parameters.get("id")!
       let rotationService = deps.rotationService(request: req)
       let rotation = try await rotationService.rotation(rotationId: rotationId)
@@ -18,19 +18,19 @@ func routes(_ app: Application, _ deps: Dependencies) throws {
     }
 
     rotation.get("current") { req in
-      try req.auth.require(UserAuth.self)
+      try req.auth.require(AnyUserAuth.self)
       let rotationService = deps.rotationService(request: req)
       return try await rotationService.currentRotation()
     }
 
     rotation.get("predict") { req in
-      try req.auth.require(UserAuth.self)
+      try req.auth.require(AnyUserAuth.self)
       let rotationService = deps.rotationService(request: req)
       return try await rotationService.predictRotation()
     }
 
     rotation.get { req in
-      try req.auth.require(UserAuth.self)
+      try req.auth.require(AnyUserAuth.self)
       guard let nextRotationToken = req.query[String.self, at: "nextRotationToken"] else {
         throw Abort(.badRequest)
       }
@@ -41,7 +41,7 @@ func routes(_ app: Application, _ deps: Dependencies) throws {
     }
 
     rotation.get("search") { req in
-      try req.auth.require(UserAuth.self)
+      try req.auth.require(AnyUserAuth.self)
       guard let championName = req.query[String.self, at: "championName"] else {
         throw Abort(.badRequest)
       }
@@ -52,7 +52,7 @@ func routes(_ app: Application, _ deps: Dependencies) throws {
 
   app.protected(with: userGuard).grouped("champions") { champions in
     champions.get(":id") { req in
-      try req.auth.require(UserAuth.self)
+      try req.auth.require(AnyUserAuth.self)
       let championId = req.parameters.get("id")!
       let rotationService = deps.championsService(request: req)
       let championDetails = try await rotationService.championDetails(championId: championId)
@@ -63,7 +63,7 @@ func routes(_ app: Application, _ deps: Dependencies) throws {
     }
 
     champions.get("search") { req in
-      try req.auth.require(UserAuth.self)
+      try req.auth.require(AnyUserAuth.self)
       guard let championName = req.query[String.self, at: "name"] else {
         throw Abort(.badRequest)
       }

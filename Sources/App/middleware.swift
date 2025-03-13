@@ -13,32 +13,27 @@ struct ManagementGuard: RequestAuthenticatorGuard {
 }
 
 struct UserGuard: RequestAuthenticatorGuard {
-  func authenticate(request: Request) throws -> Authenticatable {
-    return UserAuth()
+  func authenticate(request: Request) -> Authenticatable {
+    return AnyUserAuth()
   }
 }
 
 struct MobileUserGuard: RequestAuthenticatorGuard {
-  func authenticate(request: Request) throws -> Authenticatable {
-    guard let deviceId = request.headers["X-Device-Id"].first else {
-      throw Abort(.unauthorized, reason: "Invalid device id")
-    }
-    return MobileUserAuth(deviceId: deviceId)
+  func authenticate(request: Request) async throws -> Authenticatable {
+    let token = try await request.jwt.firebaseAuth.verify()
+    return MobileUserAuth(userId: token.userID)
   }
 }
 
 protocol RequestAuthenticatorGuard: RequestAuthenticator {
-  func authenticate(request: Request) throws -> Authenticatable
+  func authenticate(request: Request) async throws -> Authenticatable
 }
 
 extension RequestAuthenticatorGuard {
   func authenticate(request: Request) -> EventLoopFuture<Void> {
-    do {
-      let result = try authenticate(request: request)
+    request.eventLoop.makeFutureWithTask {
+      let result = try await authenticate(request: request)
       request.auth.login(result)
-      return request.eventLoop.makeSucceededVoidFuture()
-    } catch {
-      return request.eventLoop.makeFailedFuture(error)
     }
   }
 }

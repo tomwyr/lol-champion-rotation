@@ -3,10 +3,10 @@ import Vapor
 
 struct ManagerAuth: Authenticatable {}
 
-struct UserAuth: Authenticatable {}
+struct AnyUserAuth: Authenticatable {}
 
 struct MobileUserAuth: Authenticatable {
-  let deviceId: String
+  let userId: String
 }
 
 struct Fingerprint {
