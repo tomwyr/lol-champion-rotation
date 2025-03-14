@@ -1,36 +1,41 @@
 import Foundation
 
 extension DefaultRotationService {
-  func rotation(rotationId: String) async throws(ChampionRotationError) -> RegularChampionRotation?
+  func rotation(rotationId: String, userId: String?) async throws(ChampionRotationError)
+    -> ChampionRotationDetails?
   {
-    let localData = try await loadRegularRotationLocalData(rotationId)
+    let localData = try await loadRotationDetailsLocalData(rotationId, userId)
     guard let localData else { return nil }
-    let nextRotationTime = localData.rotation.observedAt
-    let patchVersion = try? await versionService.findVersion(olderThan: nextRotationTime)
-    return try await createRegularRotation(patchVersion, localData)
+    return try await createRotationDetails(rotationId, localData)
   }
 
-  private func loadRegularRotationLocalData(_ rotationId: String)
-    async throws(ChampionRotationError) -> RegularRotationLocalData?
+  private func loadRotationDetailsLocalData(_ rotationId: String, _ userId: String?)
+    async throws(ChampionRotationError) -> RotationDetailsLocalData?
   {
     let rotation: RegularChampionRotationModel?
     let currentRotation: RegularChampionRotationModel?
     let champions: [ChampionModel]
+    var userWatchlists: UserWatchlistsModel?
     do {
       rotation = try await appDatabase.regularRotation(rotationId: rotationId)
       currentRotation = try await appDatabase.currentRegularRotation()
       champions = try await appDatabase.champions()
+      if let userId {
+        userWatchlists = try await appDatabase.userWatchlists(userId: userId) {
+          .init(userId: userId)
+        }
+      }
     } catch {
       throw .dataOperationFailed(cause: error)
     }
     guard let rotation else {
       return nil
     }
-    return (rotation, currentRotation, champions)
+    return (rotation, currentRotation, champions, userWatchlists)
   }
 
-  private func createRegularRotation(_ patchVersion: String?, _ data: RegularRotationLocalData)
-    async throws(ChampionRotationError) -> RegularChampionRotation
+  private func createRotationDetails(_ rotationId: String, _ data: RotationDetailsLocalData)
+    async throws(ChampionRotationError) -> ChampionRotationDetails
   {
     let champions = try createChampions(
       for: data.rotation.champions, models: data.champions
@@ -38,19 +43,20 @@ extension DefaultRotationService {
 
     let duration = try await getRotationDuration(data.rotation)
     let current = data.rotation.id != nil && data.rotation.id == data.currentRotation?.id
+    let observing = data.userWatchlists?.rotations.contains(rotationId)
 
-    return RegularChampionRotation(
-      patchVersion: patchVersion,
+    return ChampionRotationDetails(
       duration: duration,
       champions: champions,
-      nextRotationToken: nil,
-      current: current
+      current: current,
+      observing: observing
     )
   }
 }
 
-private typealias RegularRotationLocalData = (
+private typealias RotationDetailsLocalData = (
   rotation: RegularChampionRotationModel,
   currentRotation: RegularChampionRotationModel?,
-  champions: [ChampionModel]
+  champions: [ChampionModel],
+  userWatchlists: UserWatchlistsModel?
 )

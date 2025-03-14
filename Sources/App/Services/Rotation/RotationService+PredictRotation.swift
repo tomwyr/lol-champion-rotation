@@ -25,7 +25,7 @@ extension DefaultRotationService {
     let champions = data.champions.map(\.riotId)
     let rotations = data.regularRotations.map(\.champions)
     guard let previousRotationId = data.regularRotations.first?.idString else {
-      throw .currentRotationDataMissing
+      throw .rotationDataMissing
     }
 
     do {
@@ -44,7 +44,7 @@ extension DefaultRotationService {
   {
     let champions = try createChampions(for: predictedChampions, models: data.champions)
     guard let currentRotation = data.regularRotations.first else {
-      throw .currentRotationDataMissing
+      throw .rotationDataMissing
     }
     let duration = try await getRotationPredictionDuration(currentRotation)
 

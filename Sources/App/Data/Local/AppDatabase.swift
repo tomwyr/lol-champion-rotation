@@ -307,7 +307,10 @@ extension AppDatabase {
     -> UserWatchlistsModel
   {
     try await runner.run { db in
-      if let existing = try await UserWatchlistsModel.query(on: db).first() {
+      if let existing = try await UserWatchlistsModel.query(on: db)
+        .filter(\.$userId == userId)
+        .first()
+      {
         return existing
       }
       let created = createNew()

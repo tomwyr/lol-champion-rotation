@@ -15,9 +15,7 @@ extension DefaultRotationService {
     -> UserWatchlistsModel
   {
     do {
-      return try await appDatabase.userWatchlists(userId: userId) {
-        .init(userId: userId, rotations: [])
-      }
+      return try await appDatabase.userWatchlists(userId: userId) { .init(userId: userId) }
     } catch {
       throw .dataOperationFailed(cause: error)
     }

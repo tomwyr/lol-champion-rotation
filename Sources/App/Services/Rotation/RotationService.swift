@@ -3,7 +3,8 @@ import Foundation
 protocol RotationService {
   func currentRotation() async throws(ChampionRotationError) -> ChampionRotation
   func predictRotation() async throws(ChampionRotationError) -> ChampionRotationPrediction
-  func rotation(rotationId: String) async throws(ChampionRotationError) -> RegularChampionRotation?
+  func rotation(rotationId: String, userId: String?) async throws(ChampionRotationError)
+    -> ChampionRotationDetails?
   func nextRotation(nextRotationToken: String) async throws(ChampionRotationError)
     -> RegularChampionRotation?
   func refreshRotation() async throws(ChampionRotationError) -> RefreshRotationResult
@@ -39,7 +40,7 @@ struct DefaultRotationService: RotationService {
 enum ChampionRotationError: Error {
   case riotDataUnavailable(cause: Error)
   case unknownChampion(championKey: String)
-  case currentRotationDataMissing
+  case rotationDataMissing
   case tokenHashingFailed(cause: Error)
   case dataOperationFailed(cause: Error)
   case rotationDurationError(cause: RotationDurationError)

@@ -17,6 +17,10 @@ extension Application {
   func protected(with requestGuard: RequestAuthenticatorGuard) -> RoutesBuilder {
     grouped(requestGuard)
   }
+
+  func protected(with requestGuards: RequestAuthenticatorGuard...) -> RoutesBuilder {
+    grouped(requestGuards)
+  }
 }
 
 extension RoutesBuilder {

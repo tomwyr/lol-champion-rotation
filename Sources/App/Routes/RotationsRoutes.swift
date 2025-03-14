@@ -5,11 +5,12 @@ func rotationsRoutes(_ app: Application, _ deps: Dependencies) {
   let mobileUserGuard = deps.mobileUserGuard
 
   app.protected(with: anyUserGuard).grouped("rotations") { rotations in
-    rotations.get(":id") { req in
+    rotations.protected(with: mobileUserGuard).get(":id") { req in
       try req.auth.require(AnyUserAuth.self)
+      let userId = try? req.auth.require(MobileUserAuth.self).userId
       let rotationId = req.parameters.get("id")!
       let rotationService = deps.rotationService(request: req)
-      let rotation = try await rotationService.rotation(rotationId: rotationId)
+      let rotation = try await rotationService.rotation(rotationId: rotationId, userId: userId)
       guard let rotation else { throw Abort(.notFound) }
       return rotation
     }

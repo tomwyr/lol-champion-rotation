@@ -204,7 +204,7 @@ final class UserWatchlistsModel: Model, @unchecked Sendable {
 
   init() {}
 
-  init(userId: String, rotations: [String]) {
+  init(userId: String, rotations: [String] = []) {
     self.userId = userId
     self.rotations = rotations
   }

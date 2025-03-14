@@ -28,7 +28,7 @@ extension DefaultRotationService {
       throw .dataOperationFailed(cause: error)
     }
     guard let regularRotation, let beginnerRotation else {
-      throw .currentRotationDataMissing
+      throw .rotationDataMissing
     }
     return (
       regularRotation,
