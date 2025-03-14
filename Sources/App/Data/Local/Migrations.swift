@@ -9,6 +9,7 @@ extension Migrations {
     add(AddChampionTitle())
     add(AddChampionReleaseDate())
     add(ChangeDeviceIdToUserId())
+    add(AddUserWatchlists())
   }
 }
 
@@ -188,6 +189,20 @@ struct ChangeDeviceIdToUserId: AsyncMigration {
       .deleteField("user_id")
       .field("device_id", .string)
       .update()
+  }
+}
+
+struct AddUserWatchlists: AsyncMigration {
+  func prepare(on db: any Database) async throws {
+    try await db.schema("user-watchlists")
+      .id()
+      .field("user_id", .string)
+      .field("rotations", .array(of: .string))
+      .create()
+  }
+
+  func revert(on db: any Database) async throws {
+    try await db.schema("user-watchlists").delete()
   }
 }
 

@@ -63,6 +63,16 @@ extension Array where Element: Hashable & Comparable {
       .map(\.key).sorted()
     return maxKeys.randomElement(using: &generator)
   }
+
+  mutating func appendIfAbsent(_ element: Element) {
+    if !contains(element) {
+      append(element)
+    }
+  }
+
+  mutating func removeAll(_ element: Element) {
+    self.removeAll { $0 == element }
+  }
 }
 
 extension Date {

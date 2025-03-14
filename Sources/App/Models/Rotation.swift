@@ -53,6 +53,10 @@ struct FilteredBeginnerRotation: Content {
   let champions: [Champion]
 }
 
+struct ObserveRotationInput: Content {
+  let observing: Bool
+}
+
 enum ChampionRotationType: String, Content {
   case regular = "regular"
   case beginner = "beginner"

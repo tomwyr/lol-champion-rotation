@@ -2,6 +2,7 @@ import Vapor
 
 func rotationsRoutes(_ app: Application, _ deps: Dependencies) {
   let anyUserGuard = AnyUserGuard()
+  let mobileUserGuard = deps.mobileUserGuard
 
   app.protected(with: anyUserGuard).grouped("rotations") { rotations in
     rotations.get(":id") { req in
@@ -11,6 +12,19 @@ func rotationsRoutes(_ app: Application, _ deps: Dependencies) {
       let rotation = try await rotationService.rotation(rotationId: rotationId)
       guard let rotation else { throw Abort(.notFound) }
       return rotation
+    }
+
+    rotations.protected(with: mobileUserGuard).post(":id", "observe") { req in
+      let auth = try req.auth.require(MobileUserAuth.self)
+      let rotationId = req.parameters.get("id")!
+      let input = try req.content.decode(ObserveRotationInput.self)
+      let rotationService = deps.rotationService(request: req)
+      try await rotationService.updateObserveRotation(
+        rotationId: rotationId,
+        by: auth.userId,
+        observing: input.observing
+      )
+      return HTTPStatus.ok
     }
 
     rotations.get("current") { req in

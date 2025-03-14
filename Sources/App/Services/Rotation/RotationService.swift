@@ -9,6 +9,8 @@ protocol RotationService {
   func refreshRotation() async throws(ChampionRotationError) -> RefreshRotationResult
   func filterRotations(by championName: String) async throws(ChampionRotationError)
     -> FilterRotationsResult
+  func updateObserveRotation(rotationId: String, by userId: String, observing: Bool)
+    async throws(ChampionRotationError)
 }
 
 struct DefaultRotationService: RotationService {

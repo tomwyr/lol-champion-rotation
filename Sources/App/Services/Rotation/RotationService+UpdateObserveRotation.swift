@@ -1,0 +1,33 @@
+extension DefaultRotationService {
+  func updateObserveRotation(rotationId: String, by userId: String, observing: Bool)
+    async throws(ChampionRotationError)
+  {
+    let data = try await getOrCreateWatchlists(userId)
+    if observing {
+      data.rotations.appendIfAbsent(rotationId)
+    } else {
+      data.rotations.removeAll(rotationId)
+    }
+    try await saveWatchlists(data)
+  }
+
+  private func getOrCreateWatchlists(_ userId: String) async throws(ChampionRotationError)
+    -> UserWatchlistsModel
+  {
+    do {
+      return try await appDatabase.userWatchlists(userId: userId) {
+        .init(userId: userId, rotations: [])
+      }
+    } catch {
+      throw .dataOperationFailed(cause: error)
+    }
+  }
+
+  private func saveWatchlists(_ data: UserWatchlistsModel) async throws(ChampionRotationError) {
+    do {
+      try await appDatabase.saveUserWatchlists(data: data)
+    } catch {
+      throw .dataOperationFailed(cause: error)
+    }
+  }
+}

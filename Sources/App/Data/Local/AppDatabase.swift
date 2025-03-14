@@ -301,3 +301,24 @@ extension AppDatabase {
     }
   }
 }
+
+extension AppDatabase {
+  func userWatchlists(userId: String, createNew: () -> UserWatchlistsModel) async throws
+    -> UserWatchlistsModel
+  {
+    try await runner.run { db in
+      if let existing = try await UserWatchlistsModel.query(on: db).first() {
+        return existing
+      }
+      let created = createNew()
+      try await created.create(on: db)
+      return created
+    }
+  }
+
+  func saveUserWatchlists(data: UserWatchlistsModel) async throws {
+    try await runner.run { db in
+      try await data.save(on: db)
+    }
+  }
+}

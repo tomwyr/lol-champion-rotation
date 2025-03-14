@@ -190,6 +190,26 @@ final class NotificationsConfigModel: Model, @unchecked Sendable {
   }
 }
 
+final class UserWatchlistsModel: Model, @unchecked Sendable {
+  static let schema = "user-watchlists"
+
+  @ID(key: .id)
+  var id: UUID?
+
+  @Field(key: "user_id")
+  var userId: String
+
+  @Field(key: "rotations")
+  var rotations: [String]
+
+  init() {}
+
+  init(userId: String, rotations: [String]) {
+    self.userId = userId
+    self.rotations = rotations
+  }
+}
+
 struct ChampionRotationsCountModel: Codable {
   let champion: String
   let presentIn: Int
