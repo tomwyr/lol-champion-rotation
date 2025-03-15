@@ -45,6 +45,10 @@ extension DefaultRotationService {
   private func createNextRotation(_ patchVersion: String?, _ data: RegularRotationLocalData)
     async throws(ChampionRotationError) -> RegularChampionRotation
   {
+    guard let id = data.rotation.idString else {
+      throw .rotationDataMissing
+    }
+
     let champions = try createChampions(
       for: data.rotation.champions, models: data.champions
     ).sorted { $0.name < $1.name }
@@ -60,6 +64,7 @@ extension DefaultRotationService {
       }
 
     return RegularChampionRotation(
+      id: id,
       patchVersion: patchVersion,
       duration: duration,
       champions: champions,
