@@ -10,6 +10,8 @@ protocol RotationService {
   func refreshRotation() async throws(ChampionRotationError) -> RefreshRotationResult
   func filterRotations(by championName: String) async throws(ChampionRotationError)
     -> FilterRotationsResult
+  func observedRotations(by userId: String) async throws(ChampionRotationError)
+    -> ObservedRotationsData
   func updateObserveRotation(rotationId: String, by userId: String, observing: Bool)
     async throws(ChampionRotationError)
 }
@@ -22,6 +24,7 @@ struct DefaultRotationService: RotationService {
   let notificationsService: NotificationsService
   let idHasher: IdHasher
   let rotationForecast: RotationForecast
+  let seededSelector: SeededSelector
 
   typealias OutError = ChampionRotationError
 
@@ -43,6 +46,7 @@ enum ChampionRotationError: Error {
   case rotationDataMissing
   case tokenHashingFailed(cause: Error)
   case dataOperationFailed(cause: Error)
+  case observedRotationDataInvalid(userId: String)
   case rotationDurationError(cause: RotationDurationError)
   case championError(cause: ChampionError)
   case predictionError(cause: RotationForecastError)

@@ -22,7 +22,8 @@ struct Dependencies {
       versionService: versionService(request: request),
       notificationsService: notificationsService(request: request),
       idHasher: idHasher(),
-      rotationForecast: DefaultRotationForecast()
+      rotationForecast: DefaultRotationForecast(),
+      seededSelector: seededSelector()
     )
   }
 
@@ -30,7 +31,7 @@ struct Dependencies {
     ChampionsService(
       imageUrlProvider: imageUrlProvider(request: request),
       appDatabase: appDatabase(request: request),
-      seededSelector: SeededSelector()
+      seededSelector: seededSelector()
     )
   }
 
@@ -84,5 +85,9 @@ struct Dependencies {
     Base62IdHasher(
       seed: appConfig.idHasherSeed
     )
+  }
+
+  func seededSelector() -> SeededSelector {
+    SeededSelector()
   }
 }

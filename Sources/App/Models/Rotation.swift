@@ -60,7 +60,18 @@ struct FilteredBeginnerRotation: Content {
   let champions: [Champion]
 }
 
-struct ObserveRotationInput: Content {
+struct ObservedRotationsData: Content {
+  let rotations: [ObservedRotation]
+}
+
+struct ObservedRotation: Content {
+  let id: String
+  let duration: ChampionRotationDuration
+  let current: Bool
+  let championImageUrls: [String]
+}
+
+struct UpdateObserveRotationInput: Content {
   let observing: Bool
 }
 

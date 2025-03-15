@@ -82,6 +82,18 @@ extension AppDatabase {
     }
   }
 
+  func regularRotations(rotationIds: [String]) async throws -> [RegularChampionRotationModel] {
+    let uuids = rotationIds.compactMap { id in
+      try? UUID(unsafe: id)
+    }
+    return try await runner.run { db in
+      try await RegularChampionRotationModel.query(on: db)
+        .filter(\.$id ~~ uuids)
+        .sort(\.$observedAt, .descending)
+        .all()
+    }
+  }
+
   func findPreviousRegularRotation(before rotationId: String) async throws
     -> RegularChampionRotationModel?
   {
@@ -303,7 +315,7 @@ extension AppDatabase {
 }
 
 extension AppDatabase {
-  func userWatchlists(userId: String, createNew: () -> UserWatchlistsModel) async throws
+  func userWatchlists(userId: String) async throws
     -> UserWatchlistsModel
   {
     try await runner.run { db in
@@ -313,7 +325,7 @@ extension AppDatabase {
       {
         return existing
       }
-      let created = createNew()
+      let created = UserWatchlistsModel(userId: userId)
       try await created.create(on: db)
       return created
     }

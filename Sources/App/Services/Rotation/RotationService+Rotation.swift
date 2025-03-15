@@ -21,9 +21,7 @@ extension DefaultRotationService {
       currentRotation = try await appDatabase.currentRegularRotation()
       champions = try await appDatabase.champions()
       if let userId {
-        userWatchlists = try await appDatabase.userWatchlists(userId: userId) {
-          .init(userId: userId)
-        }
+        userWatchlists = try await appDatabase.userWatchlists(userId: userId)
       }
     } catch {
       throw .dataOperationFailed(cause: error)
