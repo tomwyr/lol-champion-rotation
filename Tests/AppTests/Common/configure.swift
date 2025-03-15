@@ -15,6 +15,7 @@ extension AppTests {
     dbChampions: [ChampionModel] = [],
     dbPatchVersions: [PatchVersionModel] = [],
     dbNotificationsConfigs: [NotificationsConfigModel] = [],
+    dbUserWatchlists: [UserWatchlistsModel] = [],
     b2AuthorizeDownloadData: AuthorizationData? = nil,
     riotPatchVersions: [String]? = nil,
     riotChampionRotationsData: ChampionRotationsData? = nil,
@@ -63,6 +64,9 @@ extension AppTests {
         }
         for config in dbNotificationsConfigs {
           try await config.create(on: db)
+        }
+        for watchlists in dbUserWatchlists {
+          try await watchlists.create(on: db)
         }
       }
     )

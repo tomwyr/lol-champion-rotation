@@ -1,3 +1,4 @@
+import Fluent
 import XCTVapor
 
 @testable import App
@@ -28,5 +29,9 @@ extension AppTests {
 
   func dbNotificationConfigs() async throws -> [NotificationsConfigModel] {
     try await NotificationsConfigModel.query(on: app.db).all()
+  }
+
+  func dbUserWatchlists(userId: String) async throws -> UserWatchlistsModel? {
+    try await UserWatchlistsModel.query(on: app.db).filter(\.$userId == userId).first()
   }
 }
