@@ -117,6 +117,7 @@ class NextRotationTests: AppTests {
       XCTAssertBody(
         res.body,
         [
+          "id": uuidString("1"),
           "patchVersion": "15.0.1",
           "duration": [
             "start": "2024-11-14T12:00:00Z",
@@ -179,6 +180,7 @@ class NextRotationTests: AppTests {
       XCTAssertBody(
         res.body,
         [
+          "id": uuidString("2"),
           "nextRotationToken": nextRotationToken("2"),
           "patchVersion": "15.0.1",
           "duration": [

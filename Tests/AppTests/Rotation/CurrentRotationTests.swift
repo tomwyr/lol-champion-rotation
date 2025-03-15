@@ -36,6 +36,7 @@ class CurrentRotationTests: AppTests {
       XCTAssertBody(
         res.body,
         [
+          "id": uuidString("1"),
           "patchVersion": "15.0.1",
           "duration": [
             "start": "2024-11-14T12:00:00Z",
@@ -186,6 +187,7 @@ class CurrentRotationTests: AppTests {
       XCTAssertBody(
         res.body,
         [
+          "id": uuidString("1"),
           "duration": [
             "start": "2024-11-14T12:00:00Z",
             "end": "2024-11-21T12:00:00Z",
@@ -226,6 +228,7 @@ class CurrentRotationTests: AppTests {
       XCTAssertBody(
         res.body,
         [
+          "id": uuidString("1"),
           "duration": [
             "start": "2024-11-14T12:00:00Z",
             "end": "2024-11-21T12:00:00Z",
@@ -271,6 +274,7 @@ class CurrentRotationTests: AppTests {
       XCTAssertBody(
         res.body,
         [
+          "id": uuidString("2"),
           "nextRotationToken": nextRotationToken("2"),
           "duration": [
             "start": "2024-11-14T12:00:00Z",
@@ -327,6 +331,7 @@ class CurrentRotationTests: AppTests {
       XCTAssertBody(
         res.body,
         [
+          "id": uuidString("4"),
           "nextRotationToken": nextRotationToken("4"),
           "duration": [
             "start": "2024-11-14T12:00:00Z",

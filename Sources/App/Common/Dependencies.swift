@@ -5,12 +5,14 @@ struct Dependencies {
   var appConfig: AppConfig
   var httpClient: HttpClient
   var mobileUserGuard: RequestAuthenticatorGuard
+  var optionalMobileUserGuard: RequestAuthenticatorGuard
 
   static func `default`() -> Dependencies {
     .init(
       appConfig: .fromEnvironment(),
       httpClient: NetworkHttpClient(),
-      mobileUserGuard: MobileUserGuard()
+      mobileUserGuard: MobileUserGuard(),
+      optionalMobileUserGuard: OptionalMobileUserGuard()
     )
   }
 

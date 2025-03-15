@@ -81,7 +81,6 @@ class RotationTests: AppTests {
       XCTAssertBody(
         res.body,
         [
-          "patchVersion": "15.0.1",
           "duration": [
             "start": "2024-11-14T12:00:00Z",
             "end": "2024-11-21T12:00:00Z",
@@ -135,7 +134,6 @@ class RotationTests: AppTests {
       XCTAssertBody(
         res.body,
         [
-          "patchVersion": "15.0.1",
           "duration": [
             "start": "2024-11-14T12:00:00Z",
             "end": "2024-11-21T12:00:00Z",

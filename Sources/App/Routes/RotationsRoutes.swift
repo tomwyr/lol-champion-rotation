@@ -3,9 +3,10 @@ import Vapor
 func rotationsRoutes(_ app: Application, _ deps: Dependencies) {
   let anyUserGuard = AnyUserGuard()
   let mobileUserGuard = deps.mobileUserGuard
+  let optionalMobileUserGuard = deps.optionalMobileUserGuard
 
   app.protected(with: anyUserGuard).grouped("rotations") { rotations in
-    rotations.protected(with: mobileUserGuard).get(":id") { req in
+    rotations.protected(with: optionalMobileUserGuard).get(":id") { req in
       try req.auth.require(AnyUserAuth.self)
       let auth = try? req.auth.require(MobileUserAuth.self)
       let rotationId = req.parameters.get("id")!
