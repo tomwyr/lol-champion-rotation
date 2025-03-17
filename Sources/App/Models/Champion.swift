@@ -5,6 +5,7 @@ struct ChampionDetails: Content {
   let name: String
   let title: String
   let imageUrl: String
+  let observing: Bool?
   let availability: [ChampionDetailsAvailability]
   let overview: ChampionDetailsOverview
   let history: [ChampionDetailsHistoryEvent]
@@ -50,4 +51,8 @@ struct SearchChampionsResult: Content {
 struct SearchChampionsMatch: Content {
   let champion: Champion
   let availableIn: [ChampionRotationType]
+}
+
+struct UpdateObserveChampionInput: Content {
+  let observing: Bool
 }

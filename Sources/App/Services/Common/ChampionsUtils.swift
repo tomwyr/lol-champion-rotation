@@ -10,6 +10,7 @@ protocol ChampionFactory {
 
   func createChampionDetails(
     model: ChampionModel,
+    userWatchlists: UserWatchlistsModel?,
     availability: [ChampionDetailsAvailability],
     overview: ChampionDetailsOverview,
     history: [ChampionDetailsHistoryEvent]
@@ -47,22 +48,25 @@ extension ChampionFactory {
 
   func createChampionDetails(
     model: ChampionModel,
+    userWatchlists: UserWatchlistsModel?,
     availability: [ChampionDetailsAvailability],
     overview: ChampionDetailsOverview,
     history: [ChampionDetailsHistoryEvent]
   ) throws(OutError) -> ChampionDetails {
-    guard let id = model.idString else {
+    guard let championId = model.idString else {
       throw wrapError(.dataMissing(championId: model.riotId))
     }
     let name = model.name
     let title = model.title
     let imageUrl = imageUrlProvider.champion(with: model.riotId)
+    let observing = userWatchlists?.champions.contains(championId)
 
     return ChampionDetails(
-      id: id,
+      id: championId,
       name: name,
       title: title,
       imageUrl: imageUrl,
+      observing: observing,
       availability: availability,
       overview: overview,
       history: history

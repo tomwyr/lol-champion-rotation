@@ -202,11 +202,15 @@ final class UserWatchlistsModel: Model, @unchecked Sendable {
   @Field(key: "rotations")
   var rotations: [String]
 
+  @Field(key: "champions")
+  var champions: [String]
+
   init() {}
 
-  init(userId: String, rotations: [String] = []) {
+  init(userId: String, rotations: [String] = [], champions: [String] = []) {
     self.userId = userId
     self.rotations = rotations
+    self.champions = champions
   }
 }
 

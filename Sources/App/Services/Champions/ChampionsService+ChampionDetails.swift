@@ -1,11 +1,13 @@
 import Foundation
 
 extension ChampionsService {
-  func championDetails(championId: String) async throws(ChampionsError) -> ChampionDetails? {
+  func championDetails(championId: String, userId: String?) async throws(ChampionsError)
+    -> ChampionDetails?
+  {
     guard let champion = try await loadChampionData(championId) else {
       return nil
     }
-    let availabilitiesData = try await loadRotationAvailabilitiesData(champion)
+    let availabilitiesData = try await loadRotationAvailabilitiesData(champion, userId)
     return try await createChampionDetails(champion, availabilitiesData)
   }
 
@@ -18,7 +20,7 @@ extension ChampionsService {
     }
   }
 
-  private func loadRotationAvailabilitiesData(_ champion: ChampionModel)
+  private func loadRotationAvailabilitiesData(_ champion: ChampionModel, _ userId: String?)
     async throws(ChampionsError) -> ChampionDetailsLocalData
   {
     let riotId = champion.riotId
@@ -40,6 +42,10 @@ extension ChampionsService {
       if releasedAt != nil {
         championStreak = try await appDatabase.championStreak(of: riotId)
       }
+      var userWatchlists: UserWatchlistsModel?
+      if let userId {
+        userWatchlists = try await appDatabase.userWatchlists(userId: userId)
+      }
       return (
         championLatestRegularRotation,
         championLatestBeginnerRotation,
@@ -48,7 +54,8 @@ extension ChampionsService {
         currentRegularRotation,
         currentBeginnerRotation,
         championsRotationsCount,
-        championStreak
+        championStreak,
+        userWatchlists
       )
     } catch {
       throw .dataOperationFailed(cause: error)
@@ -60,6 +67,7 @@ extension ChampionsService {
   {
     try await createChampionDetails(
       model: champion,
+      userWatchlists: data.userWatchlists,
       availability: createAvailability(data),
       overview: createOverview(champion, data),
       history: createHistory(champion, data)
@@ -214,5 +222,6 @@ private typealias ChampionDetailsLocalData = (
   currentRegularRotation: RegularChampionRotationModel?,
   currentBeginnerRotation: BeginnerChampionRotationModel?,
   championsRotationsCount: [ChampionRotationsCountModel],
-  championStreak: ChampionStreakModel?
+  championStreak: ChampionStreakModel?,
+  userWatchlists: UserWatchlistsModel?
 )

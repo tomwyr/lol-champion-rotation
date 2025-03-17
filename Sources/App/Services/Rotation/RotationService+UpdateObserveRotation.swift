@@ -2,7 +2,7 @@ extension DefaultRotationService {
   func updateObserveRotation(rotationId: String, by userId: String, observing: Bool)
     async throws(ChampionRotationError)
   {
-    let data = try await getOrCreateWatchlists(userId)
+    let data = try await getWatchlists(userId)
     if observing {
       data.rotations.appendIfAbsent(rotationId)
     } else {
@@ -11,7 +11,7 @@ extension DefaultRotationService {
     try await saveWatchlists(data)
   }
 
-  private func getOrCreateWatchlists(_ userId: String) async throws(ChampionRotationError)
+  private func getWatchlists(_ userId: String) async throws(ChampionRotationError)
     -> UserWatchlistsModel
   {
     do {
