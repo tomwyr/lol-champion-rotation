@@ -34,6 +34,12 @@ func championsRoutes(_ app: Application, _ deps: Dependencies) {
       return HTTPStatus.ok
     }
 
+    champions.protected(with: mobileUserGuard).get("observed") { req in
+      let auth = try req.auth.require(MobileUserAuth.self)
+      let championsService = deps.championsService(request: req)
+      return try await championsService.observedChampions(by: auth.userId)
+    }
+
     champions.get("search") { req in
       try req.auth.require(AnyUserAuth.self)
       guard let championName = req.query[String.self, at: "name"] else {

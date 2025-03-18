@@ -73,8 +73,8 @@ extension AppDatabase {
     }
   }
 
-  func regularRotation(rotationId: String) async throws -> RegularChampionRotationModel? {
-    guard let uuid = try? UUID(unsafe: rotationId) else {
+  func regularRotation(id: String) async throws -> RegularChampionRotationModel? {
+    guard let uuid = try? UUID(unsafe: id) else {
       return nil
     }
     return try await runner.run { db in
@@ -82,8 +82,8 @@ extension AppDatabase {
     }
   }
 
-  func regularRotations(rotationIds: [String]) async throws -> [RegularChampionRotationModel] {
-    let uuids = rotationIds.compactMap { id in
+  func regularRotations(ids: [String]) async throws -> [RegularChampionRotationModel] {
+    let uuids = ids.compactMap { id in
       try? UUID(unsafe: id)
     }
     return try await runner.run { db in
@@ -94,11 +94,11 @@ extension AppDatabase {
     }
   }
 
-  func findPreviousRegularRotation(before rotationId: String) async throws
+  func findPreviousRegularRotation(before id: String) async throws
     -> RegularChampionRotationModel?
   {
     try await runner.run { db in
-      let uuid = try UUID(unsafe: rotationId)
+      let uuid = try UUID(unsafe: id)
       let nextRotation = try await RegularChampionRotationModel.query(on: db)
         .filter(\.$id == uuid)
         .field(\.$observedAt)
@@ -115,11 +115,11 @@ extension AppDatabase {
     }
   }
 
-  func findNextRegularRotation(after rotationId: String) async throws
+  func findNextRegularRotation(after id: String) async throws
     -> RegularChampionRotationModel?
   {
     try await runner.run { db in
-      let uuid = try UUID(unsafe: rotationId)
+      let uuid = try UUID(unsafe: id)
       let previousRotation = try await RegularChampionRotationModel.query(on: db)
         .filter(\.$id == uuid)
         .field(\.$observedAt)
@@ -146,6 +146,16 @@ extension AppDatabase {
   func champions() async throws -> [ChampionModel] {
     try await runner.run { db in
       try await ChampionModel.query(on: db).all()
+    }
+  }
+
+  func champions(ids: [String]) async throws -> [ChampionModel] {
+    let uuids = try ids.map { try UUID(unsafe: $0) }
+    return try await runner.run { db in
+      try await ChampionModel.query(on: db)
+        .filter(\.$id ~~ uuids)
+        .sort(\.$name)
+        .all()
     }
   }
 

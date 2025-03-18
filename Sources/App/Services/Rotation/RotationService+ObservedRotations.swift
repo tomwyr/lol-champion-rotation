@@ -13,7 +13,7 @@ extension DefaultRotationService {
     let currentRotation: RegularChampionRotationModel?
     do {
       let userWatchlists = try await appDatabase.userWatchlists(userId: userId)
-      rotations = try await appDatabase.regularRotations(rotationIds: userWatchlists.rotations)
+      rotations = try await appDatabase.regularRotations(ids: userWatchlists.rotations)
       currentRotation = try await appDatabase.currentRegularRotation()
       return (rotations, currentRotation)
     } catch {

@@ -53,6 +53,17 @@ struct SearchChampionsMatch: Content {
   let availableIn: [ChampionRotationType]
 }
 
+struct ObservedChampionsData: Content {
+  let champions: [ObservedChampion]
+}
+
+struct ObservedChampion: Content {
+  let id: String
+  let name: String
+  let current: Bool
+  let imageUrl: String
+}
+
 struct UpdateObserveChampionInput: Content {
   let observing: Bool
 }
