@@ -11,8 +11,8 @@ extension DefaultRotationService {
     let regularRotations: [RegularChampionRotationModel]
     let champions: [ChampionModel]
     do {
-      regularRotations = try await appDatabase.regularRotations()
-      champions = try await appDatabase.champions()
+      regularRotations = try await appDb.regularRotations()
+      champions = try await appDb.champions()
     } catch {
       throw .dataOperationFailed(cause: error)
     }

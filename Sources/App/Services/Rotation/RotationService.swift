@@ -19,7 +19,7 @@ protocol RotationService {
 struct DefaultRotationService: RotationService {
   let imageUrlProvider: ImageUrlProvider
   let riotApiClient: RiotApiClient
-  let appDatabase: AppDatabase
+  let appDb: AppDatabase
   let versionService: VersionService
   let notificationsService: NotificationsService
   let idHasher: IdHasher

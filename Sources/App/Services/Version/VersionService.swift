@@ -9,10 +9,10 @@ protocol VersionService {
 struct DefaultVersionService<Version: RiotPatchVersion>: VersionService {
   let versionType: Version.Type
   let riotApiClient: RiotApiClient
-  let appDatabase: AppDatabase
+  let appDb: AppDatabase
 
   func latestVersion() async throws(PatchVersionError) -> String {
-    let data = try await getLocalVersion(using: appDatabase.latestPatchVersion)
+    let data = try await getLocalVersion(using: appDb.latestPatchVersion)
     guard let version = data?.rawValue else {
       throw .latestVersionUnknown
     }
@@ -21,7 +21,7 @@ struct DefaultVersionService<Version: RiotPatchVersion>: VersionService {
 
   func findVersion(olderThan: Date) async throws(PatchVersionError) -> String {
     let data = try await getLocalVersion {
-      try await appDatabase.patchVersion(olderThan: olderThan)
+      try await appDb.patchVersion(olderThan: olderThan)
     }
     guard let version = data?.rawValue else {
       throw .latestVersionUnknown
@@ -30,7 +30,7 @@ struct DefaultVersionService<Version: RiotPatchVersion>: VersionService {
   }
 
   func refreshVersion() async throws(PatchVersionError) -> RefreshVersionResult {
-    let localVersion = try await getLocalVersion(using: appDatabase.latestPatchVersion)
+    let localVersion = try await getLocalVersion(using: appDb.latestPatchVersion)
     let riotVersion = try await getLatestRiotVersion()
 
     let (versionChanged, latestVersion) = resolveVersion(localVersion, riotVersion)
@@ -81,7 +81,7 @@ struct DefaultVersionService<Version: RiotPatchVersion>: VersionService {
   {
     let data = PatchVersionModel(value: version.rawValue)
     do {
-      try await appDatabase.savePatchVersion(data: data)
+      try await appDb.savePatchVersion(data: data)
     } catch {
       throw .dataOperationFailed(cause: error)
     }

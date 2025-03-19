@@ -14,7 +14,7 @@ extension ChampionsService {
   private func loadChampionData(_ championId: String) async throws(ChampionsError) -> ChampionModel?
   {
     do {
-      return try await appDatabase.champion(id: championId)
+      return try await appDb.champion(id: championId)
     } catch {
       throw .dataOperationFailed(cause: error)
     }
@@ -27,24 +27,24 @@ extension ChampionsService {
     let releasedAt = champion.releasedAt
 
     do {
-      let championLatestRegularRotation = try await appDatabase.mostRecentRegularRotation(
+      let championLatestRegularRotation = try await appDb.mostRecentRegularRotation(
         withChampion: riotId)
-      let championLatestBeginnerRotation = try await appDatabase.mostRecentBeginnerRotation(
+      let championLatestBeginnerRotation = try await appDb.mostRecentBeginnerRotation(
         withChampion: riotId)
-      let championRegularRotationsIds = try await appDatabase.regularRotationsIds(
+      let championRegularRotationsIds = try await appDb.regularRotationsIds(
         withChampion: riotId)
-      let rotationsAfterRelease = try await appDatabase.regularRotations(after: releasedAt)
-      let currentRegularRotation = try await appDatabase.currentRegularRotation()
-      let currentBeginnerRotation = try await appDatabase.currentBeginnerRotation()
-      let championsRotationsCount = try await appDatabase.countChampionsRotations()
+      let rotationsAfterRelease = try await appDb.regularRotations(after: releasedAt)
+      let currentRegularRotation = try await appDb.currentRegularRotation()
+      let currentBeginnerRotation = try await appDb.currentBeginnerRotation()
+      let championsRotationsCount = try await appDb.countChampionsRotations()
       var championStreak: ChampionStreakModel? = nil
       // Only compute the streak if release is known as, otherwise, it might produce incorrect results.
       if releasedAt != nil {
-        championStreak = try await appDatabase.championStreak(of: riotId)
+        championStreak = try await appDb.championStreak(of: riotId)
       }
       var userWatchlists: UserWatchlistsModel?
       if let userId {
-        userWatchlists = try await appDatabase.userWatchlists(userId: userId)
+        userWatchlists = try await appDb.userWatchlists(userId: userId)
       }
       return (
         championLatestRegularRotation,

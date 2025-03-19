@@ -17,11 +17,11 @@ extension DefaultRotationService {
     let champions: [ChampionModel]
     var userWatchlists: UserWatchlistsModel?
     do {
-      rotation = try await appDatabase.regularRotation(id: rotationId)
-      currentRotation = try await appDatabase.currentRegularRotation()
-      champions = try await appDatabase.champions()
+      rotation = try await appDb.regularRotation(id: rotationId)
+      currentRotation = try await appDb.currentRegularRotation()
+      champions = try await appDb.champions()
       if let userId {
-        userWatchlists = try await appDatabase.userWatchlists(userId: userId)
+        userWatchlists = try await appDb.userWatchlists(userId: userId)
       }
     } catch {
       throw .dataOperationFailed(cause: error)

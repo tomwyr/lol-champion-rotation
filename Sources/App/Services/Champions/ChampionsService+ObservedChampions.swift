@@ -10,9 +10,9 @@ extension ChampionsService {
     -> ObservedChampionsLocalData
   {
     do {
-      let userWatchlists = try await appDatabase.userWatchlists(userId: userId)
-      let champions = try await appDatabase.champions(ids: userWatchlists.champions)
-      let currentRotation = try await appDatabase.currentRegularRotation()
+      let userWatchlists = try await appDb.userWatchlists(userId: userId)
+      let champions = try await appDb.champions(ids: userWatchlists.champions)
+      let currentRotation = try await appDb.currentRegularRotation()
       return (champions, currentRotation)
     } catch {
       throw .dataOperationFailed(cause: error)

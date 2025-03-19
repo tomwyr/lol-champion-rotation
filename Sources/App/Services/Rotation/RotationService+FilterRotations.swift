@@ -15,14 +15,14 @@ extension DefaultRotationService {
     -> FilterRotationsLocalData
   {
     do {
-      let currentRotationId = try await appDatabase.currentRegularRotation()?.idString
-      let champions = try await appDatabase.filterChampions(name: championName)
+      let currentRotationId = try await appDb.currentRegularRotation()?.idString
+      let champions = try await appDb.filterChampions(name: championName)
       let championIds = champions.map(\.riotId)
       let regularRotations =
-        try await appDatabase.filterRegularRotations(withChampions: championIds)
+        try await appDb.filterRegularRotations(withChampions: championIds)
       let beginnerRotation =
-        try await appDatabase.filterMostRecentBeginnerRotation(withChampions: championIds)
-      let allChampions = try await appDatabase.champions()
+        try await appDb.filterMostRecentBeginnerRotation(withChampions: championIds)
+      let allChampions = try await appDb.champions()
       return (currentRotationId, regularRotations, beginnerRotation, allChampions)
     } catch {
       throw .dataOperationFailed(cause: error)

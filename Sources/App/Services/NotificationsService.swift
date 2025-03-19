@@ -1,20 +1,20 @@
 struct NotificationsService {
-  let appDatabase: AppDatabase
+  let appDb: AppDatabase
   let pushNotificationsClient: PushNotificationsClient
 
   func updateToken(userId: String, input: NotificationsTokenInput) async throws {
     let config = try await getOrCreateConfig(userId)
     config.token = input.token
-    try await appDatabase.updateNotificationsConfig(data: config)
+    try await appDb.updateNotificationsConfig(data: config)
   }
 
   func hasSettings(userId: String) async throws -> Bool {
-    let data = try await appDatabase.getNotificationsConfig(userId: userId)
+    let data = try await appDb.getNotificationsConfig(userId: userId)
     return data != nil
   }
 
   func getSettings(userId: String) async throws -> NotificationsSettings? {
-    guard let data = try await appDatabase.getNotificationsConfig(userId: userId) else {
+    guard let data = try await appDb.getNotificationsConfig(userId: userId) else {
       return nil
     }
     return NotificationsSettings(
@@ -27,11 +27,11 @@ struct NotificationsService {
     let config = try await getOrCreateConfig(userId)
     config.currentRotation = input.currentRotation
     config.observedChampions = input.observedChampions
-    try await appDatabase.updateNotificationsConfig(data: config)
+    try await appDb.updateNotificationsConfig(data: config)
   }
 
   func notifyRotationChanged() async throws {
-    let configs = try await appDatabase.getNotificationConfigsWithCurrentRotation()
+    let configs = try await appDb.getNotificationConfigsWithCurrentRotation()
 
     let notification = PushNotification.rotationChanged(tokens: configs.map(\.token))
     let result = try await pushNotificationsClient.send(notification)
@@ -48,12 +48,12 @@ struct NotificationsService {
     }.map(\.userId)
 
     if !staleUserIds.isEmpty {
-      try await appDatabase.removeNotificationsConfigs(userIds: staleUserIds)
+      try await appDb.removeNotificationsConfigs(userIds: staleUserIds)
     }
   }
 
   private func getOrCreateConfig(_ userId: String) async throws -> NotificationsConfigModel {
-    try await appDatabase.getNotificationsConfig(userId: userId)
+    try await appDb.getNotificationsConfig(userId: userId)
       ?? .init(userId: userId, token: "", currentRotation: false, observedChampions: false)
   }
 }

@@ -13,7 +13,7 @@ extension ChampionsService {
 
   private func getWatchlists(_ userId: String) async throws(ChampionsError) -> UserWatchlistsModel {
     do {
-      return try await appDatabase.userWatchlists(userId: userId)
+      return try await appDb.userWatchlists(userId: userId)
     } catch {
       throw .dataOperationFailed(cause: error)
     }
@@ -21,7 +21,7 @@ extension ChampionsService {
 
   private func saveWatchlists(_ data: UserWatchlistsModel) async throws(ChampionsError) {
     do {
-      try await appDatabase.saveUserWatchlists(data: data)
+      try await appDb.saveUserWatchlists(data: data)
     } catch {
       throw .dataOperationFailed(cause: error)
     }

@@ -3,7 +3,7 @@ import Foundation
 protocol RotationDurationService {
   associatedtype OutError: Error
 
-  var appDatabase: AppDatabase { get }
+  var appDb: AppDatabase { get }
 
   func getRotationDuration(_ rotation: RegularChampionRotationModel)
     async throws(OutError) -> ChampionRotationDuration
@@ -41,7 +41,7 @@ extension RotationDurationService {
       guard let rotationId = try? rotation.requireID().uuidString else {
         return nil
       }
-      let nextRotation = try await appDatabase.findNextRegularRotation(after: rotationId)
+      let nextRotation = try await appDb.findNextRegularRotation(after: rotationId)
       return nextRotation?.observedAt
     } catch {
       throw wrapError(.dataOperationFailed(cause: error))

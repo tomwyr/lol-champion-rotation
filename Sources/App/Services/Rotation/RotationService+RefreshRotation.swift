@@ -77,7 +77,7 @@ extension DefaultRotationService {
   {
     do {
       let data = riotData.champions.data.values.toModels()
-      let createdChampionsIds = try await appDatabase.saveChampionsFillingIds(data: data)
+      let createdChampionsIds = try await appDb.saveChampionsFillingIds(data: data)
       return !createdChampionsIds.isEmpty
     } catch {
       throw .dataOperationFailed(cause: error)
@@ -85,21 +85,21 @@ extension DefaultRotationService {
   }
 
   private func saveRegularRotation(_ rotation: RegularChampionRotationModel) async throws -> Bool {
-    let mostRecentRotation = try await appDatabase.currentRegularRotation()
+    let mostRecentRotation = try await appDb.currentRegularRotation()
     if let mostRecentRotation, rotation.same(as: mostRecentRotation) {
       return false
     }
-    try await appDatabase.addRegularRotation(data: rotation)
+    try await appDb.addRegularRotation(data: rotation)
     return true
   }
 
   private func saveBeginnerRotation(_ rotation: BeginnerChampionRotationModel) async throws -> Bool
   {
-    let mostRecentRotation = try await appDatabase.currentBeginnerRotation()
+    let mostRecentRotation = try await appDb.currentBeginnerRotation()
     if let mostRecentRotation, rotation.same(as: mostRecentRotation) {
       return false
     }
-    try await appDatabase.addBeginnerRotation(data: rotation)
+    try await appDb.addBeginnerRotation(data: rotation)
     return true
   }
 }

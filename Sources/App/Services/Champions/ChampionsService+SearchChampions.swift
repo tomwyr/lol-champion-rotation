@@ -10,9 +10,9 @@ extension ChampionsService {
     -> SearchChampionsLocalData
   {
     do {
-      let champions = try await appDatabase.filterChampions(name: searchedName)
-      let regularRotation = try await appDatabase.currentRegularRotation()
-      let beginnerRotation = try await appDatabase.currentBeginnerRotation()
+      let champions = try await appDb.filterChampions(name: searchedName)
+      let regularRotation = try await appDb.currentRegularRotation()
+      let beginnerRotation = try await appDb.currentBeginnerRotation()
       return (champions, regularRotation, beginnerRotation)
     } catch {
       throw .dataOperationFailed(cause: error)

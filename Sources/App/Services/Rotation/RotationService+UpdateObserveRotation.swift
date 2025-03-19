@@ -15,7 +15,7 @@ extension DefaultRotationService {
     -> UserWatchlistsModel
   {
     do {
-      return try await appDatabase.userWatchlists(userId: userId)
+      return try await appDb.userWatchlists(userId: userId)
     } catch {
       throw .dataOperationFailed(cause: error)
     }
@@ -23,7 +23,7 @@ extension DefaultRotationService {
 
   private func saveWatchlists(_ data: UserWatchlistsModel) async throws(ChampionRotationError) {
     do {
-      try await appDatabase.saveUserWatchlists(data: data)
+      try await appDb.saveUserWatchlists(data: data)
     } catch {
       throw .dataOperationFailed(cause: error)
     }

@@ -20,7 +20,7 @@ struct Dependencies {
     DefaultRotationService(
       imageUrlProvider: imageUrlProvider(request: request),
       riotApiClient: riotApiClient(),
-      appDatabase: appDatabase(request: request),
+      appDb: appDb(request: request),
       versionService: versionService(request: request),
       notificationsService: notificationsService(request: request),
       idHasher: idHasher(),
@@ -32,14 +32,14 @@ struct Dependencies {
   func championsService(request: Request) -> ChampionsService {
     ChampionsService(
       imageUrlProvider: imageUrlProvider(request: request),
-      appDatabase: appDatabase(request: request),
+      appDb: appDb(request: request),
       seededSelector: seededSelector()
     )
   }
 
   func notificationsService(request: Request) -> NotificationsService {
     NotificationsService(
-      appDatabase: appDatabase(request: request),
+      appDb: appDb(request: request),
       pushNotificationsClient: pushNotificationsClient(request: request)
     )
   }
@@ -48,7 +48,7 @@ struct Dependencies {
     DefaultVersionService(
       versionType: String.self,
       riotApiClient: riotApiClient(),
-      appDatabase: appDatabase(request: request)
+      appDb: appDb(request: request)
     )
   }
 
@@ -77,7 +77,7 @@ struct Dependencies {
     )
   }
 
-  func appDatabase(request: Request) -> AppDatabase {
+  func appDb(request: Request) -> AppDatabase {
     AppDatabase(
       runner: StartupRetryRunner(database: request.db)
     )
