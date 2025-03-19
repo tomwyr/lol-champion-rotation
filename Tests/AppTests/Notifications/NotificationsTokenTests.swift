@@ -28,7 +28,10 @@ class PutNotificationsTokenTests: AppTests {
   }
 
   func testAddingNewToken() async throws {
-    let existingConfig = NotificationsConfigModel(userId: "123", token: "def", enabled: true)
+    let existingConfig = NotificationsConfigModel(
+      userId: "123", token: "def",
+      currentRotation: true, observedChampions: true
+    )
 
     _ = try await testConfigureWith(dbNotificationsConfigs: [existingConfig])
 
@@ -37,7 +40,10 @@ class PutNotificationsTokenTests: AppTests {
       headers: reqHeaders(accessToken: mobileToken),
       body: ["token": "abc"]
     ) { res async throws in
-      let addedConfig = NotificationsConfigModel(userId: mobileUserId, token: "abc", enabled: false)
+      let addedConfig = NotificationsConfigModel(
+        userId: mobileUserId, token: "abc",
+        currentRotation: false, observedChampions: false
+      )
       let configs = try await dbNotificationConfigs()
 
       XCTAssertEqual(res.status, .noContent)
@@ -46,7 +52,10 @@ class PutNotificationsTokenTests: AppTests {
   }
 
   func testUpdatingExistingToken() async throws {
-    let existingConfig = NotificationsConfigModel(userId: mobileUserId, token: "def", enabled: true)
+    let existingConfig = NotificationsConfigModel(
+      userId: mobileUserId, token: "def",
+      currentRotation: true, observedChampions: true
+    )
 
     _ = try await testConfigureWith(dbNotificationsConfigs: [existingConfig])
 
@@ -56,7 +65,9 @@ class PutNotificationsTokenTests: AppTests {
       body: ["token": "abc"]
     ) { res async throws in
       let updatedConfig = NotificationsConfigModel(
-        userId: mobileUserId, token: "abc", enabled: true)
+        userId: mobileUserId, token: "abc",
+        currentRotation: true, observedChampions: true
+      )
       let configs = try await dbNotificationConfigs()
 
       XCTAssertEqual(res.status, .noContent)

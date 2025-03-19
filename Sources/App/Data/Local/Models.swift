@@ -178,15 +178,19 @@ final class NotificationsConfigModel: Model, @unchecked Sendable {
   @Field(key: "token")
   var token: String
 
-  @Field(key: "enabled")
-  var enabled: Bool
+  @Field(key: "current_rotation")
+  var currentRotation: Bool
+
+  @Field(key: "observed_champions")
+  var observedChampions: Bool
 
   init() {}
 
-  init(userId: String, token: String, enabled: Bool) {
+  init(userId: String, token: String, currentRotation: Bool, observedChampions: Bool) {
     self.userId = userId
     self.token = token
-    self.enabled = enabled
+    self.currentRotation = currentRotation
+    self.observedChampions = observedChampions
   }
 }
 

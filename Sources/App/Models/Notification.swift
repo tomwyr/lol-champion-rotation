@@ -5,5 +5,10 @@ struct NotificationsTokenInput: Content {
 }
 
 struct NotificationsSettings: Content {
-  let enabled: Bool
+  let currentRotation: Bool
+  let observedChampions: Bool
+
+  var anyEnabled: Bool {
+    currentRotation || observedChampions
+  }
 }

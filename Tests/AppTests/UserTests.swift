@@ -27,7 +27,7 @@ class UserTests: AppTests {
   func testUninitializedNotifications() async throws {
     _ = try await testConfigureWith(
       dbNotificationsConfigs: [
-        .init(userId: "123", token: "abc", enabled: true)
+        .init(userId: "123", token: "abc", currentRotation: true, observedChampions: true)
       ]
     )
 
@@ -43,7 +43,10 @@ class UserTests: AppTests {
   func testDisabledNotifications() async throws {
     _ = try await testConfigureWith(
       dbNotificationsConfigs: [
-        .init(userId: mobileUserId, token: "abc", enabled: false)
+        .init(
+          userId: mobileUserId, token: "abc",
+          currentRotation: false, observedChampions: false
+        )
       ]
     )
 
@@ -57,18 +60,29 @@ class UserTests: AppTests {
   }
 
   func testEnabledNotifications() async throws {
-    _ = try await testConfigureWith(
-      dbNotificationsConfigs: [
-        .init(userId: mobileUserId, token: "abc", enabled: true)
-      ]
-    )
+    let configs = [
+      (currentRotation: true, observedChampions: false),
+      (currentRotation: false, observedChampions: true),
+      (currentRotation: true, observedChampions: true),
+    ]
 
-    try await app.test(
-      .GET, "/user",
-      headers: ["Authorization": "Bearer \(mobileToken)"]
-    ) { res async in
-      XCTAssertEqual(res.status, .ok)
-      XCTAssertBody(res.body, ["notificationsStatus": "enabled"])
+    for (currentRotation, observedChampions) in configs {
+      _ = try await testConfigureWith(
+        dbNotificationsConfigs: [
+          .init(
+            userId: mobileUserId, token: "abc",
+            currentRotation: currentRotation, observedChampions: observedChampions
+          )
+        ]
+      )
+
+      try await app.test(
+        .GET, "/user",
+        headers: ["Authorization": "Bearer \(mobileToken)"]
+      ) { res async in
+        XCTAssertEqual(res.status, .ok)
+        XCTAssertBody(res.body, ["notificationsStatus": "enabled"])
+      }
     }
   }
 }

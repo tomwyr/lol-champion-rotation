@@ -17,17 +17,21 @@ struct NotificationsService {
     guard let data = try await appDatabase.getNotificationsConfig(userId: userId) else {
       return nil
     }
-    return NotificationsSettings(enabled: data.enabled)
+    return NotificationsSettings(
+      currentRotation: data.currentRotation,
+      observedChampions: data.observedChampions
+    )
   }
 
   func updateSettings(userId: String, input: NotificationsSettings) async throws {
     let config = try await getOrCreateConfig(userId)
-    config.enabled = input.enabled
+    config.currentRotation = input.currentRotation
+    config.observedChampions = input.observedChampions
     try await appDatabase.updateNotificationsConfig(data: config)
   }
 
   func notifyRotationChanged() async throws {
-    let configs = try await appDatabase.getEnabledNotificationConfigs()
+    let configs = try await appDatabase.getNotificationConfigsWithCurrentRotation()
 
     let notification = PushNotification.rotationChanged(tokens: configs.map(\.token))
     let result = try await pushNotificationsClient.send(notification)
@@ -50,7 +54,7 @@ struct NotificationsService {
 
   private func getOrCreateConfig(_ userId: String) async throws -> NotificationsConfigModel {
     try await appDatabase.getNotificationsConfig(userId: userId)
-      ?? .init(userId: userId, token: "", enabled: false)
+      ?? .init(userId: userId, token: "", currentRotation: false, observedChampions: false)
   }
 }
 

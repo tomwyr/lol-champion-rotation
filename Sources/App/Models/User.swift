@@ -11,10 +11,10 @@ enum UserNotificationsStatus: String, Content {
 
   init(from settings: NotificationsSettings?) {
     self =
-      switch settings?.enabled {
-      case nil: .uninitialized
-      case .some(true): .enabled
-      case .some(false): .disabled
+      if let settings {
+        if settings.anyEnabled { .enabled } else { .disabled }
+      } else {
+        .uninitialized
       }
   }
 }

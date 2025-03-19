@@ -1,4 +1,5 @@
 import Fluent
+import FluentSQL
 
 extension Migrations {
   func addAppMigrations() {
@@ -11,6 +12,7 @@ extension Migrations {
     add(ChangeDeviceIdToUserId())
     add(AddUserWatchlists())
     add(AddChampionsToUserWatchlists())
+    add(AddObservedChampionsNotification())
   }
 }
 
@@ -221,6 +223,44 @@ struct AddChampionsToUserWatchlists: AsyncMigration {
   func revert(on db: any Database) async throws {
     try await db.schema("user-watchlists")
       .deleteField("champions")
+      .update()
+  }
+}
+
+struct AddObservedChampionsNotification: AsyncMigration {
+  func prepare(on db: any Database) async throws {
+    try await db.schema("notifications-configs")
+      .field("current_rotation", .bool)
+      .field("observed_champions", .bool)
+      .update()
+
+    try await (db as! SQLDatabase).raw(
+      """
+      UPDATE "notifications-configs"
+      SET current_rotation = enabled, observed_champions = false
+      """
+    ).run()
+
+    try await db.schema("notifications-configs")
+      .deleteField("enabled")
+      .update()
+  }
+
+  func revert(on db: any Database) async throws {
+    try await db.schema("notifications-configs")
+      .field("enabled", .bool)
+      .update()
+
+    try await (db as! SQLDatabase).raw(
+      """
+      UPDATE "notifications-configs"
+      SET enabled = current_rotation
+      """
+    ).run()
+
+    try await db.schema("notifications-configs")
+      .deleteField("current_rotation")
+      .deleteField("observed_champions")
       .update()
   }
 }

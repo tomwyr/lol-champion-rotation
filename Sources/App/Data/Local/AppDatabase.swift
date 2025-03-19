@@ -317,9 +317,9 @@ extension AppDatabase {
     }
   }
 
-  func getEnabledNotificationConfigs() async throws -> [NotificationsConfigModel] {
+  func getNotificationConfigsWithCurrentRotation() async throws -> [NotificationsConfigModel] {
     try await runner.run { db in
-      try await NotificationsConfigModel.query(on: db).filter(\.$enabled == true).all()
+      try await NotificationsConfigModel.query(on: db).filter(\.$currentRotation == true).all()
     }
   }
 }

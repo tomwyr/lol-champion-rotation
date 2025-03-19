@@ -4,21 +4,29 @@ import XCTVapor
 @testable import App
 
 class AppTests: XCTestCase {
-  var app: Application!
+  private var testApp: Application?
 
-  override func setUp() async throws {
-    app = try await Application.make(.testing)
+  var app: Application {
+    guard let testApp else {
+      fatalError("The application must be initialized with configureApp before using it in a test.")
+    }
+    return testApp
+  }
+
+  func configureApp() async throws {
+    try await testApp?.asyncShutdown()
+    testApp = try await Application.make(.testing)
   }
 
   override func tearDown() async throws {
-    try await app.asyncShutdown()
-    app = nil
+    try await testApp?.asyncShutdown()
   }
 }
 
 extension NotificationsConfigModel: Equatable {
   static public func == (lhs: NotificationsConfigModel, rhs: NotificationsConfigModel) -> Bool {
-    lhs.userId == rhs.userId && lhs.token == rhs.token && lhs.enabled == rhs.enabled
+    lhs.userId == rhs.userId && lhs.token == rhs.token && lhs.currentRotation == rhs.currentRotation
+      && lhs.observedChampions == rhs.observedChampions
   }
 }
 
