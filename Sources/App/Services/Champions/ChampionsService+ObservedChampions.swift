@@ -23,7 +23,7 @@ extension ChampionsService {
     async throws(ChampionsError) -> ObservedChampionsData
   {
     let currentRotation = data.currentRotation
-    let champions = try await data.champions.asyncMap {
+    let champions = try await data.champions.asyncMapSequential {
       champion throws(ChampionsError) in
       guard let result = try await createChampion(champion, currentRotation)
       else {

@@ -37,7 +37,7 @@ extension ChampionFactory {
   func createChampions(for riotIds: [String], models: [ChampionModel]) throws(OutError)
     -> [Champion]
   {
-    let modelsById = models.associateBy(\.riotId)
+    let modelsById = models.associatedBy(\.riotId)
     return try riotIds.map { id throws(OutError) in
       guard let model = modelsById[id] else {
         throw wrapError(.dataMissing(championId: id))

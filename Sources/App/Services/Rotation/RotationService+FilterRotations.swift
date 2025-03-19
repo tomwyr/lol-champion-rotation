@@ -32,7 +32,7 @@ extension DefaultRotationService {
   private func createRegularRotations(_ championNameQuery: String, _ data: FilterRotationsLocalData)
     async throws(ChampionRotationError) -> [FilteredRegularRotation]
   {
-    return try await data.regularRotations.asyncMap {
+    return try await data.regularRotations.asyncMapSequential {
       rotation async throws(ChampionRotationError) in
       let matchingRiotIds = filterChampions(rotation.champions, by: championNameQuery, data: data)
       let champions = try createChampions(for: matchingRiotIds, models: data.champions)
@@ -57,7 +57,7 @@ extension DefaultRotationService {
     _ champions: [String], by query: String,
     data: FilterRotationsLocalData
   ) -> [String] {
-    let championsByRiotId = data.champions.associateBy(\.riotId)
+    let championsByRiotId = data.champions.associatedBy(\.riotId)
     return champions.filter { riotId in
       guard let champion = championsByRiotId[riotId] else { return false }
       return champion.name.lowercased().contains(query.lowercased())

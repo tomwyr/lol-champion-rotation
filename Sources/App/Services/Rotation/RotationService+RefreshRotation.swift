@@ -32,7 +32,7 @@ extension DefaultRotationService {
     throws(ChampionRotationError) -> ChampionRotationModels
   {
     let (championRotations, champions) = riotData
-    let championsByRiotKey = champions.data.values.associateBy(\.key)
+    let championsByRiotKey = champions.data.values.associatedBy(\.key)
 
     func championRiotId(riotKey: Int) throws(ChampionRotationError) -> String {
       guard let data = championsByRiotKey[String(riotKey)] else {

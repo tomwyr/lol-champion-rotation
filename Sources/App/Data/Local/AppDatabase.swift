@@ -192,7 +192,7 @@ extension AppDatabase {
   }
 
   func saveChampionsFillingIds(data: [ChampionModel]) async throws -> [String] {
-    let championsByRiotId = try await champions().associateBy(\.riotId)
+    let championsByRiotId = try await champions().associatedBy(\.riotId)
 
     return try await runner.run { db in
       try await db.transaction { db in
@@ -317,9 +317,15 @@ extension AppDatabase {
     }
   }
 
-  func getNotificationConfigsWithCurrentRotation() async throws -> [NotificationsConfigModel] {
+  func getCurrentRotationNotificationConfigs() async throws -> [NotificationsConfigModel] {
     try await runner.run { db in
       try await NotificationsConfigModel.query(on: db).filter(\.$currentRotation == true).all()
+    }
+  }
+
+  func getObservedChampionsNotificationConfigs() async throws -> [NotificationsConfigModel] {
+    try await runner.run { db in
+      try await NotificationsConfigModel.query(on: db).filter(\.$observedChampions == true).all()
     }
   }
 }
@@ -338,6 +344,14 @@ extension AppDatabase {
       let created = UserWatchlistsModel(userId: userId)
       try await created.create(on: db)
       return created
+    }
+  }
+
+  func userWatchlists(userIds: [String]) async throws -> [UserWatchlistsModel] {
+    try await runner.run { db in
+      try await UserWatchlistsModel.query(on: db)
+        .filter(\.$userId ~~ userIds)
+        .all()
     }
   }
 

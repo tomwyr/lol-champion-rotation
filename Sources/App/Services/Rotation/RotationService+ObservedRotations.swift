@@ -25,7 +25,7 @@ extension DefaultRotationService {
     async throws(ChampionRotationError) -> ObservedRotationsData
   {
     let currentRotation = data.currentRotation
-    let rotations = try await data.rotations.asyncMap {
+    let rotations = try await data.rotations.asyncMapSequential {
       rotation throws(ChampionRotationError) in
       guard let result = try await createRotation(rotation, currentRotation)
       else {

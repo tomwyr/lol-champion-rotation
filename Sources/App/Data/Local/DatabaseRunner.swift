@@ -1,7 +1,7 @@
 import Fluent
 import FluentPostgresDriver
 
-protocol DatabaseRunner {
+protocol DatabaseRunner: Sendable {
   func run<T>(block: (Database) async throws -> T) async throws -> T
   func runSql<T>(block: (SQLDatabase) async throws -> T) async throws -> T
 }

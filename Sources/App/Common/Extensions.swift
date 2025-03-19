@@ -2,7 +2,7 @@ import Fluent
 import Vapor
 
 extension MutableCollection {
-  func associateBy<Key>(_ selector: KeyPath<Element, Key>) -> [Key: Element] {
+  func associatedBy<Key>(_ selector: KeyPath<Element, Key>) -> [Key: Element] {
     reduce(into: [Key: Element]()) { dict, value in
       dict[value[keyPath: selector]] = value
     }
@@ -114,13 +114,46 @@ extension AsyncMapSequence {
 }
 
 extension Sequence {
-  func asyncMap<T, E: Error>(_ mapper: (Element) async throws(E) -> T) async throws(E) -> [T] {
+  func asyncMapSequential<T, E: Error>(
+    _ mapper: (Element) async throws(E) -> T
+  ) async throws(E) -> [T] {
     var results = [T]()
     for element in self {
       let result = try await mapper(element)
       results.append(result)
     }
     return results
+  }
+}
+
+extension Collection {
+  func asyncMap<T>(
+    operation: @Sendable @escaping (Element) async throws -> T
+  ) async throws -> [T] where Element: Sendable, T: Sendable {
+    try await withThrowingTaskGroup(of: T.self) { group in
+      for element in self {
+        group.addTask { try await operation(element) }
+      }
+      return try await Array(group)
+    }
+  }
+
+  func asyncMap<T>(
+    inChunksOf chunkCount: Int,
+    operation: @Sendable @escaping (Element) async throws -> T
+  ) async throws -> [T] where Element: Sendable, T: Sendable {
+    var results = [T]()
+    for chunk in chunks(ofCount: chunkCount) {
+      let chunkResults = try await chunk.asyncMap(operation: operation)
+      results.append(contentsOf: chunkResults)
+    }
+    return results
+  }
+}
+
+extension Dictionary {
+  var entries: [(Key, Value)] {
+    self.map { ($0, $1) }
   }
 }
 

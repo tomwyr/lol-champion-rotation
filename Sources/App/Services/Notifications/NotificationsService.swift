@@ -31,20 +31,17 @@ struct NotificationsService {
   }
 
   func notifyRotationChanged() async throws {
-    let configs = try await appDb.getNotificationConfigsWithCurrentRotation()
-
-    let notification = PushNotification.rotationChanged(tokens: configs.map(\.token))
-    let result = try await pushNotificationsClient.send(notification)
-
-    try await cleanupStaleTokens(configs, result)
+    try await sendRotationChanged()
+    try await sendChampionsAvailable()
   }
 
-  private func cleanupStaleTokens(
+  func cleanupStaleTokens(
     _ configs: [NotificationsConfigModel],
-    _ result: SendNotificationResult
+    _ results: [SendNotificationResult]
   ) async throws {
+    let staleTokens = Set(results.flatMap(\.staleTokens))
     let staleUserIds = configs.filter { config in
-      result.staleTokens.contains(config.token)
+      staleTokens.contains(config.token)
     }.map(\.userId)
 
     if !staleUserIds.isEmpty {
@@ -58,13 +55,6 @@ struct NotificationsService {
   }
 }
 
-extension PushNotification {
-  static func rotationChanged(tokens: [String]) -> PushNotification {
-    PushNotification(
-      title: "Rotation Changed",
-      body: "New champion rotation is now available",
-      data: ["type": "rotationChanged"],
-      tokens: tokens
-    )
-  }
+enum NotificationsError: Error {
+  case currentRotationUnavailable
 }
