@@ -1,11 +1,12 @@
 import Fluent
 import Vapor
 
+typealias Late<Dependency> = @Sendable (Request) -> Dependency
+
 struct Dependencies {
   var appConfig: AppConfig
   var httpClient: HttpClient
-  // TODO cleanup
-  var fcm: FcmDispatcher?
+  var fcm: Late<FcmDispatcher>
   var mobileUserGuard: RequestAuthenticatorGuard
   var optionalMobileUserGuard: RequestAuthenticatorGuard
 
@@ -13,6 +14,7 @@ struct Dependencies {
     .init(
       appConfig: .fromEnvironment(),
       httpClient: NetworkHttpClient(),
+      fcm: { req in req.fcm },
       mobileUserGuard: MobileUserGuard(),
       optionalMobileUserGuard: OptionalMobileUserGuard()
     )
@@ -74,7 +76,7 @@ struct Dependencies {
   }
 
   func pushNotificationsClient(request: Request) -> PushNotificationsClient {
-    PushNotificationsClient(fcm: fcm ?? request.fcm)
+    PushNotificationsClient(fcm: fcm(request))
   }
 
   func appDb(request: Request) -> AppDatabase {

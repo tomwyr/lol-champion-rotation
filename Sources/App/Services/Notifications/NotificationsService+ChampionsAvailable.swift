@@ -16,7 +16,6 @@ extension NotificationsService {
   }
 
   private func resolveNotificationsData(_ localData: LocalData) -> [NotificationData] {
-    // TODO id -> riotId
     let championsById = localData.champions.associatedBy(\.idString)
     let watchlistsByUserId = localData.userWatchlists.associatedBy(\.userId)
 

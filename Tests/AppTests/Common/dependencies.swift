@@ -14,7 +14,7 @@ extension Dependencies {
     .init(
       appConfig: appConfig,
       httpClient: httpClient,
-      fcm: fcm,
+      fcm: { _ in fcm },
       mobileUserGuard: mobileUserGuard,
       optionalMobileUserGuard: optionalMobileUserGuard
     )
