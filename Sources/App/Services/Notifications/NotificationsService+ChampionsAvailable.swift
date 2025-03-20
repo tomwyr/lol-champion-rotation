@@ -10,13 +10,14 @@ extension NotificationsService {
       throw NotificationsError.currentRotationUnavailable
     }
     let configs = try await appDb.getChampionsAvailableNotificationConfigs()
-    let champions = try await appDb.champions(ids: rotation.champions)
+    let champions = try await appDb.champions(riotIds: rotation.champions)
     let userWatchlists = try await appDb.userWatchlists(userIds: configs.map(\.userId))
     return (configs, champions, userWatchlists)
   }
 
   private func resolveNotificationsData(_ localData: LocalData) -> [NotificationData] {
-    let championsByRiotId = localData.champions.associatedBy(\.riotId)
+    // TODO id -> riotId
+    let championsById = localData.champions.associatedBy(\.idString)
     let watchlistsByUserId = localData.userWatchlists.associatedBy(\.userId)
 
     var configsByChampions = [[String]: [NotificationsConfigModel]]()
@@ -25,7 +26,7 @@ extension NotificationsService {
         continue
       }
       let champions = watchlist.champions
-        .compactMap { championsByRiotId[$0]?.name }
+        .compactMap { championsById[$0]?.name }
         .sorted()
       if !champions.isEmpty {
         configsByChampions[champions, default: []].append(config)

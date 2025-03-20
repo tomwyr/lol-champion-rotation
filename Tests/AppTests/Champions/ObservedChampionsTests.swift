@@ -38,7 +38,6 @@ final class ObservedChampionsTests: AppTests {
         .init(id: uuid("1"), riotId: "Senna", name: "Senna"),
         .init(id: uuid("2"), riotId: "Garen", name: "Garen"),
         .init(id: uuid("3"), riotId: "Nocturne", name: "Nocturne"),
-
       ],
       dbUserWatchlists: [
         .init(

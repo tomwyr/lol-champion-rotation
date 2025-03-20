@@ -6,6 +6,11 @@ import XCTVapor
 typealias InitDb = (Database) async throws -> Void
 typealias InitDbModel<T> = (T) -> Void where T: Model
 
+typealias AppTestsMocks = (
+  httpClient: MockHttpClient,
+  fcm: MockFcmDispatcher
+)
+
 extension AppTests {
   func testConfigureWith(
     appManagementKey: String? = nil,
@@ -19,9 +24,10 @@ extension AppTests {
     b2AuthorizeDownloadData: AuthorizationData? = nil,
     riotPatchVersions: [String]? = nil,
     riotChampionRotationsData: ChampionRotationsData? = nil,
-    riotChampionsData: ChampionsData? = nil
-  ) async throws -> MockHttpClient {
-    let httpClient = MockHttpClient(respond: { url in
+    riotChampionsData: ChampionsData? = nil,
+    sendFcmMessage: SendFcmMessage? = nil
+  ) async throws -> AppTestsMocks {
+    let httpClient = MockHttpClient { url in
       return switch url {
       case requestUrls.riotPatchVersions:
         riotPatchVersions
@@ -34,7 +40,11 @@ extension AppTests {
       default:
         nil
       }
-    })
+    }
+
+    let fcm = MockFcmDispatcher { message in
+      sendFcmMessage?(message) ?? ""
+    }
 
     try await testConfigure(
       deps: .mock(
@@ -42,7 +52,8 @@ extension AppTests {
           appManagementKey: appManagementKey ?? "",
           idHasherSeed: idHasherSeed ?? ""
         ),
-        httpClient: httpClient
+        httpClient: httpClient,
+        fcm: fcm
       ),
       initDb: { db async throws in
         for rotation in dbRegularRotations {
@@ -71,7 +82,7 @@ extension AppTests {
       }
     )
 
-    return httpClient
+    return (httpClient, fcm)
   }
 
   func testConfigure(deps: Dependencies, initDb: InitDb) async throws {

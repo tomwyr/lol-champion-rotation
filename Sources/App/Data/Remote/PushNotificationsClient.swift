@@ -1,7 +1,7 @@
 import FCM
 
 struct PushNotificationsClient {
-  let fcm: FCM
+  let fcm: FcmDispatcher
 
   func send(_ notification: PushNotification) async throws -> SendNotificationResult {
     let results = try await notification.tokens.async.map { token in
@@ -56,3 +56,9 @@ struct SendNotificationResult {
 enum FcmSendStatus {
   case success, staleToken, otherError
 }
+
+protocol FcmDispatcher: Sendable {
+  func send(_ message: FCMMessageDefault) async throws -> String
+}
+
+extension FCM: FcmDispatcher {}

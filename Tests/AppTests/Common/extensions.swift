@@ -13,3 +13,27 @@ extension ChampionData {
     self.init(id: id, key: key, name: name, title: "")
   }
 }
+
+extension AppConfig {
+  static func empty(
+    databaseUrl: String = "",
+    appAllowedOrigins: [String] = [],
+    appManagementKey: String = "",
+    b2AppKeyId: String = "",
+    b2AppKeySecret: String = "",
+    riotApiKey: String = "",
+    idHasherSeed: String = "",
+    firebaseProjectId: String = ""
+  ) -> AppConfig {
+    .init(
+      databaseUrl: databaseUrl,
+      appAllowedOrigins: appAllowedOrigins,
+      appManagementKey: appManagementKey,
+      b2AppKeyId: b2AppKeyId,
+      b2AppKeySecret: b2AppKeySecret,
+      riotApiKey: riotApiKey,
+      idHasherSeed: idHasherSeed,
+      firebaseProjectId: firebaseProjectId
+    )
+  }
+}

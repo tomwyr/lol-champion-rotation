@@ -4,6 +4,8 @@ import Vapor
 struct Dependencies {
   var appConfig: AppConfig
   var httpClient: HttpClient
+  // TODO cleanup
+  var fcm: FcmDispatcher?
   var mobileUserGuard: RequestAuthenticatorGuard
   var optionalMobileUserGuard: RequestAuthenticatorGuard
 
@@ -72,9 +74,7 @@ struct Dependencies {
   }
 
   func pushNotificationsClient(request: Request) -> PushNotificationsClient {
-    PushNotificationsClient(
-      fcm: request.fcm
-    )
+    PushNotificationsClient(fcm: fcm ?? request.fcm)
   }
 
   func appDb(request: Request) -> AppDatabase {

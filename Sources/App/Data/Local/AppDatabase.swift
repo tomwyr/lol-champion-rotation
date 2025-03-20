@@ -159,6 +159,15 @@ extension AppDatabase {
     }
   }
 
+  func champions(riotIds: [String]) async throws -> [ChampionModel] {
+    try await runner.run { db in
+      try await ChampionModel.query(on: db)
+        .filter(\.$riotId ~~ riotIds)
+        .sort(\.$name)
+        .all()
+    }
+  }
+
   func filterChampions(name: String) async throws -> [ChampionModel] {
     try await runner.run { db in
       try await ChampionModel.query(on: db)

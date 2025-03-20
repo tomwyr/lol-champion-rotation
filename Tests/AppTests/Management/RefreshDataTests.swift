@@ -228,7 +228,7 @@ class RefreshDataTests: AppTests {
   }
 
   func testMultipleLocalVersions() async throws {
-    let httpClient = try await testConfigureWith(
+    let (httpClient, _) = try await testConfigureWith(
       appManagementKey: "123",
       dbPatchVersions: [
         .init(value: "15.23.5"),
@@ -248,7 +248,7 @@ class RefreshDataTests: AppTests {
   }
 
   func testMultipleRiotVersions() async throws {
-    let httpClient = try await testConfigureWith(
+    let (httpClient, _) = try await testConfigureWith(
       appManagementKey: "123",
       dbPatchVersions: [.init(value: "1")],
       riotPatchVersions: ["15.23.5", "15.23.0", "15.22.8"]
