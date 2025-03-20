@@ -25,8 +25,8 @@ class AppTests: XCTestCase {
 
 extension NotificationsConfigModel: Equatable {
   static public func == (lhs: NotificationsConfigModel, rhs: NotificationsConfigModel) -> Bool {
-    lhs.userId == rhs.userId && lhs.token == rhs.token && lhs.currentRotation == rhs.currentRotation
-      && lhs.observedChampions == rhs.observedChampions
+    lhs.userId == rhs.userId && lhs.token == rhs.token && lhs.rotationChanged == rhs.rotationChanged
+      && lhs.championsAvailable == rhs.championsAvailable
   }
 }
 

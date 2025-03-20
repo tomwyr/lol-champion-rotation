@@ -27,7 +27,7 @@ class UserTests: AppTests {
   func testUninitializedNotifications() async throws {
     _ = try await testConfigureWith(
       dbNotificationsConfigs: [
-        .init(userId: "123", token: "abc", currentRotation: true, observedChampions: true)
+        .init(userId: "123", token: "abc", rotationChanged: true, championsAvailable: true)
       ]
     )
 
@@ -45,7 +45,7 @@ class UserTests: AppTests {
       dbNotificationsConfigs: [
         .init(
           userId: mobileUserId, token: "abc",
-          currentRotation: false, observedChampions: false
+          rotationChanged: false, championsAvailable: false
         )
       ]
     )
@@ -61,17 +61,17 @@ class UserTests: AppTests {
 
   func testEnabledNotifications() async throws {
     let configs = [
-      (currentRotation: true, observedChampions: false),
-      (currentRotation: false, observedChampions: true),
-      (currentRotation: true, observedChampions: true),
+      (rotationChanged: true, championsAvailable: false),
+      (rotationChanged: false, championsAvailable: true),
+      (rotationChanged: true, championsAvailable: true),
     ]
 
-    for (currentRotation, observedChampions) in configs {
+    for (rotationChanged, championsAvailable) in configs {
       _ = try await testConfigureWith(
         dbNotificationsConfigs: [
           .init(
             userId: mobileUserId, token: "abc",
-            currentRotation: currentRotation, observedChampions: observedChampions
+            rotationChanged: rotationChanged, championsAvailable: championsAvailable
           )
         ]
       )

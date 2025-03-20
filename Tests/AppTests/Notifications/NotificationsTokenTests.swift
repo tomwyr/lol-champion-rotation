@@ -30,7 +30,7 @@ class PutNotificationsTokenTests: AppTests {
   func testAddingNewToken() async throws {
     let existingConfig = NotificationsConfigModel(
       userId: "123", token: "def",
-      currentRotation: true, observedChampions: true
+      rotationChanged: true, championsAvailable: true
     )
 
     _ = try await testConfigureWith(dbNotificationsConfigs: [existingConfig])
@@ -42,7 +42,7 @@ class PutNotificationsTokenTests: AppTests {
     ) { res async throws in
       let addedConfig = NotificationsConfigModel(
         userId: mobileUserId, token: "abc",
-        currentRotation: false, observedChampions: false
+        rotationChanged: false, championsAvailable: false
       )
       let configs = try await dbNotificationConfigs()
 
@@ -54,7 +54,7 @@ class PutNotificationsTokenTests: AppTests {
   func testUpdatingExistingToken() async throws {
     let existingConfig = NotificationsConfigModel(
       userId: mobileUserId, token: "def",
-      currentRotation: true, observedChampions: true
+      rotationChanged: true, championsAvailable: true
     )
 
     _ = try await testConfigureWith(dbNotificationsConfigs: [existingConfig])
@@ -66,7 +66,7 @@ class PutNotificationsTokenTests: AppTests {
     ) { res async throws in
       let updatedConfig = NotificationsConfigModel(
         userId: mobileUserId, token: "abc",
-        currentRotation: true, observedChampions: true
+        rotationChanged: true, championsAvailable: true
       )
       let configs = try await dbNotificationConfigs()
 

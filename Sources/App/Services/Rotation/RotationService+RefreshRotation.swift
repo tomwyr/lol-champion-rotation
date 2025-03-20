@@ -7,7 +7,7 @@ extension DefaultRotationService {
     let rotationChanged = try await saveRotationsIfChanged(rotations)
     let championsAdded = try await saveChampionsData(riotData)
     if rotationChanged {
-      try? await notificationsService.notifyRotationChanged()
+      try? await notificationsService.onRotationChanged()
     }
     return RefreshRotationResult(
       rotationChanged: rotationChanged,

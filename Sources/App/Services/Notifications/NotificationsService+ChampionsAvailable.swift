@@ -1,5 +1,5 @@
 extension NotificationsService {
-  func sendChampionsAvailable() async throws {
+  func notifyChampionsAvailable() async throws {
     let localData = try await loadLocalData()
     let notificationsData = resolveNotificationsData(localData)
     try await sendNotifications(localData, notificationsData)
@@ -9,7 +9,7 @@ extension NotificationsService {
     guard let rotation = try await appDb.currentRegularRotation() else {
       throw NotificationsError.currentRotationUnavailable
     }
-    let configs = try await appDb.getObservedChampionsNotificationConfigs()
+    let configs = try await appDb.getChampionsAvailableNotificationConfigs()
     let champions = try await appDb.champions(ids: rotation.champions)
     let userWatchlists = try await appDb.userWatchlists(userIds: configs.map(\.userId))
     return (configs, champions, userWatchlists)

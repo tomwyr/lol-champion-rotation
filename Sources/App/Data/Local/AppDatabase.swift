@@ -317,15 +317,15 @@ extension AppDatabase {
     }
   }
 
-  func getCurrentRotationNotificationConfigs() async throws -> [NotificationsConfigModel] {
+  func getRotationChangedNotificationConfigs() async throws -> [NotificationsConfigModel] {
     try await runner.run { db in
-      try await NotificationsConfigModel.query(on: db).filter(\.$currentRotation == true).all()
+      try await NotificationsConfigModel.query(on: db).filter(\.$rotationChanged == true).all()
     }
   }
 
-  func getObservedChampionsNotificationConfigs() async throws -> [NotificationsConfigModel] {
+  func getChampionsAvailableNotificationConfigs() async throws -> [NotificationsConfigModel] {
     try await runner.run { db in
-      try await NotificationsConfigModel.query(on: db).filter(\.$observedChampions == true).all()
+      try await NotificationsConfigModel.query(on: db).filter(\.$championsAvailable == true).all()
     }
   }
 }

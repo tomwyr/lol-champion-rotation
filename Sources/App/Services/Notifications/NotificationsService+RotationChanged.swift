@@ -1,6 +1,6 @@
 extension NotificationsService {
-  func sendRotationChanged() async throws {
-    let configs = try await appDb.getCurrentRotationNotificationConfigs()
+  func notifyRotationChanged() async throws {
+    let configs = try await appDb.getRotationChangedNotificationConfigs()
     let notification = PushNotification.rotationChanged(tokens: configs.map(\.token))
     let result = try await pushNotificationsClient.send(notification)
     try await cleanupStaleTokens(configs, [result])

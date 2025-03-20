@@ -28,7 +28,7 @@ class GetNotificationsSettingsTests: AppTests {
   func testNonExistingConfig() async throws {
     let existingConfig = NotificationsConfigModel(
       userId: "123", token: "def",
-      currentRotation: true, observedChampions: true
+      rotationChanged: true, championsAvailable: true
     )
 
     _ = try await testConfigureWith(dbNotificationsConfigs: [existingConfig])
@@ -44,7 +44,7 @@ class GetNotificationsSettingsTests: AppTests {
   func testExistingConfig() async throws {
     let existingConfig = NotificationsConfigModel(
       userId: mobileUserId, token: "abc",
-      currentRotation: true, observedChampions: true
+      rotationChanged: true, championsAvailable: true
     )
 
     _ = try await testConfigureWith(dbNotificationsConfigs: [existingConfig])
@@ -56,7 +56,7 @@ class GetNotificationsSettingsTests: AppTests {
       XCTAssertEqual(res.status, .ok)
       XCTAssertBody(
         res.body,
-        ["currentRotation": true, "observedChampions": true]
+        ["rotationChanged": true, "championsAvailable": true]
       )
     }
   }
@@ -69,7 +69,7 @@ class PutNotificationsSettingsTests: AppTests {
     try await app.test(
       .PUT, "/notifications/settings",
       headers: reqHeaders(),
-      body: ["currentRotation": true, "observedChampions": true]
+      body: ["rotationChanged": true, "championsAvailable": true]
     ) { res async in
       XCTAssertEqual(res.status, .unauthorized)
     }
@@ -81,7 +81,7 @@ class PutNotificationsSettingsTests: AppTests {
     try await app.test(
       .PUT, "/notifications/settings",
       headers: reqHeaders(accessToken: mobileToken),
-      body: ["currentRotation": true, "observedChampions": true]
+      body: ["rotationChanged": true, "championsAvailable": true]
     ) { res async in
       XCTAssertEqual(res.status, .noContent)
     }
@@ -90,7 +90,7 @@ class PutNotificationsSettingsTests: AppTests {
   func testAddingSettings() async throws {
     let existingConfig = NotificationsConfigModel(
       userId: "123", token: "def",
-      currentRotation: false, observedChampions: false
+      rotationChanged: false, championsAvailable: false
     )
 
     _ = try await testConfigureWith(dbNotificationsConfigs: [existingConfig])
@@ -98,11 +98,11 @@ class PutNotificationsSettingsTests: AppTests {
     try await app.test(
       .PUT, "/notifications/settings",
       headers: reqHeaders(accessToken: mobileToken),
-      body: ["currentRotation": true, "observedChampions": true]
+      body: ["rotationChanged": true, "championsAvailable": true]
     ) { res async throws in
       let addedConfig = NotificationsConfigModel(
         userId: mobileUserId, token: "",
-        currentRotation: true, observedChampions: true
+        rotationChanged: true, championsAvailable: true
       )
       let configs = try await dbNotificationConfigs()
 
@@ -114,7 +114,7 @@ class PutNotificationsSettingsTests: AppTests {
   func testUpdatingSettings() async throws {
     let existingConfig = NotificationsConfigModel(
       userId: mobileUserId, token: "abc",
-      currentRotation: false, observedChampions: true
+      rotationChanged: false, championsAvailable: true
     )
 
     _ = try await testConfigureWith(dbNotificationsConfigs: [existingConfig])
@@ -122,11 +122,11 @@ class PutNotificationsSettingsTests: AppTests {
     try await app.test(
       .PUT, "/notifications/settings",
       headers: reqHeaders(accessToken: mobileToken),
-      body: ["currentRotation": true, "observedChampions": false]
+      body: ["rotationChanged": true, "championsAvailable": false]
     ) { res async throws in
       let updatedConfig = NotificationsConfigModel(
         userId: mobileUserId, token: "abc",
-        currentRotation: true, observedChampions: false
+        rotationChanged: true, championsAvailable: false
       )
       let configs = try await dbNotificationConfigs()
 

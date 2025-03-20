@@ -18,21 +18,21 @@ struct NotificationsService {
       return nil
     }
     return NotificationsSettings(
-      currentRotation: data.currentRotation,
-      observedChampions: data.observedChampions
+      rotationChanged: data.rotationChanged,
+      championsAvailable: data.championsAvailable
     )
   }
 
   func updateSettings(userId: String, input: NotificationsSettings) async throws {
     let config = try await getOrCreateConfig(userId)
-    config.currentRotation = input.currentRotation
-    config.observedChampions = input.observedChampions
+    config.rotationChanged = input.rotationChanged
+    config.championsAvailable = input.championsAvailable
     try await appDb.updateNotificationsConfig(data: config)
   }
 
-  func notifyRotationChanged() async throws {
-    try await sendRotationChanged()
-    try await sendChampionsAvailable()
+  func onRotationChanged() async throws {
+    try await notifyRotationChanged()
+    try await notifyChampionsAvailable()
   }
 
   func cleanupStaleTokens(
@@ -51,7 +51,7 @@ struct NotificationsService {
 
   private func getOrCreateConfig(_ userId: String) async throws -> NotificationsConfigModel {
     try await appDb.getNotificationsConfig(userId: userId)
-      ?? .init(userId: userId, token: "", currentRotation: false, observedChampions: false)
+      ?? .init(userId: userId, token: "", rotationChanged: false, championsAvailable: false)
   }
 }
 

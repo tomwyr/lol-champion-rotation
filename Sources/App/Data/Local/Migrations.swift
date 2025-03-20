@@ -12,7 +12,7 @@ extension Migrations {
     add(ChangeDeviceIdToUserId())
     add(AddUserWatchlists())
     add(AddChampionsToUserWatchlists())
-    add(AddObservedChampionsNotification())
+    add(AddChampionsAvailableNotification())
   }
 }
 
@@ -227,17 +227,17 @@ struct AddChampionsToUserWatchlists: AsyncMigration {
   }
 }
 
-struct AddObservedChampionsNotification: AsyncMigration {
+struct AddChampionsAvailableNotification: AsyncMigration {
   func prepare(on db: any Database) async throws {
     try await db.schema("notifications-configs")
-      .field("current_rotation", .bool)
-      .field("observed_champions", .bool)
+      .field("rotation_changed", .bool)
+      .field("champions_available", .bool)
       .update()
 
     try await (db as! SQLDatabase).raw(
       """
       UPDATE "notifications-configs"
-      SET current_rotation = enabled, observed_champions = false
+      SET rotation_changed = enabled, champions_available = false
       """
     ).run()
 
@@ -254,13 +254,13 @@ struct AddObservedChampionsNotification: AsyncMigration {
     try await (db as! SQLDatabase).raw(
       """
       UPDATE "notifications-configs"
-      SET enabled = current_rotation
+      SET enabled = rotation_changed
       """
     ).run()
 
     try await db.schema("notifications-configs")
-      .deleteField("current_rotation")
-      .deleteField("observed_champions")
+      .deleteField("rotation_changed")
+      .deleteField("champions_available")
       .update()
   }
 }
