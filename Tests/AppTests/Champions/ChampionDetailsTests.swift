@@ -106,7 +106,6 @@ class ChampionDetailsTests: AppTests {
           ],
           "overview": [
             "occurrences": 0,
-            "popularity": 1,
           ],
           "history": [],
         ]

@@ -108,7 +108,7 @@ extension ChampionsService {
     let championStreak = data.championStreak
 
     let occurrences = rotationsCount.first { $0.champion == champion.riotId }?.presentIn ?? 0
-    let popularity = calcPopularity(champion, data)
+    let popularity = try? ChampionPopularity().calculate(for: champion, data: rotationsCount)
 
     var currentStreak: Int? = nil
     if let championStreak {
@@ -124,24 +124,6 @@ extension ChampionsService {
       popularity: popularity,
       currentStreak: currentStreak
     )
-  }
-
-  private func calcPopularity(_ champion: ChampionModel, _ data: ChampionDetailsLocalData) -> Int {
-    let rotationsCount = data.championsRotationsCount
-
-    var championScore = 0.0
-    var scores = [Double]()
-    for count in rotationsCount {
-      let relativeScore = Double(count.presentIn) / Double(count.afterRelease)
-      let globalScore = Double(count.presentIn) / Double(count.total)
-      let score = 0.5 * relativeScore + 0.5 * globalScore
-      scores.append(score)
-      if count.champion == champion.riotId {
-        championScore = score
-      }
-    }
-
-    return scores.count { $0 > championScore } + 1
   }
 
   private func createHistory(_ champion: ChampionModel, _ data: ChampionDetailsLocalData)

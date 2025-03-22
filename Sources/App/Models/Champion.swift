@@ -19,7 +19,7 @@ struct ChampionDetailsAvailability: Content {
 
 struct ChampionDetailsOverview: Content {
   let occurrences: Int
-  let popularity: Int
+  let popularity: Int?
   let currentStreak: Int?
 }
 

@@ -228,9 +228,13 @@ extension AppDatabase {
   {
     let query: SQLQueryString = """
       SELECT riot_id as "champion",
-       (SELECT COUNT(*) FROM "regular-champion-rotations" WHERE riot_id = ANY(champions)) as "presentIn",
-       (SELECT COUNT(*) FROM "regular-champion-rotations" WHERE observed_at >= released_at) as "afterRelease",
-       (SELECT COUNT(*) FROM "regular-champion-rotations") as "total"
+        (SELECT COUNT(*) FROM "regular-champion-rotations" WHERE riot_id = ANY(champions)) AS "presentIn",
+        CASE
+          WHEN released_at IS NULL THEN NULL
+        ELSE
+          (SELECT COUNT(*) FROM "regular-champion-rotations" WHERE observed_at >= released_at)
+        END AS "afterRelease",
+        (SELECT COUNT(*) FROM "regular-champion-rotations") AS "total"
       FROM "champions"
       """
 

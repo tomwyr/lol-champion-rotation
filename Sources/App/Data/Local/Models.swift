@@ -221,7 +221,7 @@ final class UserWatchlistsModel: Model, @unchecked Sendable {
 struct ChampionRotationsCountModel: Codable {
   let champion: String
   let presentIn: Int
-  let afterRelease: Int
+  let afterRelease: Int?
   let total: Int
 }
 
