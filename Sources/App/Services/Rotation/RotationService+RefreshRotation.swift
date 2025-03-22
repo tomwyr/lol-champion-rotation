@@ -74,7 +74,7 @@ extension DefaultRotationService {
   {
     do {
       let data = riotData.champions.data.values.toModels()
-      let createdChampionsIds = try await appDb.saveChampionsFillingIds(data: data)
+      let createdChampionsIds = try await appDb.saveChampions(data: data)
       return !createdChampionsIds.isEmpty
     } catch {
       throw .dataOperationFailed(cause: error)

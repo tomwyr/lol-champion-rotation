@@ -200,7 +200,7 @@ extension AppDatabase {
     }
   }
 
-  func saveChampionsFillingIds(data: [ChampionModel]) async throws -> [String] {
+  func saveChampions(data: [ChampionModel]) async throws -> [String] {
     let championsByRiotId = try await champions().associatedBy(\.riotId)
 
     return try await runner.run { db in
