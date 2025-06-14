@@ -39,11 +39,15 @@ extension DefaultRotationService {
       for: data.rotation.champions, models: data.champions
     ).sorted { $0.name < $1.name }
 
+    guard let id = data.rotation.idString else {
+      throw .rotationDataMissing
+    }
     let duration = try await getRotationDuration(data.rotation)
-    let current = data.rotation.id != nil && data.rotation.id == data.currentRotation?.id
+    let current = id == data.currentRotation?.idString
     let observing = data.userWatchlists?.rotations.contains(rotationId)
 
     return ChampionRotationDetails(
+      id: id,
       duration: duration,
       champions: champions,
       current: current,

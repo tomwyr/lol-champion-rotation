@@ -1,7 +1,7 @@
 import Foundation
 
 extension DefaultRotationService {
-  func currentRotation() async throws(ChampionRotationError) -> ChampionRotation {
+  func currentRotation() async throws(ChampionRotationError) -> CurrentChampionRotation {
     let patchVersion = try? await versionService.latestVersion()
     let localData = try await loadCurrentRotationLocalData()
     return try await createChampionRotation(patchVersion, localData)
@@ -39,7 +39,7 @@ extension DefaultRotationService {
   }
 
   private func createChampionRotation(_ patchVersion: String?, _ data: CurrentRotationLocalData)
-    async throws(ChampionRotationError) -> ChampionRotation
+    async throws(ChampionRotationError) -> CurrentChampionRotation
   {
     guard let id = data.regularRotation.idString else {
       throw .rotationDataMissing
@@ -63,7 +63,7 @@ extension DefaultRotationService {
         nil as String?
       }
 
-    return ChampionRotation(
+    return CurrentChampionRotation(
       id: id,
       patchVersion: patchVersion,
       duration: duration,
