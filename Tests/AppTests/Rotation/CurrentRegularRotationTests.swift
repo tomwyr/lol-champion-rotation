@@ -22,7 +22,7 @@ class CurrentRegularRotationTests: AppTests {
     )
 
     try await app.test(
-      .GET, "/rotations/current/regular"
+      .GET, "/rotations/current"
     ) { res async in
       XCTAssertEqual(res.status, .ok)
       XCTAssertBody(
@@ -69,7 +69,7 @@ class CurrentRegularRotationTests: AppTests {
     )
 
     try await app.test(
-      .GET, "/rotations/current/regular"
+      .GET, "/rotations/current"
     ) { res async in
       XCTAssertEqual(res.status, .ok)
       XCTAssertBody(

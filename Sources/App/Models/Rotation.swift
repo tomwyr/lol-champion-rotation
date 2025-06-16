@@ -1,6 +1,6 @@
 import Vapor
 
-struct CurrentChampionRotation: Content {
+struct ChampionRotationsOverview: Content {
   let id: String
   let patchVersion: String?
   let duration: ChampionRotationDuration

@@ -2,7 +2,7 @@ import XCTVapor
 
 @testable import App
 
-class CurrentRotationTests: AppTests {
+class RotationsOverviewTests: AppTests {
   func testSimpleResult() async throws {
     _ = try await testConfigureWith(
       idHasherSeed: idHasherSeed,
@@ -30,7 +30,7 @@ class CurrentRotationTests: AppTests {
     )
 
     try await app.test(
-      .GET, "/rotations/current"
+      .GET, "/rotations/overview"
     ) { res async in
       XCTAssertEqual(res.status, .ok)
       XCTAssertBody(
@@ -92,7 +92,7 @@ class CurrentRotationTests: AppTests {
     )
 
     try await app.test(
-      .GET, "/rotations/current"
+      .GET, "/rotations/overview"
     ) { res async in
       XCTAssertEqual(res.status, .ok)
       XCTAssertBody(
@@ -139,7 +139,7 @@ class CurrentRotationTests: AppTests {
     )
 
     try await app.test(
-      .GET, "/rotations/current"
+      .GET, "/rotations/overview"
     ) { res async in
       XCTAssertEqual(res.status, .ok)
       XCTAssertBody(
@@ -181,7 +181,7 @@ class CurrentRotationTests: AppTests {
     )
 
     try await app.test(
-      .GET, "/rotations/current"
+      .GET, "/rotations/overview"
     ) { res async in
       XCTAssertEqual(res.status, .ok)
       XCTAssertBody(
@@ -222,7 +222,7 @@ class CurrentRotationTests: AppTests {
     )
 
     try await app.test(
-      .GET, "/rotations/current"
+      .GET, "/rotations/overview"
     ) { res async in
       XCTAssertEqual(res.status, .ok)
       XCTAssertBody(
@@ -268,7 +268,7 @@ class CurrentRotationTests: AppTests {
     )
 
     try await app.test(
-      .GET, "/rotations/current"
+      .GET, "/rotations/overview"
     ) { res async in
       XCTAssertEqual(res.status, .ok)
       XCTAssertBody(
@@ -325,7 +325,7 @@ class CurrentRotationTests: AppTests {
     )
 
     try await app.test(
-      .GET, "/rotations/current"
+      .GET, "/rotations/overview"
     ) { res async in
       XCTAssertEqual(res.status, .ok)
       XCTAssertBody(

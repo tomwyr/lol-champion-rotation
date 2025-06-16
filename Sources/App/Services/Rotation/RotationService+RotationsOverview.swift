@@ -1,14 +1,14 @@
 import Foundation
 
 extension DefaultRotationService {
-  func currentRotation() async throws(ChampionRotationError) -> CurrentChampionRotation {
+  func rotationsOverview() async throws(ChampionRotationError) -> ChampionRotationsOverview {
     let patchVersion = try? await versionService.latestVersion()
-    let localData = try await loadCurrentRotationLocalData()
-    return try await createChampionRotation(patchVersion, localData)
+    let localData = try await loadRotationsOverviewLocalData()
+    return try await createRotationsOverview(patchVersion, localData)
   }
 
-  private func loadCurrentRotationLocalData() async throws(ChampionRotationError)
-    -> CurrentRotationLocalData
+  private func loadRotationsOverviewLocalData() async throws(ChampionRotationError)
+    -> RotationsOverviewLocalData
   {
     let regularRotation: RegularChampionRotationModel?
     let beginnerRotation: BeginnerChampionRotationModel?
@@ -38,8 +38,8 @@ extension DefaultRotationService {
     )
   }
 
-  private func createChampionRotation(_ patchVersion: String?, _ data: CurrentRotationLocalData)
-    async throws(ChampionRotationError) -> CurrentChampionRotation
+  private func createRotationsOverview(_ patchVersion: String?, _ data: RotationsOverviewLocalData)
+    async throws(ChampionRotationError) -> ChampionRotationsOverview
   {
     guard let id = data.regularRotation.idString else {
       throw .rotationDataMissing
@@ -63,7 +63,7 @@ extension DefaultRotationService {
         nil as String?
       }
 
-    return CurrentChampionRotation(
+    return ChampionRotationsOverview(
       id: id,
       patchVersion: patchVersion,
       duration: duration,
@@ -75,7 +75,7 @@ extension DefaultRotationService {
   }
 }
 
-private typealias CurrentRotationLocalData = (
+private typealias RotationsOverviewLocalData = (
   regularRotation: RegularChampionRotationModel,
   beginnerRotation: BeginnerChampionRotationModel,
   champions: [ChampionModel],

@@ -38,13 +38,13 @@ func rotationsRoutes(_ app: Application, _ deps: Dependencies) {
       return try await rotationService.observedRotations(by: auth.userId)
     }
 
-    rotations.get("current") { req in
+    rotations.get("overview") { req in
       try req.auth.require(AnyUserAuth.self)
       let rotationService = deps.rotationService(request: req)
-      return try await rotationService.currentRotation()
+      return try await rotationService.rotationsOverview()
     }
 
-    rotations.get("current", "regular") { req in
+    rotations.get("current") { req in
       try req.auth.require(AnyUserAuth.self)
       let rotationService = deps.rotationService(request: req)
       return try await rotationService.currentRegularRotation()
