@@ -10,6 +10,12 @@ struct CurrentChampionRotation: Content {
   let nextRotationToken: String?
 }
 
+struct ChampionRotationSummary: Content {
+  let id: String
+  let duration: ChampionRotationDuration
+  let champions: [Champion]
+}
+
 struct ChampionRotationDetails: Content {
   let id: String
   let duration: ChampionRotationDuration

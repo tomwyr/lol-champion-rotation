@@ -44,6 +44,12 @@ func rotationsRoutes(_ app: Application, _ deps: Dependencies) {
       return try await rotationService.currentRotation()
     }
 
+    rotations.get("current", "regular") { req in
+      try req.auth.require(AnyUserAuth.self)
+      let rotationService = deps.rotationService(request: req)
+      return try await rotationService.currentRegularRotation()
+    }
+
     rotations.get("predict") { req in
       try req.auth.require(AnyUserAuth.self)
       let rotationService = deps.rotationService(request: req)

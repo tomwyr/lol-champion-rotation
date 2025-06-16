@@ -2,6 +2,7 @@ import Foundation
 
 protocol RotationService {
   func currentRotation() async throws(ChampionRotationError) -> CurrentChampionRotation
+  func currentRegularRotation() async throws(ChampionRotationError) -> ChampionRotationSummary
   func predictRotation() async throws(ChampionRotationError) -> ChampionRotationPrediction
   func rotation(rotationId: String, userId: String?) async throws(ChampionRotationError)
     -> ChampionRotationDetails?
