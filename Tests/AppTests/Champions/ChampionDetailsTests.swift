@@ -16,7 +16,7 @@ class ChampionDetailsTests: AppTests {
     )
 
     try await app.test(
-      .GET, "/champions/\(uuidString("2"))"
+      .GET, "/champions/Garen"
     ) { res async in
       XCTAssertEqual(res.status, .notFound)
     }
@@ -35,7 +35,56 @@ class ChampionDetailsTests: AppTests {
     )
 
     try await app.test(
-      .GET, "/champions/\(uuidString("1"))"
+      .GET, "/champions/Nocturne"
+    ) { res async in
+      XCTAssertEqual(res.status, .ok)
+      XCTAssertBody(
+        res.body,
+        [
+          "id": uuidString("1"),
+          "imageUrl": imageUrl("Nocturne"),
+          "name": "Nocturne",
+          "title": "the Eternal Nightmare",
+          "availability": [
+            [
+              "rotationType": "regular",
+              "current": false,
+            ],
+            [
+              "rotationType": "beginner",
+              "current": false,
+            ],
+          ],
+          "overview": [
+            "occurrences": 0,
+            "popularity": 1,
+            "currentStreak": 0,
+          ],
+          "history": [
+            [
+              "type": "release",
+              "releasedAt": "2024-01-01T00:00:00Z",
+            ]
+          ],
+        ]
+      )
+    }
+  }
+
+  func testKnownChampionCaseInsensitive() async throws {
+    _ = try await testConfigureWith(
+      idHasherSeed: idHasherSeed,
+      dbChampions: [
+        .init(
+          id: uuid("1"), releasedAt: .iso("2024-01-01T00:00:00Z")!, riotId: "Nocturne",
+          name: "Nocturne", title: "the Eternal Nightmare")
+      ],
+      dbPatchVersions: [.init(value: "15.0.1")],
+      b2AuthorizeDownloadData: .init(authorizationToken: "123")
+    )
+
+    try await app.test(
+      .GET, "/champions/nocturne"
     ) { res async in
       XCTAssertEqual(res.status, .ok)
       XCTAssertBody(
@@ -84,7 +133,7 @@ class ChampionDetailsTests: AppTests {
     )
 
     try await app.test(
-      .GET, "/champions/\(uuidString("1"))"
+      .GET, "/champions/Nocturne"
     ) { res async in
       XCTAssertEqual(res.status, .ok)
       XCTAssertBody(
@@ -105,7 +154,7 @@ class ChampionDetailsTests: AppTests {
             ],
           ],
           "overview": [
-            "occurrences": 0,
+            "occurrences": 0
           ],
           "history": [],
         ]
@@ -129,7 +178,7 @@ class ChampionDetailsTests: AppTests {
     )
 
     try await app.test(
-      .GET, "/champions/\(uuidString("1"))"
+      .GET, "/champions/Nocturne"
     ) { res async in
       XCTAssertEqual(res.status, .ok)
       XCTAssertBody(
@@ -195,7 +244,7 @@ class ChampionDetailsTests: AppTests {
     )
 
     try await app.test(
-      .GET, "/champions/\(uuidString("1"))"
+      .GET, "/champions/Nocturne"
     ) { res async in
       XCTAssertEqual(res.status, .ok)
       XCTAssertBody(
@@ -269,7 +318,7 @@ class ChampionDetailsTests: AppTests {
     )
 
     try await app.test(
-      .GET, "/champions/\(uuidString("1"))"
+      .GET, "/champions/Nocturne"
     ) { res async in
       XCTAssertEqual(res.status, .ok)
       XCTAssertBody(
@@ -388,7 +437,7 @@ class ChampionDetailsTests: AppTests {
     )
 
     try await app.test(
-      .GET, "/champions/\(uuidString("1"))"
+      .GET, "/champions/Nocturne"
     ) { res async in
       XCTAssertEqual(res.status, .ok)
       XCTAssertBody(
@@ -483,7 +532,7 @@ class ChampionDetailsTests: AppTests {
     )
 
     try await app.test(
-      .GET, "/champions/\(uuidString("1"))"
+      .GET, "/champions/Nocturne"
     ) { res async in
       XCTAssertEqual(res.status, .ok)
       XCTAssertBody(
@@ -574,7 +623,7 @@ class ChampionDetailsTests: AppTests {
     )
 
     try await app.test(
-      .GET, "/champions/\(uuidString("1"))"
+      .GET, "/champions/Nocturne"
     ) { res async in
       XCTAssertEqual(res.status, .ok)
       XCTAssertBody(
@@ -655,7 +704,7 @@ class ChampionDetailsTests: AppTests {
     )
 
     try await app.test(
-      .GET, "/champions/\(uuidString("1"))"
+      .GET, "/champions/Nocturne"
     ) { res async in
       XCTAssertEqual(res.status, .ok)
       XCTAssertBody(
@@ -735,7 +784,7 @@ class ChampionDetailsTests: AppTests {
     )
 
     try await app.test(
-      .GET, "/champions/\(uuidString("1"))",
+      .GET, "/champions/Nocturne",
       headers: reqHeaders(accessToken: mobileToken)
     ) { res async in
       XCTAssertEqual(res.status, .ok)
@@ -789,7 +838,7 @@ class ChampionDetailsTests: AppTests {
     )
 
     try await app.test(
-      .GET, "/champions/\(uuidString("1"))",
+      .GET, "/champions/Nocturne",
       headers: reqHeaders(accessToken: mobileToken)
     ) { res async in
       XCTAssertEqual(res.status, .ok)

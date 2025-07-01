@@ -7,7 +7,7 @@ final class UpdateObservChampionTests: AppTests {
     _ = try await testConfigureWith()
 
     try await app.test(
-      .POST, "/champions/\(uuidString("1"))/observe",
+      .POST, "/champions/Nocturne/observe",
       body: ["observing": true]
     ) { res async in
       XCTAssertEqual(res.status, .unauthorized)
@@ -16,13 +16,17 @@ final class UpdateObservChampionTests: AppTests {
 
   func testAddingNonObservedChampion() async throws {
     _ = try await testConfigureWith(
+      dbChampions: [
+        .init(id: uuid("1"), riotId: "Nocturne"),
+        .init(id: uuid("2"), riotId: "Garen"),
+      ],
       dbUserWatchlists: [
         .init(userId: mobileUserId, champions: [uuidString("2")])
-      ]
+      ],
     )
 
     try await app.test(
-      .POST, "/champions/\(uuidString("1"))/observe",
+      .POST, "/champions/Nocturne/observe",
       headers: reqHeaders(accessToken: mobileToken),
       body: ["observing": true]
     ) { res async throws in
@@ -34,13 +38,16 @@ final class UpdateObservChampionTests: AppTests {
 
   func testAddingObservedChampion() async throws {
     _ = try await testConfigureWith(
+      dbChampions: [
+        .init(id: uuid("1"), riotId: "Nocturne")
+      ],
       dbUserWatchlists: [
         .init(userId: mobileUserId, champions: [uuidString("1")])
       ]
     )
 
     try await app.test(
-      .POST, "/champions/\(uuidString("1"))/observe",
+      .POST, "/champions/Nocturne/observe",
       headers: reqHeaders(accessToken: mobileToken),
       body: ["observing": true]
     ) { res async throws in
@@ -52,13 +59,16 @@ final class UpdateObservChampionTests: AppTests {
 
   func testRemovingObservedChampion() async throws {
     _ = try await testConfigureWith(
+      dbChampions: [
+        .init(id: uuid("1"), riotId: "Nocturne")
+      ],
       dbUserWatchlists: [
         .init(userId: mobileUserId, champions: [uuidString("1")])
       ]
     )
 
     try await app.test(
-      .POST, "/champions/\(uuidString("1"))/observe",
+      .POST, "/champions/Nocturne/observe",
       headers: reqHeaders(accessToken: mobileToken),
       body: ["observing": false]
     ) { res async throws in
@@ -70,13 +80,17 @@ final class UpdateObservChampionTests: AppTests {
 
   func testRemovingNonObservedChampion() async throws {
     _ = try await testConfigureWith(
+      dbChampions: [
+        .init(id: uuid("1"), riotId: "Nocturne"),
+        .init(id: uuid("2"), riotId: "Garen"),
+      ],
       dbUserWatchlists: [
         .init(userId: mobileUserId, champions: [uuidString("2")])
       ]
     )
 
     try await app.test(
-      .POST, "/champions/\(uuidString("1"))/observe",
+      .POST, "/champions/Nocturne/observe",
       headers: reqHeaders(accessToken: mobileToken),
       body: ["observing": false]
     ) { res async throws in
@@ -88,11 +102,14 @@ final class UpdateObservChampionTests: AppTests {
 
   func testAddingWithoutWatchlist() async throws {
     _ = try await testConfigureWith(
-      dbUserWatchlists: []
+      dbChampions: [
+        .init(id: uuid("1"), riotId: "Nocturne")
+      ],
+      dbUserWatchlists: [],
     )
 
     try await app.test(
-      .POST, "/champions/\(uuidString("1"))/observe",
+      .POST, "/champions/Nocturne/observe",
       headers: reqHeaders(accessToken: mobileToken),
       body: ["observing": true]
     ) { res async throws in
@@ -102,4 +119,45 @@ final class UpdateObservChampionTests: AppTests {
     }
   }
 
+  func testAddingChampionCaseInsensitive() async throws {
+    _ = try await testConfigureWith(
+      dbChampions: [
+        .init(id: uuid("1"), riotId: "Nocturne")
+      ],
+      dbUserWatchlists: [
+        .init(userId: mobileUserId, champions: [uuidString("1")])
+      ]
+    )
+
+    try await app.test(
+      .POST, "/champions/nocturne/observe",
+      headers: reqHeaders(accessToken: mobileToken),
+      body: ["observing": true]
+    ) { res async throws in
+      let watchlists = try await dbUserWatchlists(userId: mobileUserId)
+      XCTAssertEqual(res.status, .ok)
+      XCTAssertEqual(watchlists?.champions, [uuidString("1")])
+    }
+  }
+
+  func testRemovingChampionCaseInsensitive() async throws {
+    _ = try await testConfigureWith(
+      dbChampions: [
+        .init(id: uuid("1"), riotId: "Nocturne")
+      ],
+      dbUserWatchlists: [
+        .init(userId: mobileUserId, champions: [uuidString("1")])
+      ]
+    )
+
+    try await app.test(
+      .POST, "/champions/nocturne/observe",
+      headers: reqHeaders(accessToken: mobileToken),
+      body: ["observing": false]
+    ) { res async throws in
+      let watchlists = try await dbUserWatchlists(userId: mobileUserId)
+      XCTAssertEqual(res.status, .ok)
+      XCTAssertEqual(watchlists?.champions, [])
+    }
+  }
 }

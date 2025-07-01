@@ -81,6 +81,7 @@ class RotationTests: AppTests {
       XCTAssertBody(
         res.body,
         [
+          "id": uuidString("1"),
           "duration": [
             "start": "2024-11-14T12:00:00Z",
             "end": "2024-11-21T12:00:00Z",
@@ -134,6 +135,7 @@ class RotationTests: AppTests {
       XCTAssertBody(
         res.body,
         [
+          "id": uuidString("1"),
           "duration": [
             "start": "2024-11-14T12:00:00Z",
             "end": "2024-11-21T12:00:00Z",
@@ -186,6 +188,7 @@ class RotationTests: AppTests {
       XCTAssertBody(
         res.body,
         [
+          "id": uuidString("1"),
           "observing": true,
           "duration": [
             "start": "2024-11-14T12:00:00Z",
@@ -239,6 +242,7 @@ class RotationTests: AppTests {
       XCTAssertBody(
         res.body,
         [
+          "id": uuidString("1"),
           "observing": false,
           "duration": [
             "start": "2024-11-14T12:00:00Z",

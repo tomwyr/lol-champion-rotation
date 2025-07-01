@@ -143,6 +143,14 @@ extension AppDatabase {
     }
   }
 
+  func champion(riotId: String) async throws -> ChampionModel? {
+    try await runner.run { db in
+      try await ChampionModel.query(on: db)
+        .filter(\.$riotId, .custom("ilike"), "%\(riotId)%")
+        .first()
+    }
+  }
+
   func champions() async throws -> [ChampionModel] {
     try await runner.run { db in
       try await ChampionModel.query(on: db).all()

@@ -21,9 +21,7 @@ protocol ChampionFactory {
 
 extension ChampionFactory {
   func createChampion(model: ChampionModel) throws(OutError) -> Champion {
-    guard let id = model.idString else {
-      throw wrapError(.dataMissing(championId: model.riotId))
-    }
+    let id = model.riotId.lowercased()
     let name = model.name
     let imageUrl = imageUrlProvider.champion(with: model.riotId)
 
@@ -56,13 +54,14 @@ extension ChampionFactory {
     guard let championId = model.idString else {
       throw wrapError(.dataMissing(championId: model.riotId))
     }
+    let id = model.riotId.lowercased()
     let name = model.name
     let title = model.title
     let imageUrl = imageUrlProvider.champion(with: model.riotId)
     let observing = userWatchlists?.champions.contains(championId)
 
     return ChampionDetails(
-      id: championId,
+      id: id,
       name: name,
       title: title,
       imageUrl: imageUrl,

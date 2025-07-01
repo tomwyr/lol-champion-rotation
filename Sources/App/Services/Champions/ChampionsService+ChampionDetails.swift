@@ -1,20 +1,20 @@
 import Foundation
 
 extension ChampionsService {
-  func championDetails(championId: String, userId: String?) async throws(ChampionsError)
+  func championDetails(riotId: String, userId: String?) async throws(ChampionsError)
     -> ChampionDetails?
   {
-    guard let champion = try await loadChampionData(championId) else {
+    guard let champion = try await loadChampionData(riotId) else {
       return nil
     }
     let availabilitiesData = try await loadRotationAvailabilitiesData(champion, userId)
     return try await createChampionDetails(champion, availabilitiesData)
   }
 
-  private func loadChampionData(_ championId: String) async throws(ChampionsError) -> ChampionModel?
+  private func loadChampionData(_ riotId: String) async throws(ChampionsError) -> ChampionModel?
   {
     do {
-      return try await appDb.champion(id: championId)
+      return try await appDb.champion(riotId: riotId)
     } catch {
       throw .dataOperationFailed(cause: error)
     }
