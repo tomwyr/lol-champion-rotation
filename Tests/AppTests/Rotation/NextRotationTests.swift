@@ -10,7 +10,8 @@ class NextRotationTests: AppTests {
         .init(
           id: uuid("1"),
           observedAt: .iso("2024-11-14T12:00:00Z")!,
-          champions: ["Garen", "Sett"]
+          champions: ["Garen", "Sett"],
+          slug: "s1w1",
         )
       ],
       dbChampions: [
@@ -36,7 +37,8 @@ class NextRotationTests: AppTests {
         .init(
           id: uuid("1"),
           observedAt: .iso("2024-11-14T12:00:00Z")!,
-          champions: ["Garen", "Sett"]
+          champions: ["Garen", "Sett"],
+          slug: "s1w1",
         )
       ],
       dbChampions: [
@@ -62,7 +64,8 @@ class NextRotationTests: AppTests {
         .init(
           id: uuid("1"),
           observedAt: .iso("2024-11-14T12:00:00Z")!,
-          champions: ["Garen", "Sett"]
+          champions: ["Garen", "Sett"],
+          slug: "s1w1",
         )
       ],
       dbChampions: [
@@ -88,12 +91,14 @@ class NextRotationTests: AppTests {
         .init(
           id: uuid("1"),
           observedAt: .iso("2024-11-14T12:00:00Z")!,
-          champions: ["Garen", "Sett"]
+          champions: ["Garen", "Sett"],
+          slug: "s1w1",
         ),
         .init(
           id: uuid("2"),
           observedAt: .iso("2024-11-15T12:00:00Z")!,
-          champions: ["Nocturne"]
+          champions: ["Nocturne"],
+          slug: "s1w2",
         ),
       ],
       dbChampions: [
@@ -117,7 +122,7 @@ class NextRotationTests: AppTests {
       XCTAssertBody(
         res.body,
         [
-          "id": uuidString("1"),
+          "id": "s1w1",
           "patchVersion": "15.0.1",
           "duration": [
             "start": "2024-11-14T12:00:00Z",
@@ -125,11 +130,13 @@ class NextRotationTests: AppTests {
           ],
           "champions": [
             [
-              "id": uuidString("2"), "name": "Garen",
+              "id": "garen",
+              "name": "Garen",
               "imageUrl": imageUrl("Garen"),
             ],
             [
-              "id": uuidString("3"), "name": "Sett",
+              "id": "sett",
+              "name": "Sett",
               "imageUrl": imageUrl("Sett"),
             ],
           ],
@@ -146,17 +153,20 @@ class NextRotationTests: AppTests {
         .init(
           id: uuid("1"),
           observedAt: .iso("2024-11-13T12:00:00Z")!,
-          champions: ["Nocturne", "Sett"]
+          champions: ["Nocturne", "Sett"],
+          slug: "s1w1",
         ),
         .init(
           id: uuid("2"),
           observedAt: .iso("2024-11-14T12:00:00Z")!,
-          champions: ["Garen", "Sett"]
+          champions: ["Garen", "Sett"],
+          slug: "s1w2",
         ),
         .init(
           id: uuid("3"),
           observedAt: .iso("2024-11-15T12:00:00Z")!,
-          champions: ["Nocturne"]
+          champions: ["Nocturne"],
+          slug: "s1w3",
         ),
       ],
       dbChampions: [
@@ -180,7 +190,7 @@ class NextRotationTests: AppTests {
       XCTAssertBody(
         res.body,
         [
-          "id": uuidString("2"),
+          "id": "s1w2",
           "nextRotationToken": nextRotationToken("2"),
           "patchVersion": "15.0.1",
           "duration": [
@@ -189,11 +199,13 @@ class NextRotationTests: AppTests {
           ],
           "champions": [
             [
-              "id": uuidString("2"), "name": "Garen",
+              "id": "garen",
+              "name": "Garen",
               "imageUrl": imageUrl("Garen"),
             ],
             [
-              "id": uuidString("3"), "name": "Sett",
+              "id": "sett",
+              "name": "Sett",
               "imageUrl": imageUrl("Sett"),
             ],
           ],

@@ -16,7 +16,7 @@ extension DefaultRotationService {
       throw .dataOperationFailed(cause: error)
     }
     guard let regularRotation else {
-      throw .rotationDataMissing
+      throw .rotationDataMissing()
     }
     return (regularRotation, champions)
   }
@@ -24,9 +24,7 @@ extension DefaultRotationService {
   private func createRotationSummary(_ data: CurrentRegularRotationLocalData)
     async throws(ChampionRotationError) -> ChampionRotationSummary
   {
-    guard let id = data.regularRotation.idString else {
-      throw .rotationDataMissing
-    }
+    let id = data.regularRotation.slug
     let champions = try createChampions(
       for: data.regularRotation.champions, models: data.champions
     ).sorted { $0.name < $1.name }

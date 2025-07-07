@@ -47,7 +47,8 @@ class RefreshDataTests: AppTests {
       dbRegularRotations: [
         .init(
           observedAt: Date.now,
-          champions: ["Sett", "Senna"]
+          champions: ["Sett", "Senna"],
+          slug: "s1w1",
         )
       ],
       dbBeginnerRotations: [
@@ -62,7 +63,7 @@ class RefreshDataTests: AppTests {
       riotChampionRotationsData: .init(
         freeChampionIds: [1, 2],
         freeChampionIdsForNewPlayers: [3],
-        maxNewPlayerLevel: 10
+        maxNewPlayerLevel: 10,
       ),
       riotChampionsData: .init(data: [
         "Sett": .init(id: "Sett", key: "1", name: "Sett"),
@@ -93,7 +94,8 @@ class RefreshDataTests: AppTests {
       dbRegularRotations: [
         .init(
           observedAt: Date.now,
-          champions: ["Sett", "Garen"]
+          champions: ["Sett", "Garen"],
+          slug: "s1w1",
         )
       ],
       dbBeginnerRotations: [
@@ -108,7 +110,7 @@ class RefreshDataTests: AppTests {
       riotChampionRotationsData: .init(
         freeChampionIds: [1, 2],
         freeChampionIdsForNewPlayers: [3],
-        maxNewPlayerLevel: 10
+        maxNewPlayerLevel: 10,
       ),
       riotChampionsData: .init(data: [
         "Sett": .init(id: "Sett", key: "1", name: "Sett"),
@@ -138,7 +140,8 @@ class RefreshDataTests: AppTests {
       dbRegularRotations: [
         .init(
           observedAt: Date.now,
-          champions: ["Sett", "Garen"]
+          champions: ["Sett", "Garen"],
+          slug: "s1w1",
         )
       ],
       dbBeginnerRotations: [
@@ -153,7 +156,7 @@ class RefreshDataTests: AppTests {
       riotChampionRotationsData: .init(
         freeChampionIds: [1, 2],
         freeChampionIdsForNewPlayers: [3],
-        maxNewPlayerLevel: 10
+        maxNewPlayerLevel: 10,
       ),
       riotChampionsData: .init(data: [
         "Sett": .init(id: "Sett", key: "1", name: "Sett"),
@@ -183,7 +186,8 @@ class RefreshDataTests: AppTests {
       dbRegularRotations: [
         .init(
           observedAt: Date.now,
-          champions: ["Sett", "Garen"]
+          champions: ["Sett", "Garen"],
+          slug: "s1w1",
         )
       ],
       dbBeginnerRotations: [
@@ -203,7 +207,7 @@ class RefreshDataTests: AppTests {
       riotChampionRotationsData: .init(
         freeChampionIds: [1, 2],
         freeChampionIdsForNewPlayers: [3],
-        maxNewPlayerLevel: 10
+        maxNewPlayerLevel: 10,
       ),
       riotChampionsData: .init(data: [
         "Sett": .init(id: "Sett", key: "1", name: "Sett"),
@@ -314,7 +318,7 @@ class RefreshDataTests: AppTests {
 
     try await app.test(
       .GET, "/data/refresh",
-      headers: ["Authorization": "Bearer 123"]
+      headers: ["Authorization": "Bearer 123"],
     ) { res async throws in
       let versions = try await dbPatchVersions()
       XCTAssertEqual(versions, ["15.23.5"])
@@ -323,6 +327,56 @@ class RefreshDataTests: AppTests {
         res.body, at: "version",
         ["latestVersion": "15.23.5", "versionChanged": true]
       )
+    }
+  }
+
+  func testNewChampionSaved() async throws {
+    _ = try await testConfigureWith(
+      appManagementKey: "123",
+      riotPatchVersions: ["15.1.1"],
+      riotChampionRotationsData: .init(
+        freeChampionIds: [1],
+        freeChampionIdsForNewPlayers: [],
+        maxNewPlayerLevel: 10,
+      ),
+      riotChampionsData: .init(data: [
+        "Sett": .init(id: "Nunu", key: "1", name: "Nunu & Willump")
+      ]),
+    )
+
+    try await app.test(
+      .GET, "/data/refresh",
+      headers: ["Authorization": "Bearer 123"],
+    ) { res async throws in
+      let champions = try await dbChampions()
+      XCTAssertEqual(champions.count, 1)
+      XCTAssertEqual(champions[0].name, "Nunu & Willump")
+      XCTAssertEqual(champions[0].riotId, "Nunu")
+    }
+  }
+
+  func testNewRotationSaved() async throws {
+    _ = try await testConfigureWith(
+      appManagementKey: "123",
+      riotPatchVersions: ["15.1.1"],
+      riotChampionRotationsData: .init(
+        freeChampionIds: [1],
+        freeChampionIdsForNewPlayers: [],
+        maxNewPlayerLevel: 10,
+      ),
+      riotChampionsData: .init(data: [
+        "Sett": .init(id: "Sett", key: "1", name: "Sett")
+      ]),
+    )
+
+    try await app.test(
+      .GET, "/data/refresh",
+      headers: ["Authorization": "Bearer 123"],
+    ) { res async throws in
+      let rotations = try await dbRegularRotations()
+      XCTAssertEqual(rotations.count, 1)
+      XCTAssertEqual(rotations[0].champions, ["Sett"])
+      XCTAssertEqual(rotations[0].slug, "s15w1")
     }
   }
 }

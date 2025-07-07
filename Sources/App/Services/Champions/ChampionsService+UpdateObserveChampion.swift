@@ -26,14 +26,6 @@ extension ChampionsService {
     }
   }
 
-  private func getWatchlists(_ userId: String) async throws(ChampionsError) -> UserWatchlistsModel {
-    do {
-      return try await appDb.userWatchlists(userId: userId)
-    } catch {
-      throw .dataOperationFailed(cause: error)
-    }
-  }
-
   private func saveWatchlists(_ data: UserWatchlistsModel) async throws(ChampionsError) {
     do {
       try await appDb.saveUserWatchlists(data: data)

@@ -6,26 +6,26 @@ func rotationsRoutes(_ app: Application, _ deps: Dependencies) {
   let optionalMobileUserGuard = deps.optionalMobileUserGuard
 
   app.protected(with: anyUserGuard).grouped("rotations") { rotations in
-    rotations.protected(with: optionalMobileUserGuard).get(":id") { req in
+    rotations.protected(with: optionalMobileUserGuard).get(":slug") { req in
       try req.auth.require(AnyUserAuth.self)
       let auth = try? req.auth.require(MobileUserAuth.self)
-      let rotationId = req.parameters.get("id")!
+      let slug = req.parameters.get("slug")!
       let rotationService = deps.rotationService(request: req)
       let rotation = try await rotationService.rotation(
-        rotationId: rotationId,
+        slug: slug,
         userId: auth?.userId
       )
       guard let rotation else { throw Abort(.notFound) }
       return rotation
     }
 
-    rotations.protected(with: mobileUserGuard).post(":id", "observe") { req in
+    rotations.protected(with: mobileUserGuard).post(":slug", "observe") { req in
       let auth = try req.auth.require(MobileUserAuth.self)
-      let rotationId = req.parameters.get("id")!
+      let slug = req.parameters.get("slug")!
       let input = try req.content.decode(UpdateObserveRotationInput.self)
       let rotationService = deps.rotationService(request: req)
       try await rotationService.updateObserveRotation(
-        rotationId: rotationId,
+        slug: slug,
         by: auth.userId,
         observing: input.observing
       )

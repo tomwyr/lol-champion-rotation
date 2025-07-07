@@ -13,7 +13,8 @@ class PredictRotationTests: AppTests {
           champions: [
             "Akshan", "Chogath", "Ekko", "Evelynn", "Fizz", "Gangplank", "Gwen", "Heimerdinger",
             "Irelia", "Janna",
-          ]
+          ],
+          slug: "s1w1",
         ),
         .init(
           id: uuid("2"),
@@ -21,7 +22,8 @@ class PredictRotationTests: AppTests {
           champions: [
             "Aatrox", "Azir", "Bard", "Belveth", "Ekko", "Fiddlesticks", "Fizz", "Gangplank",
             "Gwen", "Jayce",
-          ]
+          ],
+          slug: "s1w1",
         ),
         .init(
           id: uuid("3"),
@@ -29,7 +31,8 @@ class PredictRotationTests: AppTests {
           champions: [
             "Azir", "Bard", "Braum", "Chogath", "Evelynn", "Fizz", "Gangplank", "Gnar", "Ivern",
             "Jayce",
-          ]
+          ],
+          slug: "s1w1",
         ),
         .init(
           id: uuid("4"),
@@ -37,7 +40,8 @@ class PredictRotationTests: AppTests {
           champions: [
             "Akshan", "Azir", "Belveth", "Braum", "Chogath", "Draven", "Evelynn", "Fizz",
             "Gangplank", "Gnar", "Irelia", "Jayce",
-          ]
+          ],
+          slug: "s1w1",
         ),
         .init(
           id: uuid("5"),
@@ -45,7 +49,8 @@ class PredictRotationTests: AppTests {
           champions: [
             "Aatrox", "Akshan", "Bard", "Braum", "Draven", "Evelynn", "Fizz", "Gnar", "Gwen",
             "Irelia", "Janna", "Jayce",
-          ]
+          ],
+          slug: "s1w1",
         ),
       ],
       dbChampions: [
@@ -92,73 +97,73 @@ class PredictRotationTests: AppTests {
           ],
           "champions": [
             [
-              "id": "00000000-0000-0000-0000-000000000002",
+              "id": "akshan",
               "imageUrl":
                 "https://api003.backblazeb2.com/file/lol-champion-rotation/champions/Akshan.jpg",
               "name": "Akshan",
             ],
             [
-              "id": "00000000-0000-0000-0000-000000000003",
+              "id": "azir",
               "imageUrl":
                 "https://api003.backblazeb2.com/file/lol-champion-rotation/champions/Azir.jpg",
               "name": "Azir",
             ],
             [
-              "id": "00000000-0000-0000-0000-000000000004",
+              "id": "bard",
               "imageUrl":
                 "https://api003.backblazeb2.com/file/lol-champion-rotation/champions/Bard.jpg",
               "name": "Bard",
             ],
             [
-              "id": "00000000-0000-0000-0000-000000000007",
+              "id": "chogath",
               "imageUrl":
                 "https://api003.backblazeb2.com/file/lol-champion-rotation/champions/Chogath.jpg",
               "name": "Cho'Gath",
             ],
             [
-              "id": "00000000-0000-0000-0000-000000000008",
+              "id": "draven",
               "imageUrl":
                 "https://api003.backblazeb2.com/file/lol-champion-rotation/champions/Draven.jpg",
               "name": "Draven",
             ],
             [
-              "id": "00000000-0000-0000-0000-000000000011",
+              "id": "fiddlesticks",
               "imageUrl":
                 "https://api003.backblazeb2.com/file/lol-champion-rotation/champions/Fiddlesticks.jpg",
               "name": "Fiddlesticks",
             ],
             [
-              "id": "00000000-0000-0000-0000-000000000012",
+              "id": "fizz",
               "imageUrl":
                 "https://api003.backblazeb2.com/file/lol-champion-rotation/champions/Fizz.jpg",
               "name": "Fizz",
             ],
             [
-              "id": "00000000-0000-0000-0000-000000000013",
+              "id": "gangplank",
               "imageUrl":
                 "https://api003.backblazeb2.com/file/lol-champion-rotation/champions/Gangplank.jpg",
               "name": "Gangplank",
             ],
             [
-              "id": "00000000-0000-0000-0000-000000000017",
+              "id": "irelia",
               "imageUrl":
                 "https://api003.backblazeb2.com/file/lol-champion-rotation/champions/Irelia.jpg",
               "name": "Irelia",
             ],
             [
-              "id": "00000000-0000-0000-0000-000000000018",
+              "id": "ivern",
               "imageUrl":
                 "https://api003.backblazeb2.com/file/lol-champion-rotation/champions/Ivern.jpg",
               "name": "Ivern",
             ],
             [
-              "id": "00000000-0000-0000-0000-000000000019",
+              "id": "janna",
               "imageUrl":
                 "https://api003.backblazeb2.com/file/lol-champion-rotation/champions/Janna.jpg",
               "name": "Janna",
             ],
             [
-              "id": "00000000-0000-0000-0000-000000000020",
+              "id": "jayce",
               "imageUrl":
                 "https://api003.backblazeb2.com/file/lol-champion-rotation/champions/Jayce.jpg",
               "name": "Jayce",

@@ -45,15 +45,11 @@ extension DefaultRotationService {
   private func createNextRotation(_ patchVersion: String?, _ data: RegularRotationLocalData)
     async throws(ChampionRotationError) -> RegularChampionRotation
   {
-    guard let id = data.rotation.idString else {
-      throw .rotationDataMissing
-    }
-
+    let id = data.rotation.slug
+    let duration = try await getRotationDuration(data.rotation)
     let champions = try createChampions(
       for: data.rotation.champions, models: data.champions
     ).sorted { $0.name < $1.name }
-
-    let duration = try await getRotationDuration(data.rotation)
 
     let nextRotationToken =
       // Rotation is `previous` chronologically but `next` from the loading more data point of view.

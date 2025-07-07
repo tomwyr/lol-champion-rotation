@@ -1,12 +1,64 @@
 import Fluent
 import Vapor
 
-extension MutableCollection {
-  func associatedBy<Key>(_ selector: KeyPath<Element, Key>) -> [Key: Element] {
+extension Collection {
+  func associatedBy<Key>(
+    key selectKey: (Element) -> Key,
+    _ onDuplicate: AssociatedByDuplicatePolicy = .replace,
+  ) -> [Key: Element] {
     reduce(into: [Key: Element]()) { dict, value in
-      dict[value[keyPath: selector]] = value
+      let key = selectKey(value)
+      let isUpdate = dict.index(forKey: key) != nil
+      if !isUpdate || onDuplicate == .replace {
+        dict[key] = value
+      }
     }
   }
+
+  func associatedBy<Key, Value>(
+    key selectKey: (Element) -> Key,
+    value selectValue: (Element) -> Value,
+    onDuplicate: AssociatedByDuplicatePolicy = .replace,
+  ) -> [Key: Value] {
+    reduce(into: [Key: Value]()) { dict, value in
+      let key = selectKey(value)
+      let isUpdate = dict.index(forKey: key) != nil
+      if !isUpdate || onDuplicate == .replace {
+        dict[key] = selectValue(value)
+      }
+    }
+  }
+
+  func associatedBy<Key>(
+    key selectKey: KeyPath<Element, Key>,
+    onDuplicate: AssociatedByDuplicatePolicy = .replace,
+  ) -> [Key: Element] {
+    reduce(into: [Key: Element]()) { dict, value in
+      let key = value[keyPath: selectKey]
+      let isUpdate = dict.index(forKey: key) != nil
+      if !isUpdate || onDuplicate == .replace {
+        dict[key] = value
+      }
+    }
+  }
+
+  func associatedBy<Key, Value>(
+    key selectKey: KeyPath<Element, Key>,
+    value selectValue: KeyPath<Element, Value>,
+    onDuplicate: AssociatedByDuplicatePolicy = .replace,
+  ) -> [Key: Value] {
+    reduce(into: [Key: Value]()) { dict, value in
+      let key = value[keyPath: selectKey]
+      let isUpdate = dict.index(forKey: key) != nil
+      if !isUpdate || onDuplicate == .replace {
+        dict[key] = value[keyPath: selectValue]
+      }
+    }
+  }
+}
+
+enum AssociatedByDuplicatePolicy {
+  case ignore, replace
 }
 
 extension Application {
@@ -33,9 +85,28 @@ extension RoutesBuilder {
   }
 }
 
+extension Array {
+  func takeUntil(_ predicate: (Element) -> Bool) -> [Element] {
+    var result: [Element] = []
+    for element in self {
+      if predicate(element) { break }
+      result.append(element)
+    }
+    return result
+  }
+}
+
 extension Array where Element: Any {
   subscript(try index: Int) -> Element? {
     (0..<count) ~= index ? self[index] : nil
+  }
+
+  mutating func sort(by keyPath: KeyPath<Self.Element, some Comparable>) {
+    sort { lhs, rhs in lhs[keyPath: keyPath] < rhs[keyPath: keyPath] }
+  }
+
+  func sorted(by keyPath: KeyPath<Self.Element, some Comparable>) -> [Element] {
+    sorted { lhs, rhs in lhs[keyPath: keyPath] < rhs[keyPath: keyPath] }
   }
 
   func sorted(byComparable comparableOf: (Element) -> (some Comparable)?) -> [Element] {
@@ -48,12 +119,6 @@ extension Array where Element: Any {
       return left < right
     })
     .map(\.element)
-  }
-
-  func zipAdjacent() -> [(Element, Element)] {
-    windows(ofCount: 2).map { window in
-      (window[window.startIndex], window[window.startIndex + 1])
-    }
   }
 }
 
@@ -82,6 +147,10 @@ extension Array where Element: Hashable & Comparable {
 extension Date {
   static func iso(_ string: String) -> Date? {
     ISO8601DateFormatter().date(from: string)
+  }
+
+  static func isoDate(_ string: String) -> Date? {
+    ISO8601DateFormatter().date(from: "\(string)T00:00:00Z")
   }
 
   func adding(_ value: Int, _ component: Calendar.Component) -> Date? {
@@ -179,5 +248,28 @@ enum UUIDError: Error {
 extension Model where IDValue == UUID {
   var idString: String? {
     id?.uuidString
+  }
+}
+
+extension Date {
+  init?(
+    year: Int? = nil, month: Int? = nil, day: Int? = nil,
+    calendar: Calendar = .current,
+  ) {
+    var components = DateComponents()
+    components.year = year
+    components.month = month
+    components.day = day
+    guard let date = calendar.date(from: components) else {
+      return nil
+    }
+    self = date
+  }
+
+  func distance(
+    to other: Date, in component: Calendar.Component,
+    calendar: Calendar = .current,
+  ) -> Int? {
+    calendar.dateComponents([component], from: self, to: other).value(for: component)
   }
 }

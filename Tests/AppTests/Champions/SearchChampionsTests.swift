@@ -10,7 +10,8 @@ class SearchChampionsTests: AppTests {
         .init(
           id: uuid("1"),
           observedAt: .iso("2024-11-14T12:00:00Z")!,
-          champions: ["Garen", "Sett"]
+          champions: ["Garen", "Sett"],
+          slug: "s1w1",
         )
       ],
       dbChampions: [
@@ -62,7 +63,8 @@ class SearchChampionsTests: AppTests {
         .init(
           id: uuid("1"),
           observedAt: .iso("2024-11-14T12:00:00Z")!,
-          champions: ["Garen", "Sett", "Nocturne"]
+          champions: ["Garen", "Sett", "Nocturne"],
+          slug: "s1w1",
         )
       ],
       dbChampions: [
@@ -84,7 +86,7 @@ class SearchChampionsTests: AppTests {
           "matches": [
             [
               "champion": [
-                "id": uuidString("1"),
+                "id": "nocturne",
                 "imageUrl": imageUrl("Nocturne"),
                 "name": "Nocturne",
               ],
@@ -103,7 +105,8 @@ class SearchChampionsTests: AppTests {
         .init(
           id: uuid("1"),
           observedAt: .iso("2024-11-14T12:00:00Z")!,
-          champions: ["Garen", "Sett", "Nocturne"]
+          champions: ["Garen", "Sett", "Nocturne"],
+          slug: "s1w1",
         )
       ],
       dbChampions: [
@@ -125,7 +128,7 @@ class SearchChampionsTests: AppTests {
           "matches": [
             [
               "champion": [
-                "id": uuidString("1"),
+                "id": "nocturne",
                 "imageUrl": imageUrl("Nocturne"),
                 "name": "Nocturne",
               ],
@@ -144,7 +147,8 @@ class SearchChampionsTests: AppTests {
         .init(
           id: uuid("1"),
           observedAt: .iso("2024-11-14T12:00:00Z")!,
-          champions: ["Garen", "Sett", "Nocturne", "Rengar"]
+          champions: ["Garen", "Sett", "Nocturne", "Rengar"],
+          slug: "s1w1",
         )
       ],
       dbChampions: [
@@ -167,7 +171,7 @@ class SearchChampionsTests: AppTests {
           "matches": [
             [
               "champion": [
-                "id": uuidString("4"),
+                "id": "rengar",
                 "imageUrl": imageUrl("Rengar"),
                 "name": "Rengar",
               ],
@@ -175,7 +179,7 @@ class SearchChampionsTests: AppTests {
             ],
             [
               "champion": [
-                "id": uuidString("2"),
+                "id": "garen",
                 "imageUrl": imageUrl("Garen"),
                 "name": "Garen",
               ],
@@ -194,12 +198,14 @@ class SearchChampionsTests: AppTests {
         .init(
           id: uuid("1"),
           observedAt: .iso("2024-11-21T12:00:00Z")!,
-          champions: ["Sett", "Nocturne", "Rengar"]
+          champions: ["Sett", "Nocturne", "Rengar"],
+          slug: "s1w1",
         ),
         .init(
           id: uuid("2"),
           observedAt: .iso("2024-11-14T12:00:00Z")!,
-          champions: ["Garen", "Sett", "Rengar"]
+          champions: ["Garen", "Sett", "Rengar"],
+          slug: "s1w2",
         ),
       ],
       dbBeginnerRotations: [
@@ -237,7 +243,7 @@ class SearchChampionsTests: AppTests {
           "matches": [
             [
               "champion": [
-                "id": uuidString("4"),
+                "id": "rengar",
                 "imageUrl": imageUrl("Rengar"),
                 "name": "Rengar",
               ],
@@ -245,7 +251,7 @@ class SearchChampionsTests: AppTests {
             ],
             [
               "champion": [
-                "id": uuidString("2"),
+                "id": "garen",
                 "imageUrl": imageUrl("Garen"),
                 "name": "Garen",
               ],
@@ -264,7 +270,8 @@ class SearchChampionsTests: AppTests {
         .init(
           id: uuid("1"),
           observedAt: .iso("2024-11-14T12:00:00Z")!,
-          champions: ["Sett", "Nocturne", "Nunu"]
+          champions: ["Sett", "Nocturne", "Nunu"],
+          slug: "s1w1",
         )
       ],
       dbChampions: [
@@ -286,7 +293,7 @@ class SearchChampionsTests: AppTests {
           "matches": [
             [
               "champion": [
-                "id": uuidString("3"),
+                "id": "nunu",
                 "imageUrl": imageUrl("Nunu"),
                 "name": "Nunu & Willump",
               ],
@@ -305,7 +312,8 @@ class SearchChampionsTests: AppTests {
         .init(
           id: uuid("1"),
           observedAt: .iso("2024-11-21T12:00:00Z")!,
-          champions: ["Sett", "Nocturne", "Rengar"]
+          champions: ["Sett", "Nocturne", "Rengar"],
+          slug: "s1w1",
         )
       ],
       dbBeginnerRotations: [
@@ -336,7 +344,7 @@ class SearchChampionsTests: AppTests {
           "matches": [
             [
               "champion": [
-                "id": uuidString("4"),
+                "id": "senna",
                 "imageUrl": imageUrl("Senna"),
                 "name": "Senna",
               ],
@@ -344,7 +352,7 @@ class SearchChampionsTests: AppTests {
             ],
             [
               "champion": [
-                "id": uuidString("2"),
+                "id": "sett",
                 "imageUrl": imageUrl("Sett"),
                 "name": "Sett",
               ],
@@ -381,7 +389,7 @@ class SearchChampionsTests: AppTests {
           "matches": [
             [
               "champion": [
-                "id": uuidString("4"),
+                "id": "senna",
                 "imageUrl": imageUrl("Senna"),
                 "name": "Senna",
               ],
@@ -389,7 +397,7 @@ class SearchChampionsTests: AppTests {
             ],
             [
               "champion": [
-                "id": uuidString("2"),
+                "id": "sett",
                 "imageUrl": imageUrl("Sett"),
                 "name": "Sett",
               ],
@@ -397,7 +405,7 @@ class SearchChampionsTests: AppTests {
             ],
             [
               "champion": [
-                "id": uuidString("1"),
+                "id": "elise",
                 "imageUrl": imageUrl("Elise"),
                 "name": "Elise",
               ],
@@ -405,7 +413,7 @@ class SearchChampionsTests: AppTests {
             ],
             [
               "champion": [
-                "id": uuidString("3"),
+                "id": "mordekaiser",
                 "imageUrl": imageUrl("Mordekaiser"),
                 "name": "Mordekaiser",
               ],

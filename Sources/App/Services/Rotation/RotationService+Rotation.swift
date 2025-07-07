@@ -1,15 +1,15 @@
 import Foundation
 
 extension DefaultRotationService {
-  func rotation(rotationId: String, userId: String?) async throws(ChampionRotationError)
+  func rotation(slug: String, userId: String?) async throws(ChampionRotationError)
     -> ChampionRotationDetails?
   {
-    let localData = try await loadRotationDetailsLocalData(rotationId, userId)
+    let localData = try await loadRotationDetailsLocalData(slug, userId)
     guard let localData else { return nil }
-    return try await createRotationDetails(rotationId, localData)
+    return try await createRotationDetails(slug, localData)
   }
 
-  private func loadRotationDetailsLocalData(_ rotationId: String, _ userId: String?)
+  private func loadRotationDetailsLocalData(_ slug: String, _ userId: String?)
     async throws(ChampionRotationError) -> RotationDetailsLocalData?
   {
     let rotation: RegularChampionRotationModel?
@@ -17,7 +17,7 @@ extension DefaultRotationService {
     let champions: [ChampionModel]
     var userWatchlists: UserWatchlistsModel?
     do {
-      rotation = try await appDb.regularRotation(id: rotationId)
+      rotation = try await appDb.regularRotation(slug: slug)
       currentRotation = try await appDb.currentRegularRotation()
       champions = try await appDb.champions()
       if let userId {
@@ -32,18 +32,20 @@ extension DefaultRotationService {
     return (rotation, currentRotation, champions, userWatchlists)
   }
 
-  private func createRotationDetails(_ rotationId: String, _ data: RotationDetailsLocalData)
+  private func createRotationDetails(_ slug: String, _ data: RotationDetailsLocalData)
     async throws(ChampionRotationError) -> ChampionRotationDetails
   {
+    guard let rotationId = data.rotation.idString else {
+      throw .rotationDataMissing(slug: slug)
+    }
+    
     let champions = try createChampions(
       for: data.rotation.champions, models: data.champions
     ).sorted { $0.name < $1.name }
 
-    guard let id = data.rotation.idString else {
-      throw .rotationDataMissing
-    }
+    let id = data.rotation.slug
     let duration = try await getRotationDuration(data.rotation)
-    let current = id == data.currentRotation?.idString
+    let current = data.rotation.idString == data.currentRotation?.idString
     let observing = data.userWatchlists?.rotations.contains(rotationId)
 
     return ChampionRotationDetails(

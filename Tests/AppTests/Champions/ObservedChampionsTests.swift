@@ -9,7 +9,8 @@ final class ObservedChampionsTests: AppTests {
         .init(
           id: uuid("1"),
           observedAt: .iso("2024-11-14T12:00:00Z")!,
-          champions: ["Nocturne"]
+          champions: ["Nocturne"],
+          slug: "s1w1",
         )
       ],
       dbChampions: [
@@ -31,7 +32,8 @@ final class ObservedChampionsTests: AppTests {
         .init(
           id: uuid("1"),
           observedAt: .iso("2024-11-07T12:00:00Z")!,
-          champions: ["Nocturne"]
+          champions: ["Nocturne"],
+          slug: "s1w1",
         )
       ],
       dbChampions: [
@@ -81,7 +83,8 @@ final class ObservedChampionsTests: AppTests {
         .init(
           id: uuid("1"),
           observedAt: .iso("2024-11-07T12:00:00Z")!,
-          champions: ["Nocturne"]
+          champions: ["Nocturne"],
+          slug: "s1w1",
         )
       ],
       dbChampions: [

@@ -10,7 +10,8 @@ class CurrentRegularRotationTests: AppTests {
         .init(
           id: uuid("1"),
           observedAt: .iso("2024-11-14T12:00:00Z")!,
-          champions: ["Garen", "Sett"]
+          champions: ["Garen", "Sett"],
+          slug: "s1w1",
         )
       ],
       dbChampions: [
@@ -28,18 +29,20 @@ class CurrentRegularRotationTests: AppTests {
       XCTAssertBody(
         res.body,
         [
-          "id": uuidString("1"),
+          "id": "s1w1",
           "duration": [
             "start": "2024-11-14T12:00:00Z",
             "end": "2024-11-21T12:00:00Z",
           ],
           "champions": [
             [
-              "id": uuidString("2"), "name": "Garen",
+              "id": "garen",
+              "name": "Garen",
               "imageUrl": imageUrl("Garen"),
             ],
             [
-              "id": uuidString("3"), "name": "Sett",
+              "id": "sett",
+              "name": "Sett",
               "imageUrl": imageUrl("Sett"),
             ],
           ],
@@ -54,7 +57,8 @@ class CurrentRegularRotationTests: AppTests {
       dbRegularRotations: [
         .init(
           observedAt: Date.now,
-          champions: ["Jax", "Sett", "Garen"]
+          champions: ["Jax", "Sett", "Garen"],
+          slug: "s1w1",
         )
       ],
       dbChampions: [
@@ -75,9 +79,9 @@ class CurrentRegularRotationTests: AppTests {
       XCTAssertBody(
         res.body, at: "champions",
         [
-          ["id": uuidString("4"), "name": "Garen", "imageUrl": imageUrl("Garen")],
-          ["id": uuidString("5"), "name": "Jax", "imageUrl": imageUrl("Jax")],
-          ["id": uuidString("6"), "name": "Sett", "imageUrl": imageUrl("Sett")],
+          ["id": "garen", "name": "Garen", "imageUrl": imageUrl("Garen")],
+          ["id": "jax", "name": "Jax", "imageUrl": imageUrl("Jax")],
+          ["id": "sett", "name": "Sett", "imageUrl": imageUrl("Sett")],
         ]
       )
     }

@@ -82,6 +82,12 @@ extension AppDatabase {
     }
   }
 
+  func regularRotation(slug: String) async throws -> RegularChampionRotationModel? {
+    try await runner.run { db in
+      try await RegularChampionRotationModel.query(on: db).filter(\.$slug == slug).first()
+    }
+  }
+
   func regularRotations(ids: [String]) async throws -> [RegularChampionRotationModel] {
     let uuids = ids.compactMap { id in
       try? UUID(unsafe: id)
@@ -209,7 +215,7 @@ extension AppDatabase {
   }
 
   func saveChampions(data: [ChampionModel]) async throws -> [String] {
-    let championsByRiotId = try await champions().associatedBy(\.riotId)
+    let championsByRiotId = try await champions().associatedBy(key: \.riotId)
 
     return try await runner.run { db in
       try await db.transaction { db in
@@ -298,6 +304,12 @@ extension AppDatabase {
 }
 
 extension AppDatabase {
+  func patchVersions() async throws -> [PatchVersionModel] {
+    try await runner.run { db in
+      try await PatchVersionModel.query(on: db).sort(\.$observedAt, .descending).all()
+    }
+  }
+
   func latestPatchVersion() async throws -> PatchVersionModel? {
     try await runner.run { db in
       try await PatchVersionModel.query(on: db).sort(\.$observedAt, .descending).first()

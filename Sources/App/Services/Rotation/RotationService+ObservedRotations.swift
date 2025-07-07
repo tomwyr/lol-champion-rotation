@@ -40,12 +40,9 @@ extension DefaultRotationService {
     _ rotation: RegularChampionRotationModel,
     _ currentRotation: RegularChampionRotationModel?
   ) async throws(ChampionRotationError) -> ObservedRotation? {
-    guard let id = rotation.idString else {
-      return nil
-    }
-
+    let id = rotation.slug
     let duration = try await getRotationDuration(rotation)
-    let current = id == currentRotation?.idString
+    let current = rotation.idString == currentRotation?.idString
     let championImageUrls = seededSelector.select(from: rotation.champions, taking: 5)
       .map(imageUrlProvider.champion)
 

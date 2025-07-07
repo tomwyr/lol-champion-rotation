@@ -10,7 +10,8 @@ class RefreshDataNotificationsTests: AppTests {
       dbRegularRotations: [
         .init(
           observedAt: Date.now,
-          champions: ["Sett", "Senna"]
+          champions: ["Sett", "Senna"],
+          slug: "s1w1",
         )
       ],
       dbPatchVersions: [.init(value: "1")],
@@ -24,7 +25,7 @@ class RefreshDataNotificationsTests: AppTests {
       riotChampionRotationsData: .init(
         freeChampionIds: [1, 2],
         freeChampionIdsForNewPlayers: [],
-        maxNewPlayerLevel: 10
+        maxNewPlayerLevel: 10,
       ),
       riotChampionsData: .init(data: [
         "Sett": .init(id: "Sett", key: "1", name: "Sett"),
@@ -50,7 +51,8 @@ class RefreshDataNotificationsTests: AppTests {
       dbRegularRotations: [
         .init(
           observedAt: Date.now,
-          champions: ["Sett", "Senna"]
+          champions: ["Sett", "Senna"],
+          slug: "s1w1",
         )
       ],
       dbPatchVersions: [.init(value: "1")],
@@ -61,7 +63,7 @@ class RefreshDataNotificationsTests: AppTests {
       riotChampionRotationsData: .init(
         freeChampionIds: [1, 2],
         freeChampionIdsForNewPlayers: [],
-        maxNewPlayerLevel: 10
+        maxNewPlayerLevel: 10,
       ),
       riotChampionsData: .init(data: [
         "Sett": .init(id: "Sett", key: "1", name: "Sett"),
@@ -87,7 +89,8 @@ class RefreshDataNotificationsTests: AppTests {
       dbRegularRotations: [
         .init(
           observedAt: Date.now,
-          champions: ["Sett", "Senna"]
+          champions: ["Sett", "Senna"],
+          slug: "s1w1",
         )
       ],
       dbChampions: [
@@ -113,7 +116,7 @@ class RefreshDataNotificationsTests: AppTests {
       riotChampionRotationsData: .init(
         freeChampionIds: [1, 2],
         freeChampionIdsForNewPlayers: [],
-        maxNewPlayerLevel: 10
+        maxNewPlayerLevel: 10,
       ),
       riotChampionsData: .init(data: [
         "Sett": .init(id: "Sett", key: "1", name: "Sett"),
@@ -128,7 +131,7 @@ class RefreshDataNotificationsTests: AppTests {
       headers: ["Authorization": "Bearer 123"]
     ) { res async in
       XCTAssertEqual(res.status, .ok)
-      let tokens = fcm.championsAvailableMessages.map(\.token)
+      let tokens = fcm.championsAvailableMessages.compactMap(\.token).sorted()
       XCTAssertEqual(tokens, ["2", "3", "4"])
     }
   }
@@ -139,7 +142,8 @@ class RefreshDataNotificationsTests: AppTests {
       dbRegularRotations: [
         .init(
           observedAt: Date.now,
-          champions: ["Sett", "Senna"]
+          champions: ["Sett", "Senna"],
+          slug: "s1w1",
         )
       ],
       dbChampions: [
@@ -166,7 +170,7 @@ class RefreshDataNotificationsTests: AppTests {
       riotChampionRotationsData: .init(
         freeChampionIds: [1, 2, 3, 4],
         freeChampionIdsForNewPlayers: [],
-        maxNewPlayerLevel: 10
+        maxNewPlayerLevel: 10,
       ),
       riotChampionsData: .init(data: [
         "Sett": .init(id: "Sett", key: "1", name: "Sett"),

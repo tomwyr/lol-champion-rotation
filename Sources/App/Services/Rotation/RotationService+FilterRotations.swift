@@ -57,7 +57,7 @@ extension DefaultRotationService {
     _ champions: [String], by query: String,
     data: FilterRotationsLocalData
   ) -> [String] {
-    let championsByRiotId = data.champions.associatedBy(\.riotId)
+    let championsByRiotId = data.champions.associatedBy(key: \.riotId)
     return champions.filter { riotId in
       guard let champion = championsByRiotId[riotId] else { return false }
       return champion.name.lowercased().contains(query.lowercased())

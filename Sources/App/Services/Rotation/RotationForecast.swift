@@ -99,7 +99,7 @@ struct DefaultRotationForecast: RotationForecast {
 
     var mostFrequentIntervals = [String: Int]()
     for (champion, rotations) in rotationNumbers.sorted(by: \.key) {
-      let interval = rotations.zipAdjacent()
+      let interval = rotations.adjacentPairs()
         .map { previous, next in next - previous }
         .mostFrequent(using: &rng)
       mostFrequentIntervals[champion] = interval

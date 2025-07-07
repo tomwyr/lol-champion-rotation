@@ -10,7 +10,8 @@ class FilterRotationsTests: AppTests {
         .init(
           id: uuid("1"),
           observedAt: .iso("2024-11-14T12:00:00Z")!,
-          champions: ["Garen", "Sett"]
+          champions: ["Garen", "Sett"],
+          slug: "s1w1",
         )
       ],
       dbChampions: [
@@ -36,7 +37,8 @@ class FilterRotationsTests: AppTests {
         .init(
           id: uuid("1"),
           observedAt: .iso("2024-11-14T12:00:00Z")!,
-          champions: ["Garen", "Sett"]
+          champions: ["Garen", "Sett"],
+          slug: "s1w1",
         )
       ],
       dbChampions: [
@@ -68,7 +70,8 @@ class FilterRotationsTests: AppTests {
         .init(
           id: uuid("1"),
           observedAt: .iso("2024-11-14T12:00:00Z")!,
-          champions: ["Garen", "Sett", "Nocturne"]
+          champions: ["Garen", "Sett", "Nocturne"],
+          slug: "s1w1",
         )
       ],
       dbChampions: [
@@ -95,7 +98,7 @@ class FilterRotationsTests: AppTests {
               ],
               "champions": [
                 [
-                  "id": uuidString("1"),
+                  "id": "nocturne",
                   "imageUrl": imageUrl("Nocturne"),
                   "name": "Nocturne",
                 ]
@@ -115,7 +118,8 @@ class FilterRotationsTests: AppTests {
         .init(
           id: uuid("1"),
           observedAt: .iso("2024-11-14T12:00:00Z")!,
-          champions: ["Garen", "Sett", "Nocturne"]
+          champions: ["Garen", "Sett", "Nocturne"],
+          slug: "s1w1",
         )
       ],
       dbChampions: [
@@ -142,7 +146,7 @@ class FilterRotationsTests: AppTests {
               ],
               "champions": [
                 [
-                  "id": uuidString("1"),
+                  "id": "nocturne",
                   "imageUrl": imageUrl("Nocturne"),
                   "name": "Nocturne",
                 ]
@@ -162,7 +166,8 @@ class FilterRotationsTests: AppTests {
         .init(
           id: uuid("1"),
           observedAt: .iso("2024-11-14T12:00:00Z")!,
-          champions: ["Garen", "Sett", "Nocturne", "Rengar"]
+          champions: ["Garen", "Sett", "Nocturne", "Rengar"],
+          slug: "s1w1",
         )
       ],
       dbChampions: [
@@ -190,12 +195,12 @@ class FilterRotationsTests: AppTests {
               ],
               "champions": [
                 [
-                  "id": uuidString("2"),
+                  "id": "garen",
                   "imageUrl": imageUrl("Garen"),
                   "name": "Garen",
                 ],
                 [
-                  "id": uuidString("4"),
+                  "id": "rengar",
                   "imageUrl": imageUrl("Rengar"),
                   "name": "Rengar",
                 ],
@@ -215,17 +220,20 @@ class FilterRotationsTests: AppTests {
         .init(
           id: uuid("1"),
           observedAt: .iso("2024-11-21T12:00:00Z")!,
-          champions: ["Sett", "Nocturne", "Rengar"]
+          champions: ["Sett", "Nocturne", "Rengar"],
+          slug: "s1w1",
         ),
         .init(
           id: uuid("2"),
           observedAt: .iso("2024-11-14T12:00:00Z")!,
-          champions: ["Garen", "Sett", "Rengar"]
+          champions: ["Garen", "Sett", "Rengar"],
+          slug: "s1w2",
         ),
         .init(
           id: uuid("3"),
           observedAt: .iso("2024-11-07T12:00:00Z")!,
-          champions: ["Sett", "Nocturne", "Samira"]
+          champions: ["Sett", "Nocturne", "Samira"],
+          slug: "s1w3",
         ),
       ],
       dbChampions: [
@@ -254,7 +262,7 @@ class FilterRotationsTests: AppTests {
               ],
               "champions": [
                 [
-                  "id": uuidString("4"),
+                  "id": "rengar",
                   "imageUrl": imageUrl("Rengar"),
                   "name": "Rengar",
                 ]
@@ -268,12 +276,12 @@ class FilterRotationsTests: AppTests {
               ],
               "champions": [
                 [
-                  "id": uuidString("2"),
+                  "id": "garen",
                   "imageUrl": imageUrl("Garen"),
                   "name": "Garen",
                 ],
                 [
-                  "id": uuidString("4"),
+                  "id": "rengar",
                   "imageUrl": imageUrl("Rengar"),
                   "name": "Rengar",
                 ],
@@ -293,7 +301,8 @@ class FilterRotationsTests: AppTests {
         .init(
           id: uuid("1"),
           observedAt: .iso("2024-11-14T12:00:00Z")!,
-          champions: ["Sett", "Nocturne", "Nunu"]
+          champions: ["Sett", "Nocturne", "Nunu"],
+          slug: "s1w1",
         )
       ],
       dbChampions: [
@@ -320,7 +329,7 @@ class FilterRotationsTests: AppTests {
               ],
               "champions": [
                 [
-                  "id": uuidString("3"),
+                  "id": "nunu",
                   "imageUrl": imageUrl("Nunu"),
                   "name": "Nunu & Willump",
                 ]
@@ -340,17 +349,20 @@ class FilterRotationsTests: AppTests {
         .init(
           id: uuid("1"),
           observedAt: .iso("2024-11-07T12:00:00Z")!,
-          champions: ["Sett"]
+          champions: ["Sett"],
+          slug: "s1w1",
         ),
         .init(
           id: uuid("2"),
           observedAt: .iso("2024-11-21T12:00:00Z")!,
-          champions: ["Sett"]
+          champions: ["Sett"],
+          slug: "s1w2",
         ),
         .init(
           id: uuid("3"),
           observedAt: .iso("2024-11-14T12:00:00Z")!,
-          champions: ["Sett"]
+          champions: ["Sett"],
+          slug: "s1w3",
         ),
       ],
       dbChampions: [
@@ -375,7 +387,7 @@ class FilterRotationsTests: AppTests {
               ],
               "champions": [
                 [
-                  "id": uuidString("1"),
+                  "id": "sett",
                   "imageUrl": imageUrl("Sett"),
                   "name": "Sett",
                 ]
@@ -389,7 +401,7 @@ class FilterRotationsTests: AppTests {
               ],
               "champions": [
                 [
-                  "id": uuidString("1"),
+                  "id": "sett",
                   "imageUrl": imageUrl("Sett"),
                   "name": "Sett",
                 ]
@@ -403,7 +415,7 @@ class FilterRotationsTests: AppTests {
               ],
               "champions": [
                 [
-                  "id": uuidString("1"),
+                  "id": "sett",
                   "imageUrl": imageUrl("Sett"),
                   "name": "Sett",
                 ]
@@ -455,7 +467,7 @@ class FilterRotationsTests: AppTests {
           "beginnerRotation": [
             "champions": [
               [
-                "id": uuidString("5"),
+                "id": "diana",
                 "imageUrl": imageUrl("Diana"),
                 "name": "Diana",
               ]
@@ -473,7 +485,8 @@ class FilterRotationsTests: AppTests {
         .init(
           id: uuid("1"),
           observedAt: .iso("2024-11-21T12:00:00Z")!,
-          champions: ["Sett", "Nocturne", "Rengar"]
+          champions: ["Sett", "Nocturne", "Rengar"],
+          slug: "s1w1",
         )
       ],
       dbBeginnerRotations: [
@@ -509,7 +522,7 @@ class FilterRotationsTests: AppTests {
               ],
               "champions": [
                 [
-                  "id": uuidString("2"),
+                  "id": "sett",
                   "imageUrl": imageUrl("Sett"),
                   "name": "Sett",
                 ]
@@ -520,12 +533,12 @@ class FilterRotationsTests: AppTests {
           "beginnerRotation": [
             "champions": [
               [
-                "id": uuidString("2"),
+                "id": "sett",
                 "imageUrl": imageUrl("Sett"),
                 "name": "Sett",
               ],
               [
-                "id": uuidString("4"),
+                "id": "senna",
                 "imageUrl": imageUrl("Senna"),
                 "name": "Senna",
               ],

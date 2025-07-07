@@ -14,6 +14,12 @@ extension ChampionData {
   }
 }
 
+extension RegularChampionRotationModel {
+  convenience init(id: UUID?, slug: String) {
+    self.init(id: id, observedAt: Date.now, champions: [], slug: slug)
+  }
+}
+
 extension AppConfig {
   static func empty(
     databaseUrl: String = "",

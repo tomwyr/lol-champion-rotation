@@ -9,12 +9,14 @@ final class ObservedRotationsTests: AppTests {
         .init(
           id: uuid("2"),
           observedAt: .iso("2024-11-21T12:00:00Z")!,
-          champions: ["Nocturne"]
+          champions: ["Nocturne"],
+          slug: "s1w2",
         ),
         .init(
           id: uuid("1"),
           observedAt: .iso("2024-11-14T12:00:00Z")!,
-          champions: ["Nocturne"]
+          champions: ["Nocturne"],
+          slug: "s1w1",
         ),
       ],
       dbChampions: [
@@ -36,17 +38,20 @@ final class ObservedRotationsTests: AppTests {
         .init(
           id: uuid("3"),
           observedAt: .iso("2024-11-21T12:00:00Z")!,
-          champions: ["Garen"]
+          champions: ["Garen"],
+          slug: "s1w3",
         ),
         .init(
           id: uuid("2"),
           observedAt: .iso("2024-11-14T12:00:00Z")!,
-          champions: ["Nocturne"]
+          champions: ["Nocturne"],
+          slug: "s1w2",
         ),
         .init(
           id: uuid("1"),
           observedAt: .iso("2024-11-07T12:00:00Z")!,
-          champions: ["Nocturne"]
+          champions: ["Nocturne"],
+          slug: "s1w1",
         ),
       ],
       dbChampions: [
@@ -73,7 +78,7 @@ final class ObservedRotationsTests: AppTests {
         [
           "rotations": [
             [
-              "id": uuidString("3"),
+              "id": "s1w3",
               "current": true,
               "duration": [
                 "start": "2024-11-21T12:00:00Z",
@@ -84,7 +89,7 @@ final class ObservedRotationsTests: AppTests {
               ],
             ],
             [
-              "id": uuidString("1"),
+              "id": "s1w1",
               "current": false,
               "duration": [
                 "start": "2024-11-07T12:00:00Z",
@@ -106,7 +111,8 @@ final class ObservedRotationsTests: AppTests {
         .init(
           id: uuid("1"),
           observedAt: .iso("2024-11-07T12:00:00Z")!,
-          champions: ["Nocturne"]
+          champions: ["Nocturne"],
+          slug: "s1w1"
         )
       ],
       dbChampions: [

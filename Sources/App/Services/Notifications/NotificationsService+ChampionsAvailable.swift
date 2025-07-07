@@ -16,8 +16,8 @@ extension NotificationsService {
   }
 
   private func resolveNotificationsData(_ localData: LocalData) -> [NotificationData] {
-    let championsById = localData.champions.associatedBy(\.idString)
-    let watchlistsByUserId = localData.userWatchlists.associatedBy(\.userId)
+    let championsById = localData.champions.associatedBy(key: \.idString)
+    let watchlistsByUserId = localData.userWatchlists.associatedBy(key: \.userId)
 
     var configsByChampions = [[String]: [NotificationsConfigModel]]()
     for config in localData.configs {

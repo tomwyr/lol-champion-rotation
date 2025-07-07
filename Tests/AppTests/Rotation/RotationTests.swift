@@ -10,7 +10,8 @@ class RotationTests: AppTests {
         .init(
           id: uuid("1"),
           observedAt: .iso("2024-11-14T12:00:00Z")!,
-          champions: ["Garen", "Sett"]
+          champions: ["Garen", "Sett"],
+          slug: "s1w1",
         )
       ],
       dbChampions: [
@@ -36,7 +37,8 @@ class RotationTests: AppTests {
         .init(
           id: uuid("1"),
           observedAt: .iso("2024-11-14T12:00:00Z")!,
-          champions: ["Garen", "Sett"]
+          champions: ["Garen", "Sett"],
+          slug: "s1w1",
         )
       ],
       dbChampions: [
@@ -49,7 +51,7 @@ class RotationTests: AppTests {
     )
 
     try await app.test(
-      .GET, "/rotations/\(uuidString("2"))"
+      .GET, "/rotations/s1w2"
     ) { res async in
       XCTAssertEqual(res.status, .notFound)
     }
@@ -62,7 +64,8 @@ class RotationTests: AppTests {
         .init(
           id: uuid("1"),
           observedAt: .iso("2024-11-14T12:00:00Z")!,
-          champions: ["Garen", "Sett"]
+          champions: ["Garen", "Sett"],
+          slug: "s1w1",
         )
       ],
       dbChampions: [
@@ -75,25 +78,25 @@ class RotationTests: AppTests {
     )
 
     try await app.test(
-      .GET, "/rotations/\(uuidString("1"))"
+      .GET, "/rotations/s1w1"
     ) { res async in
       XCTAssertEqual(res.status, .ok)
       XCTAssertBody(
         res.body,
         [
-          "id": uuidString("1"),
+          "id": "s1w1",
           "duration": [
             "start": "2024-11-14T12:00:00Z",
             "end": "2024-11-21T12:00:00Z",
           ],
           "champions": [
             [
-              "id": uuidString("2"),
+              "id": "garen",
               "name": "Garen",
               "imageUrl": imageUrl("Garen"),
             ],
             [
-              "id": uuidString("3"),
+              "id": "sett",
               "name": "Sett",
               "imageUrl": imageUrl("Sett"),
             ],
@@ -111,12 +114,14 @@ class RotationTests: AppTests {
         .init(
           id: uuid("2"),
           observedAt: .iso("2024-11-21T12:00:00Z")!,
-          champions: ["Nocturne", "Sett"]
+          champions: ["Nocturne", "Sett"],
+          slug: "s1w2",
         ),
         .init(
           id: uuid("1"),
           observedAt: .iso("2024-11-14T12:00:00Z")!,
-          champions: ["Garen", "Sett"]
+          champions: ["Garen", "Sett"],
+          slug: "s1w1",
         ),
       ],
       dbChampions: [
@@ -129,25 +134,25 @@ class RotationTests: AppTests {
     )
 
     try await app.test(
-      .GET, "/rotations/\(uuidString("1"))"
+      .GET, "/rotations/s1w1"
     ) { res async in
       XCTAssertEqual(res.status, .ok)
       XCTAssertBody(
         res.body,
         [
-          "id": uuidString("1"),
+          "id": "s1w1",
           "duration": [
             "start": "2024-11-14T12:00:00Z",
             "end": "2024-11-21T12:00:00Z",
           ],
           "champions": [
             [
-              "id": uuidString("2"),
+              "id": "garen",
               "name": "Garen",
               "imageUrl": imageUrl("Garen"),
             ],
             [
-              "id": uuidString("3"),
+              "id": "sett",
               "name": "Sett",
               "imageUrl": imageUrl("Sett"),
             ],
@@ -165,7 +170,8 @@ class RotationTests: AppTests {
         .init(
           id: uuid("1"),
           observedAt: .iso("2024-11-14T12:00:00Z")!,
-          champions: ["Garen", "Sett"]
+          champions: ["Garen", "Sett"],
+          slug: "s1w1",
         )
       ],
       dbChampions: [
@@ -181,14 +187,14 @@ class RotationTests: AppTests {
     )
 
     try await app.test(
-      .GET, "/rotations/\(uuidString("1"))",
+      .GET, "/rotations/s1w1",
       headers: reqHeaders(accessToken: mobileToken)
     ) { res async in
       XCTAssertEqual(res.status, .ok)
       XCTAssertBody(
         res.body,
         [
-          "id": uuidString("1"),
+          "id": "s1w1",
           "observing": true,
           "duration": [
             "start": "2024-11-14T12:00:00Z",
@@ -196,12 +202,12 @@ class RotationTests: AppTests {
           ],
           "champions": [
             [
-              "id": uuidString("2"),
+              "id": "garen",
               "name": "Garen",
               "imageUrl": imageUrl("Garen"),
             ],
             [
-              "id": uuidString("3"),
+              "id": "sett",
               "name": "Sett",
               "imageUrl": imageUrl("Sett"),
             ],
@@ -219,7 +225,8 @@ class RotationTests: AppTests {
         .init(
           id: uuid("1"),
           observedAt: .iso("2024-11-14T12:00:00Z")!,
-          champions: ["Garen", "Sett"]
+          champions: ["Garen", "Sett"],
+          slug: "s1w1",
         )
       ],
       dbChampions: [
@@ -235,14 +242,14 @@ class RotationTests: AppTests {
     )
 
     try await app.test(
-      .GET, "/rotations/\(uuidString("1"))",
+      .GET, "/rotations/s1w1",
       headers: reqHeaders(accessToken: mobileToken)
     ) { res async in
       XCTAssertEqual(res.status, .ok)
       XCTAssertBody(
         res.body,
         [
-          "id": uuidString("1"),
+          "id": "s1w1",
           "observing": false,
           "duration": [
             "start": "2024-11-14T12:00:00Z",
@@ -250,12 +257,12 @@ class RotationTests: AppTests {
           ],
           "champions": [
             [
-              "id": uuidString("2"),
+              "id": "garen",
               "name": "Garen",
               "imageUrl": imageUrl("Garen"),
             ],
             [
-              "id": uuidString("3"),
+              "id": "sett",
               "name": "Sett",
               "imageUrl": imageUrl("Sett"),
             ],

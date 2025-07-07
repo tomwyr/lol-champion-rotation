@@ -11,8 +11,7 @@ extension ChampionsService {
     return try await createChampionDetails(champion, availabilitiesData)
   }
 
-  private func loadChampionData(_ riotId: String) async throws(ChampionsError) -> ChampionModel?
-  {
+  private func loadChampionData(_ riotId: String) async throws(ChampionsError) -> ChampionModel? {
     do {
       return try await appDb.champion(riotId: riotId)
     } catch {
@@ -176,12 +175,9 @@ extension ChampionsService {
     _ currentRotation: RegularChampionRotationModel?,
     _ champion: ChampionModel
   ) async throws(ChampionsError) -> ChampionDetailsHistoryEvent {
-    guard let id = rotation.idString else {
-      throw .dataInvalidOrMissing(championId: champion.riotId)
-    }
-
+    let id = rotation.slug
     let duration = try await getRotationDuration(rotation)
-    let current = id == currentRotation?.idString
+    let current = rotation.idString == currentRotation?.idString
     let championImageUrls = seededSelector.select(from: rotation.champions, taking: 5)
       .map(imageUrlProvider.champion)
 

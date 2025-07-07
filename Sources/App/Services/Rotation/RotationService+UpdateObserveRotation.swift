@@ -1,21 +1,26 @@
 extension DefaultRotationService {
-  func updateObserveRotation(rotationId: String, by userId: String, observing: Bool)
+  func updateObserveRotation(slug: String, by userId: String, observing: Bool)
     async throws(ChampionRotationError)
   {
-    let data = try await getWatchlists(userId)
-    if observing {
-      data.rotations.appendIfAbsent(rotationId)
-    } else {
-      data.rotations.removeAll(rotationId)
+    let (watchlists, rotation) = try await getLocalData(userId: userId, slug: slug)
+    guard let rotationId = rotation?.idString else {
+      throw .rotationDataMissing(slug: slug)
     }
-    try await saveWatchlists(data)
+    if observing {
+      watchlists.rotations.appendIfAbsent(rotationId)
+    } else {
+      watchlists.rotations.removeAll(rotationId)
+    }
+    try await saveWatchlists(watchlists)
   }
 
-  private func getWatchlists(_ userId: String) async throws(ChampionRotationError)
-    -> UserWatchlistsModel
+  private func getLocalData(userId: String, slug: String) async throws(ChampionRotationError)
+    -> UpdateObserveRotationLocalData
   {
     do {
-      return try await appDb.userWatchlists(userId: userId)
+      let watchlists = try await appDb.userWatchlists(userId: userId)
+      let rotation = try await appDb.regularRotation(slug: slug)
+      return (watchlists, rotation)
     } catch {
       throw .dataOperationFailed(cause: error)
     }
@@ -29,3 +34,8 @@ extension DefaultRotationService {
     }
   }
 }
+
+private typealias UpdateObserveRotationLocalData = (
+  watchlists: UserWatchlistsModel,
+  rotation: RegularChampionRotationModel?
+)

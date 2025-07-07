@@ -41,7 +41,7 @@ class ChampionDetailsTests: AppTests {
       XCTAssertBody(
         res.body,
         [
-          "id": uuidString("1"),
+          "id": "nocturne",
           "imageUrl": imageUrl("Nocturne"),
           "name": "Nocturne",
           "title": "the Eternal Nightmare",
@@ -90,7 +90,7 @@ class ChampionDetailsTests: AppTests {
       XCTAssertBody(
         res.body,
         [
-          "id": uuidString("1"),
+          "id": "nocturne",
           "imageUrl": imageUrl("Nocturne"),
           "name": "Nocturne",
           "title": "the Eternal Nightmare",
@@ -139,7 +139,7 @@ class ChampionDetailsTests: AppTests {
       XCTAssertBody(
         res.body,
         [
-          "id": uuidString("1"),
+          "id": "nocturne",
           "imageUrl": imageUrl("Nocturne"),
           "name": "Nocturne",
           "title": "the Eternal Nightmare",
@@ -166,7 +166,12 @@ class ChampionDetailsTests: AppTests {
     _ = try await testConfigureWith(
       idHasherSeed: idHasherSeed,
       dbRegularRotations: [
-        .init(id: uuid("1"), observedAt: .iso("2024-11-14T12:00:00Z")!, champions: ["Nocturne"])
+        .init(
+          id: uuid("1"),
+          observedAt: .iso("2024-11-14T12:00:00Z")!,
+          champions: ["Nocturne"],
+          slug: "s1w1",
+        )
       ],
       dbChampions: [
         .init(
@@ -184,7 +189,7 @@ class ChampionDetailsTests: AppTests {
       XCTAssertBody(
         res.body,
         [
-          "id": uuidString("1"),
+          "id": "nocturne",
           "imageUrl": imageUrl("Nocturne"),
           "name": "Nocturne",
           "title": "the Eternal Nightmare",
@@ -207,7 +212,7 @@ class ChampionDetailsTests: AppTests {
           "history": [
             [
               "type": "rotation",
-              "id": uuidString("1"),
+              "id": "s1w1",
               "duration": [
                 "start": "2024-11-14T12:00:00Z",
                 "end": "2024-11-21T12:00:00Z",
@@ -250,7 +255,7 @@ class ChampionDetailsTests: AppTests {
       XCTAssertBody(
         res.body,
         [
-          "id": uuidString("1"),
+          "id": "nocturne",
           "imageUrl": imageUrl("Nocturne"),
           "name": "Nocturne",
           "title": "the Eternal Nightmare",
@@ -287,19 +292,23 @@ class ChampionDetailsTests: AppTests {
       dbRegularRotations: [
         .init(
           id: uuid("4"), observedAt: .iso("2024-11-14T12:00:00Z")!,
-          champions: ["Nocturne", "Senna"]
+          champions: ["Nocturne", "Senna"],
+          slug: "s1w4",
         ),
         .init(
           id: uuid("3"), observedAt: .iso("2024-11-13T12:00:00Z")!,
-          champions: ["Nocturne", "Senna", "Fiora"]
+          champions: ["Nocturne", "Senna", "Fiora"],
+          slug: "s1w3",
         ),
         .init(
           id: uuid("2"), observedAt: .iso("2024-11-12T12:00:00Z")!,
-          champions: ["Senna"]
+          champions: ["Senna"],
+          slug: "s1w2",
         ),
         .init(
           id: uuid("1"), observedAt: .iso("2024-11-11T12:00:00Z")!,
-          champions: ["Nocturne", "Senna", "Fiora"]
+          champions: ["Nocturne", "Senna", "Fiora"],
+          slug: "s1w1",
         ),
       ],
       dbChampions: [
@@ -324,7 +333,7 @@ class ChampionDetailsTests: AppTests {
       XCTAssertBody(
         res.body,
         [
-          "id": uuidString("1"),
+          "id": "nocturne",
           "imageUrl": imageUrl("Nocturne"),
           "name": "Nocturne",
           "title": "the Eternal Nightmare",
@@ -347,7 +356,7 @@ class ChampionDetailsTests: AppTests {
           "history": [
             [
               "type": "rotation",
-              "id": uuidString("4"),
+              "id": "s1w4",
               "duration": [
                 "start": "2024-11-14T12:00:00Z",
                 "end": "2024-11-21T12:00:00Z",
@@ -360,7 +369,7 @@ class ChampionDetailsTests: AppTests {
             ],
             [
               "type": "rotation",
-              "id": uuidString("3"),
+              "id": "s1w3",
               "duration": [
                 "start": "2024-11-13T12:00:00Z",
                 "end": "2024-11-14T12:00:00Z",
@@ -378,7 +387,7 @@ class ChampionDetailsTests: AppTests {
             ],
             [
               "type": "rotation",
-              "id": uuidString("1"),
+              "id": "s1w1",
               "duration": [
                 "start": "2024-11-11T12:00:00Z",
                 "end": "2024-11-12T12:00:00Z",
@@ -406,19 +415,23 @@ class ChampionDetailsTests: AppTests {
       dbRegularRotations: [
         .init(
           id: uuid("4"), observedAt: .iso("2024-11-14T12:00:00Z")!,
-          champions: ["Senna", "Fiora"]
+          champions: ["Senna", "Fiora"],
+          slug: "s1w4",
         ),
         .init(
           id: uuid("3"), observedAt: .iso("2024-11-13T12:00:00Z")!,
-          champions: ["Senna"]
+          champions: ["Senna"],
+          slug: "s1w3",
         ),
         .init(
           id: uuid("2"), observedAt: .iso("2024-11-12T12:00:00Z")!,
-          champions: ["Nocturne", "Senna"]
+          champions: ["Nocturne", "Senna"],
+          slug: "s1w2",
         ),
         .init(
           id: uuid("1"), observedAt: .iso("2024-11-11T12:00:00Z")!,
-          champions: ["Senna", "Fiora"]
+          champions: ["Senna", "Fiora"],
+          slug: "s1w1",
         ),
       ],
       dbChampions: [
@@ -443,7 +456,7 @@ class ChampionDetailsTests: AppTests {
       XCTAssertBody(
         res.body,
         [
-          "id": uuidString("1"),
+          "id": "nocturne",
           "imageUrl": imageUrl("Nocturne"),
           "name": "Nocturne",
           "title": "the Eternal Nightmare",
@@ -470,7 +483,7 @@ class ChampionDetailsTests: AppTests {
             ],
             [
               "type": "rotation",
-              "id": uuidString("2"),
+              "id": "s1w2",
               "duration": [
                 "start": "2024-11-12T12:00:00Z",
                 "end": "2024-11-13T12:00:00Z",
@@ -501,19 +514,23 @@ class ChampionDetailsTests: AppTests {
       dbRegularRotations: [
         .init(
           id: uuid("4"), observedAt: .iso("2024-11-14T12:00:00Z")!,
-          champions: ["Fiora", "Nocturne"]
+          champions: ["Fiora", "Nocturne"],
+          slug: "s1w4",
         ),
         .init(
           id: uuid("3"), observedAt: .iso("2024-11-13T12:00:00Z")!,
-          champions: ["Senna"]
+          champions: ["Senna"],
+          slug: "s1w3",
         ),
         .init(
           id: uuid("2"), observedAt: .iso("2024-11-12T12:00:00Z")!,
-          champions: ["Senna"]
+          champions: ["Senna"],
+          slug: "s1w2",
         ),
         .init(
           id: uuid("1"), observedAt: .iso("2024-11-11T12:00:00Z")!,
-          champions: ["Senna", "Fiora"]
+          champions: ["Senna", "Fiora"],
+          slug: "s1w1",
         ),
       ],
       dbChampions: [
@@ -538,7 +555,7 @@ class ChampionDetailsTests: AppTests {
       XCTAssertBody(
         res.body,
         [
-          "id": uuidString("1"),
+          "id": "nocturne",
           "imageUrl": imageUrl("Nocturne"),
           "name": "Nocturne",
           "title": "the Eternal Nightmare",
@@ -561,7 +578,7 @@ class ChampionDetailsTests: AppTests {
           "history": [
             [
               "type": "rotation",
-              "id": uuidString("4"),
+              "id": "s1w4",
               "duration": [
                 "start": "2024-11-14T12:00:00Z",
                 "end": "2024-11-21T12:00:00Z",
@@ -592,19 +609,23 @@ class ChampionDetailsTests: AppTests {
       dbRegularRotations: [
         .init(
           id: uuid("4"), observedAt: .iso("2024-11-14T12:00:00Z")!,
-          champions: ["Fiora", "Senna"]
+          champions: ["Fiora", "Senna"],
+          slug: "s1w4",
         ),
         .init(
           id: uuid("3"), observedAt: .iso("2024-11-13T12:00:00Z")!,
-          champions: ["Senna"]
+          champions: ["Senna"],
+          slug: "s1w3",
         ),
         .init(
           id: uuid("2"), observedAt: .iso("2024-11-12T12:00:00Z")!,
-          champions: ["Senna"]
+          champions: ["Senna"],
+          slug: "s1w2",
         ),
         .init(
           id: uuid("1"), observedAt: .iso("2024-11-11T12:00:00Z")!,
-          champions: ["Senna", "Fiora"]
+          champions: ["Senna", "Fiora"],
+          slug: "s1w1",
         ),
       ],
       dbChampions: [
@@ -629,7 +650,7 @@ class ChampionDetailsTests: AppTests {
       XCTAssertBody(
         res.body,
         [
-          "id": uuidString("1"),
+          "id": "nocturne",
           "imageUrl": imageUrl("Nocturne"),
           "name": "Nocturne",
           "title": "the Eternal Nightmare",
@@ -669,23 +690,28 @@ class ChampionDetailsTests: AppTests {
       dbRegularRotations: [
         .init(
           id: uuid("5"), observedAt: .iso("2024-11-15T12:00:00Z")!,
-          champions: ["Fiora", "Senna", "Nocturne"]
+          champions: ["Fiora", "Senna", "Nocturne"],
+          slug: "s1w5",
         ),
         .init(
           id: uuid("4"), observedAt: .iso("2024-11-14T12:00:00Z")!,
-          champions: ["Fiora", "Nocturne"]
+          champions: ["Fiora", "Nocturne"],
+          slug: "s1w4",
         ),
         .init(
           id: uuid("3"), observedAt: .iso("2024-11-13T12:00:00Z")!,
-          champions: ["Senna"]
+          champions: ["Senna"],
+          slug: "s1w3",
         ),
         .init(
           id: uuid("2"), observedAt: .iso("2024-11-12T12:00:00Z")!,
-          champions: ["Senna", "Fiora"]
+          champions: ["Senna", "Fiora"],
+          slug: "s1w2",
         ),
         .init(
           id: uuid("1"), observedAt: .iso("2024-11-11T12:00:00Z")!,
-          champions: ["Fiora"]
+          champions: ["Fiora"],
+          slug: "s1w1",
         ),
       ],
       dbChampions: [
@@ -710,7 +736,7 @@ class ChampionDetailsTests: AppTests {
       XCTAssertBody(
         res.body,
         [
-          "id": uuidString("1"),
+          "id": "nocturne",
           "imageUrl": imageUrl("Nocturne"),
           "name": "Nocturne",
           "title": "the Eternal Nightmare",
@@ -733,7 +759,7 @@ class ChampionDetailsTests: AppTests {
           "history": [
             [
               "type": "rotation",
-              "id": uuidString("5"),
+              "id": "s1w5",
               "duration": [
                 "start": "2024-11-15T12:00:00Z",
                 "end": "2024-11-22T12:00:00Z",
@@ -747,7 +773,7 @@ class ChampionDetailsTests: AppTests {
             ],
             [
               "type": "rotation",
-              "id": uuidString("4"),
+              "id": "s1w4",
               "duration": [
                 "start": "2024-11-14T12:00:00Z",
                 "end": "2024-11-15T12:00:00Z",
@@ -791,7 +817,7 @@ class ChampionDetailsTests: AppTests {
       XCTAssertBody(
         res.body,
         [
-          "id": uuidString("1"),
+          "id": "nocturne",
           "imageUrl": imageUrl("Nocturne"),
           "name": "Nocturne",
           "title": "the Eternal Nightmare",
@@ -845,7 +871,7 @@ class ChampionDetailsTests: AppTests {
       XCTAssertBody(
         res.body,
         [
-          "id": uuidString("1"),
+          "id": "nocturne",
           "imageUrl": imageUrl("Nocturne"),
           "name": "Nocturne",
           "title": "the Eternal Nightmare",

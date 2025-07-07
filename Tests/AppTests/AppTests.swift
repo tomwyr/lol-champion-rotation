@@ -42,4 +42,12 @@ extension AppTests {
   func dbUserWatchlists(userId: String) async throws -> UserWatchlistsModel? {
     try await UserWatchlistsModel.query(on: app.db).filter(\.$userId == userId).first()
   }
+
+  func dbChampions() async throws -> [ChampionModel] {
+    try await ChampionModel.query(on: app.db).all()
+  }
+
+  func dbRegularRotations() async throws -> [RegularChampionRotationModel] {
+    try await RegularChampionRotationModel.query(on: app.db).all()
+  }
 }

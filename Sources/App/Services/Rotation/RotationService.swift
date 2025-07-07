@@ -4,7 +4,7 @@ protocol RotationService {
   func rotationsOverview() async throws(ChampionRotationError) -> ChampionRotationsOverview
   func currentRegularRotation() async throws(ChampionRotationError) -> ChampionRotationSummary
   func predictRotation() async throws(ChampionRotationError) -> ChampionRotationPrediction
-  func rotation(rotationId: String, userId: String?) async throws(ChampionRotationError)
+  func rotation(slug: String, userId: String?) async throws(ChampionRotationError)
     -> ChampionRotationDetails?
   func nextRotation(nextRotationToken: String) async throws(ChampionRotationError)
     -> RegularChampionRotation?
@@ -13,7 +13,7 @@ protocol RotationService {
     -> FilterRotationsResult
   func observedRotations(by userId: String) async throws(ChampionRotationError)
     -> ObservedRotationsData
-  func updateObserveRotation(rotationId: String, by userId: String, observing: Bool)
+  func updateObserveRotation(slug: String, by userId: String, observing: Bool)
     async throws(ChampionRotationError)
 }
 
@@ -26,6 +26,7 @@ struct DefaultRotationService: RotationService {
   let idHasher: IdHasher
   let rotationForecast: RotationForecast
   let seededSelector: SeededSelector
+  let slugGenerator: SlugGenerator
 
   typealias OutError = ChampionRotationError
 
@@ -44,11 +45,12 @@ struct DefaultRotationService: RotationService {
 enum ChampionRotationError: Error {
   case riotDataUnavailable(cause: Error)
   case unknownChampion(championKey: String)
-  case rotationDataMissing
+  case rotationDataMissing(slug: String? = nil)
   case tokenHashingFailed(cause: Error)
   case dataOperationFailed(cause: Error)
   case observedRotationDataInvalid(userId: String)
   case rotationDurationError(cause: RotationDurationError)
+  case slugError(cause: SlugGeneratorError)
   case championError(cause: ChampionError)
   case predictionError(cause: RotationForecastError)
 }

@@ -4,10 +4,14 @@ import XCTest
 
 final class UpdateObserveRotationTests: AppTests {
   func testUnauthorizedUser() async throws {
-    _ = try await testConfigureWith()
+    _ = try await testConfigureWith(
+      dbRegularRotations: [
+        .init(id: uuid("1"), slug: "s1w1")
+      ],
+    )
 
     try await app.test(
-      .POST, "/rotations/\(uuidString("1"))/observe",
+      .POST, "/rotations/s1w1/observe",
       body: ["observing": true]
     ) { res async in
       XCTAssertEqual(res.status, .unauthorized)
@@ -16,13 +20,16 @@ final class UpdateObserveRotationTests: AppTests {
 
   func testAddingNonObservedRotation() async throws {
     _ = try await testConfigureWith(
+      dbRegularRotations: [
+        .init(id: uuid("1"), slug: "s1w1")
+      ],
       dbUserWatchlists: [
         .init(userId: mobileUserId, rotations: [uuidString("2")])
-      ]
+      ],
     )
 
     try await app.test(
-      .POST, "/rotations/\(uuidString("1"))/observe",
+      .POST, "/rotations/s1w1/observe",
       headers: reqHeaders(accessToken: mobileToken),
       body: ["observing": true]
     ) { res async throws in
@@ -34,13 +41,16 @@ final class UpdateObserveRotationTests: AppTests {
 
   func testAddingObservedRotation() async throws {
     _ = try await testConfigureWith(
+      dbRegularRotations: [
+        .init(id: uuid("1"), slug: "s1w1")
+      ],
       dbUserWatchlists: [
         .init(userId: mobileUserId, rotations: [uuidString("1")])
       ]
     )
 
     try await app.test(
-      .POST, "/rotations/\(uuidString("1"))/observe",
+      .POST, "/rotations/s1w1/observe",
       headers: reqHeaders(accessToken: mobileToken),
       body: ["observing": true]
     ) { res async throws in
@@ -52,13 +62,16 @@ final class UpdateObserveRotationTests: AppTests {
 
   func testRemovingObservedRotation() async throws {
     _ = try await testConfigureWith(
+      dbRegularRotations: [
+        .init(id: uuid("1"), slug: "s1w1")
+      ],
       dbUserWatchlists: [
         .init(userId: mobileUserId, rotations: [uuidString("1")])
       ]
     )
 
     try await app.test(
-      .POST, "/rotations/\(uuidString("1"))/observe",
+      .POST, "/rotations/s1w1/observe",
       headers: reqHeaders(accessToken: mobileToken),
       body: ["observing": false]
     ) { res async throws in
@@ -70,13 +83,16 @@ final class UpdateObserveRotationTests: AppTests {
 
   func testRemovingNonObservedRotation() async throws {
     _ = try await testConfigureWith(
+      dbRegularRotations: [
+        .init(id: uuid("1"), slug: "s1w1")
+      ],
       dbUserWatchlists: [
         .init(userId: mobileUserId, rotations: [uuidString("2")])
       ]
     )
 
     try await app.test(
-      .POST, "/rotations/\(uuidString("1"))/observe",
+      .POST, "/rotations/s1w1/observe",
       headers: reqHeaders(accessToken: mobileToken),
       body: ["observing": false]
     ) { res async throws in
@@ -88,11 +104,14 @@ final class UpdateObserveRotationTests: AppTests {
 
   func testAddingWithoutWatchlist() async throws {
     _ = try await testConfigureWith(
+      dbRegularRotations: [
+        .init(id: uuid("1"), slug: "s1w1")
+      ],
       dbUserWatchlists: []
     )
 
     try await app.test(
-      .POST, "/rotations/\(uuidString("1"))/observe",
+      .POST, "/rotations/s1w1/observe",
       headers: reqHeaders(accessToken: mobileToken),
       body: ["observing": true]
     ) { res async throws in

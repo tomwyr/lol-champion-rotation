@@ -16,7 +16,7 @@ struct Dependencies {
       httpClient: NetworkHttpClient(),
       fcm: { req in req.fcm },
       mobileUserGuard: MobileUserGuard(),
-      optionalMobileUserGuard: OptionalMobileUserGuard()
+      optionalMobileUserGuard: OptionalMobileUserGuard(),
     )
   }
 
@@ -29,7 +29,8 @@ struct Dependencies {
       notificationsService: notificationsService(request: request),
       idHasher: idHasher(),
       rotationForecast: DefaultRotationForecast(),
-      seededSelector: seededSelector()
+      seededSelector: seededSelector(),
+      slugGenerator: SlugGenerator(),
     )
   }
 
@@ -37,14 +38,14 @@ struct Dependencies {
     ChampionsService(
       imageUrlProvider: imageUrlProvider(request: request),
       appDb: appDb(request: request),
-      seededSelector: seededSelector()
+      seededSelector: seededSelector(),
     )
   }
 
   func notificationsService(request: Request) -> NotificationsService {
     NotificationsService(
       appDb: appDb(request: request),
-      pushNotificationsClient: pushNotificationsClient(request: request)
+      pushNotificationsClient: pushNotificationsClient(request: request),
     )
   }
 
@@ -52,7 +53,7 @@ struct Dependencies {
     DefaultVersionService(
       versionType: String.self,
       riotApiClient: riotApiClient(),
-      appDb: appDb(request: request)
+      appDb: appDb(request: request),
     )
   }
 
@@ -64,14 +65,14 @@ struct Dependencies {
         appKeySecret: appConfig.b2AppKeySecret
       ),
       cache: request.cache,
-      fingerprint: nil
+      fingerprint: nil,
     )
   }
 
   func riotApiClient() -> RiotApiClient {
     RiotApiClient(
       http: httpClient,
-      apiKey: appConfig.riotApiKey
+      apiKey: appConfig.riotApiKey,
     )
   }
 
@@ -81,7 +82,7 @@ struct Dependencies {
 
   func appDb(request: Request) -> AppDatabase {
     AppDatabase(
-      runner: StartupRetryRunner(database: request.db)
+      runner: StartupRetryRunner(database: request.db),
     )
   }
 
