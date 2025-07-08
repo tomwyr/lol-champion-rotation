@@ -1,4 +1,6 @@
+import Fluent
 import Foundation
+import VaporTesting
 
 @testable import App
 
@@ -17,6 +19,13 @@ extension ChampionData {
 extension RegularChampionRotationModel {
   convenience init(id: UUID?, slug: String) {
     self.init(id: id, observedAt: Date.now, champions: [], slug: slug)
+  }
+}
+
+extension NotificationsConfigModel: Equatable {
+  static public func == (lhs: NotificationsConfigModel, rhs: NotificationsConfigModel) -> Bool {
+    lhs.userId == rhs.userId && lhs.token == rhs.token && lhs.rotationChanged == rhs.rotationChanged
+      && lhs.championsAvailable == rhs.championsAvailable
   }
 }
 
@@ -41,5 +50,27 @@ extension AppConfig {
       idHasherSeed: idHasherSeed,
       firebaseProjectId: firebaseProjectId
     )
+  }
+}
+
+extension Application {
+  func dbPatchVersions() async throws -> [String?] {
+    try await PatchVersionModel.query(on: db).all().map(\.value)
+  }
+
+  func dbNotificationConfigs() async throws -> [NotificationsConfigModel] {
+    try await NotificationsConfigModel.query(on: db).all()
+  }
+
+  func dbUserWatchlists(userId: String) async throws -> UserWatchlistsModel? {
+    try await UserWatchlistsModel.query(on: db).filter(\.$userId == userId).first()
+  }
+
+  func dbChampions() async throws -> [ChampionModel] {
+    try await ChampionModel.query(on: db).all()
+  }
+
+  func dbRegularRotations() async throws -> [RegularChampionRotationModel] {
+    try await RegularChampionRotationModel.query(on: db).all()
   }
 }

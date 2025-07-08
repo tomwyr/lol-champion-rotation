@@ -1,31 +1,31 @@
 import Clocks
-import XCTest
+import Testing
 
 @testable import App
 
-final class RunRetryingTests: XCTestCase, @unchecked Sendable {
+@Suite struct RunRetryingTests: @unchecked Sendable {
   var task = TestTask()
   var clock = TestClock()
 
-  let five: () throws -> Int = { 5 }
-  let error: () throws -> Int = { throw TestTaskError() }
-  let unexpectedError: () throws -> Int = { throw TestTaskUnexpectedError() }
+  let returnFive: () throws -> Int = { 5 }
+  let throwExpectedError: () throws -> Int = { throw TestTaskError() }
+  let throwUnexpectedError: () throws -> Int = { throw TestTaskUnexpectedError() }
 
-  override func setUp() async throws {
+  init() throws {
     task = TestTask()
     clock = TestClock()
   }
 
-  func testNonFailingTask() async throws {
+  @Test func nonFailingTask() async throws {
     let result = try await task.runRetrying(retryDelays: [], clock: clock) {
       5
     }
 
-    XCTAssertEqual(result, 5)
+    #expect(result == 5)
   }
 
-  func testTaskRecovery() async throws {
-    var results = [error, five]
+  @Test func taskRecovery() async throws {
+    var results = [throwExpectedError, returnFive]
 
     async let asyncResult = task.runRetrying(
       retryDelays: [.seconds(1)],
@@ -38,11 +38,11 @@ final class RunRetryingTests: XCTestCase, @unchecked Sendable {
 
     let result = try await asyncResult
 
-    XCTAssertEqual(result, 5)
+    #expect(result == 5)
   }
 
-  func testRetriesOrder() async throws {
-    var results = [error, error, error, error, five]
+  @Test func retriesOrder() async throws {
+    var results = [throwExpectedError, throwExpectedError, throwExpectedError, throwExpectedError, returnFive]
 
     var attempts = 0
 
@@ -57,35 +57,35 @@ final class RunRetryingTests: XCTestCase, @unchecked Sendable {
     await clock.advance()
 
     // 0 seconds in total.
-    XCTAssertEqual(attempts, 1)
+    #expect(attempts == 1)
 
     await clock.advance(by: .seconds(2))
 
     // 2 seconds in total.
-    XCTAssertEqual(attempts, 2)
+    #expect(attempts == 2)
 
     await clock.advance(by: .seconds(2))
 
     // 4 seconds in total.
-    XCTAssertEqual(attempts, 3)
+    #expect(attempts == 3)
 
     await clock.advance(by: .seconds(3))
 
     // 7 seconds in total.
-    XCTAssertEqual(attempts, 4)
+    #expect(attempts == 4)
 
     await clock.advance(by: .seconds(4))
 
     // 11 seconds in total.
-    XCTAssertEqual(attempts, 5)
+    #expect(attempts == 5)
 
     let result = try await asyncResult
 
-    XCTAssertEqual(result, 5)
+    #expect(result == 5)
   }
 
-  func testMoreErrorsThanRetries() async throws {
-    var results = [error, error, five]
+  @Test func moreErrorsThanRetries() async throws {
+    var results = [throwExpectedError, throwExpectedError, returnFive]
 
     async let asyncResult = task.runRetrying(
       retryDelays: [.seconds(1)],
@@ -98,16 +98,16 @@ final class RunRetryingTests: XCTestCase, @unchecked Sendable {
 
     do {
       _ = try await asyncResult
-      XCTFail("Async operation that was expected to fail succeeded")
+      Issue.record("Async operation that was expected to fail succeeded")
     } catch is TestTaskError {
       // Pass
     } catch {
-      XCTFail("Async operation that was expected to fail threw an unexpected error")
+      Issue.record("Async operation that was expected to fail threw an unexpected error")
     }
   }
 
-  func testExpectedErrorFilter() async throws {
-    var results = [error, five]
+  @Test func expectedErrorFilter() async throws {
+    var results = [throwExpectedError, returnFive]
 
     async let asyncResult = task.runRetrying(
       retryDelays: [.seconds(1)],
@@ -121,29 +121,24 @@ final class RunRetryingTests: XCTestCase, @unchecked Sendable {
 
     let result = try await asyncResult
 
-    XCTAssertEqual(result, 5)
+    #expect(result == 5)
   }
 
-  func testUnexpectedError() async throws {
-    var results = [unexpectedError, five]
+  @Test func unexpectedError() async throws {
+    await #expect(throws: TestTaskUnexpectedError.self) {
+      var results = [throwUnexpectedError, returnFive]
 
-    async let asyncResult = task.runRetrying(
-      retryDelays: [.seconds(1)],
-      errorFilter: { error in error is TestTaskError },
-      clock: clock
-    ) {
-      try results.removeFirst()()
-    }
+      async let asyncResult = task.runRetrying(
+        retryDelays: [.seconds(1)],
+        errorFilter: { error in error is TestTaskError },
+        clock: clock
+      ) {
+        try results.removeFirst()()
+      }
 
-    await clock.advance(by: .seconds(2))
+      await clock.advance(by: .seconds(2))
 
-    do {
       _ = try await asyncResult
-      XCTFail("Async operation that was expected to fail succeeded")
-    } catch is TestTaskUnexpectedError {
-      // Pass
-    } catch {
-      XCTFail("Async operation that was expected to fail threw an unexpected error")
     }
   }
 }

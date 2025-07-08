@@ -1,17 +1,16 @@
 import FluentSQLiteDriver
-import XCTVapor
+import VaporTesting
 
 @testable import App
 
 typealias InitDb = (Database) async throws -> Void
-typealias InitDbModel<T> = (T) -> Void where T: Model
 
 typealias AppTestsMocks = (
   httpClient: MockHttpClient,
   fcm: MockFcmDispatcher
 )
 
-extension AppTests {
+extension Application {
   func testConfigureWith(
     appManagementKey: String? = nil,
     idHasherSeed: String? = nil,
@@ -25,7 +24,7 @@ extension AppTests {
     riotPatchVersions: [String]? = nil,
     riotChampionRotationsData: ChampionRotationsData? = nil,
     riotChampionsData: ChampionsData? = nil,
-    sendFcmMessage: SendFcmMessage? = nil
+    sendFcmMessage: SendFcmMessage? = nil,
   ) async throws -> AppTestsMocks {
     let httpClient = MockHttpClient { url in
       return switch url {
@@ -85,28 +84,23 @@ extension AppTests {
     return (httpClient, fcm)
   }
 
-  func testConfigure(deps: Dependencies, initDb: InitDb) async throws {
-    try await configureApp()
+  private func testConfigure(deps: Dependencies, initDb: InitDb) async throws {
     try await database(deps, initDb)
-    try routes(app, deps)
+    try routes(deps)
   }
 
-  func database(_ deps: Dependencies, _ initDb: InitDb) async throws {
+  private func routes(_ deps: Dependencies) throws {
+    try App.routes(self, deps)
+  }
+
+  private func database(_ deps: Dependencies, _ initDb: InitDb) async throws {
     guard let dbUrl = Environment.get("TEST_DATABASE_URL") else {
       fatalError("Database url environment variable not set.")
     }
-    app.databases.use(try .postgres(url: dbUrl), as: .psql)
-    app.migrations.addAppMigrations()
-    try await app.autoRevert()
-    try await app.autoMigrate()
-    try await initDb(app.db)
-  }
-}
-
-extension Model {
-  static func create(with initModel: InitDbModel<Self>, on database: Database) async throws {
-    let model = Self()
-    initModel(model)
-    try await model.create(on: database)
+    databases.use(try .postgres(url: dbUrl), as: .psql)
+    migrations.addAppMigrations()
+    try await autoRevert()
+    try await autoMigrate()
+    try await initDb(db)
   }
 }

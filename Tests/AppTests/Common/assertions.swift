@@ -1,70 +1,58 @@
-import XCTVapor
+import Foundation
+import NIO
+import Testing
 
-func XCTAssertBodyError(_ body: ByteBuffer, _ reason: String) {
-  XCTAssertBody(body, ["error": true, "reason": reason])
+func expectBodyError(_ body: ByteBuffer, _ reason: String) throws {
+  try expectBody(body, ["error": true, "reason": reason])
 }
 
-func XCTAssertBody(
-  _ body: ByteBuffer,
-  at path: String? = nil,
-  _ expected: [String: Any?],
-  file: StaticString = #filePath, line: UInt = #line
-) {
-  let fail = { (message: String) in XCTFail(message, file: file, line: line) }
-
-  guard let data = body.getData(at: body.readerIndex, length: body.readableBytes),
-    let jsonObject = try? JSONSerialization.jsonObject(with: data) as? NSDictionary
-  else {
-    fail("Failed to decode JSON object from response body")
-    return
-  }
+func expectBody(_ body: ByteBuffer, at path: String? = nil, _ expected: [String: Any?]) throws {
+  let jsonObject = try #require(
+    body.getData(at: body.readerIndex, length: body.readableBytes).flatMap { data in
+      try? JSONSerialization.jsonObject(with: data) as? NSDictionary
+    },
+    "Failed to decode JSON object from response body",
+  )
 
   let actual: NSDictionary
   if let path {
-    guard let pathJsonObject = jsonObject[path] as? NSDictionary else {
-      fail("Expected an object in the response body at path \(path)")
-      return
-    }
+    let pathJsonObject = try #require(
+      jsonObject[path] as? NSDictionary,
+      "Expected an object in the response body at path \(path)",
+    )
     actual = pathJsonObject
   } else {
     actual = jsonObject
   }
 
-  XCTAssertEqual(expected as NSDictionary, actual)
+  #expect(expected as NSDictionary == actual)
 }
 
-func XCTAssertBody(
-  _ body: ByteBuffer,
-  at path: String? = nil,
-  _ expected: NSArray,
-  file: StaticString = #filePath, line: UInt = #line
-) {
-  let fail = { (message: String) in XCTFail(message, file: file, line: line) }
-
-  guard let data = body.getData(at: body.readerIndex, length: body.readableBytes) else {
-    fail("Failed to decode JSON data from response body")
-    return
-  }
+func expectBody(_ body: ByteBuffer, at path: String? = nil, _ expected: NSArray) throws {
+  let data = try #require(
+    body.getData(at: body.readerIndex, length: body.readableBytes),
+    "Failed to decode JSON data from response body",
+  )
 
   let actual: NSArray
   if let path {
-    guard let jsonObject = try? JSONSerialization.jsonObject(with: data) as? NSDictionary else {
-      fail("Failed to decode JSON object from response body")
-      return
-    }
-    guard let pathJsonList = jsonObject[path] as? NSArray else {
-      NSLog(String(describing: jsonObject[path]))
-      fail("Expected a list in the response body at path \(path)")
-      return
-    }
+    let jsonObject = try #require(
+      try? JSONSerialization.jsonObject(with: data) as? NSDictionary,
+      "Failed to decode JSON object from response body",
+    )
+
+    let pathJsonList = try #require(
+      jsonObject[path] as? NSArray,
+      "Expected a list in the response body at path \(path)",
+    )
     actual = pathJsonList
   } else {
-    guard let jsonList = try? JSONSerialization.jsonObject(with: data) as? NSArray else {
-      fail("Failed to decode JSON list from response body")
-      return
-    }
+    let jsonList = try #require(
+      try? JSONSerialization.jsonObject(with: data) as? NSArray,
+      "Failed to decode JSON list from response body",
+    )
     actual = jsonList
   }
 
-  XCTAssertEqual(expected, actual)
+  #expect(expected == actual)
 }

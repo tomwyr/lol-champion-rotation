@@ -1,19 +1,19 @@
-import XCTest
+import Testing
 
 @testable import App
 
-final class SlugGeneratorTests: XCTestCase {
-  func testFirstWeekOfSeason() throws {
+@Suite struct SlugGeneratorTests {
+  @Test func firstWeekOfSeason() throws {
     let slug = try SlugGenerator().resolve(
       rotationStart: .isoDate("2025-01-05")!,
       versions: [
         .init(observedAt: .isoDate("2025-01-03")!, value: "15.1.0")
       ],
     )
-    XCTAssertEqual(slug, "s15w1")
+    #expect(slug == "s15w1")
   }
 
-  func testSeasonWithMultipleVersions() throws {
+  @Test func seasonWithMultipleVersions() throws {
     let slug = try SlugGenerator().resolve(
       rotationStart: .isoDate("2025-01-25")!,
       versions: [
@@ -23,10 +23,10 @@ final class SlugGeneratorTests: XCTestCase {
         .init(observedAt: .isoDate("2025-01-24")!, value: "15.4.0"),
       ],
     )
-    XCTAssertEqual(slug, "s15w4")
+    #expect(slug == "s15w4")
   }
 
-  func testMultipleSeasons() throws {
+  @Test func multipleSeasons() throws {
     let slug = try SlugGenerator().resolve(
       rotationStart: .isoDate("2025-01-25")!,
       versions: [
@@ -40,10 +40,10 @@ final class SlugGeneratorTests: XCTestCase {
         .init(observedAt: .isoDate("2025-01-24")!, value: "15.4.0"),
       ],
     )
-    XCTAssertEqual(slug, "s15w4")
+    #expect(slug == "s15w4")
   }
 
-  func testVersionInPreviousSeason() throws {
+  @Test func versionInPreviousSeason() throws {
     let slug = try SlugGenerator().resolve(
       rotationStart: .isoDate("2024-12-23")!,
       versions: [
@@ -57,10 +57,10 @@ final class SlugGeneratorTests: XCTestCase {
         .init(observedAt: .isoDate("2025-01-24")!, value: "15.4.0"),
       ],
     )
-    XCTAssertEqual(slug, "s14w3")
+    #expect(slug == "s14w3")
   }
 
-  func testMultipleRotations() throws {
+  @Test func multipleRotations() throws {
     let slugs = try SlugGenerator().resolveAll(
       rotationStarts: [
         .isoDate("2024-12-09")!,
@@ -81,13 +81,12 @@ final class SlugGeneratorTests: XCTestCase {
         .init(observedAt: .isoDate("2025-01-24")!, value: "15.4.0"),
       ],
     )
-    XCTAssertEqual(
-      slugs,
-      ["s14w1", "s14w3", "s14w4", "s15w1", "s15w1", "s15w4"],
+    #expect(
+      slugs == ["s14w1", "s14w3", "s14w4", "s15w1", "s15w1", "s15w4"],
     )
   }
 
-  func testNonUniqueSlug() throws {
+  @Test func nonUniqueSlug() throws {
     let slug = try SlugGenerator().resolveUnique(
       rotationStart: .isoDate("2025-01-25")!,
       versions: [
@@ -98,10 +97,10 @@ final class SlugGeneratorTests: XCTestCase {
       ],
       existingSlugs: ["s15w4", "s15w4-1"],
     )
-    XCTAssertEqual(slug, "s15w4-2")
+    #expect(slug == "s15w4-2")
   }
 
-  func testMultipleNonUniqueSlug() throws {
+  @Test func multipleNonUniqueSlug() throws {
     let slugs = try SlugGenerator().resolveAllUnique(
       rotationStarts: [
         .isoDate("2024-12-09")!,
@@ -123,9 +122,8 @@ final class SlugGeneratorTests: XCTestCase {
         "s14w1", "s14w4", "s14w4-1", "s14w4-2", "s15w1", "s15w1-1", "s15w1-3",
       ],
     )
-    XCTAssertEqual(
-      slugs,
-      ["s14w1-2", "s14w4-3", "s15w1-2", "s15w1-4"],
+    #expect(
+      slugs == ["s14w1-2", "s14w4-3", "s15w1-2", "s15w1-4"],
     )
   }
 }

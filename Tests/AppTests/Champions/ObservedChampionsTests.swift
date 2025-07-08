@@ -1,111 +1,119 @@
-import XCTest
+import Testing
 
 @testable import App
 
-final class ObservedChampionsTests: AppTests {
-  func testUnauthorizedUser() async throws {
-    _ = try await testConfigureWith(
-      dbRegularRotations: [
-        .init(
-          id: uuid("1"),
-          observedAt: .iso("2024-11-14T12:00:00Z")!,
-          champions: ["Nocturne"],
-          slug: "s1w1",
+extension AppTests {
+  @Suite(.serialized) struct ObservedChampionsTests {
+    @Test func unauthorizedUser() async throws {
+      try await withApp { app in
+        _ = try await app.testConfigureWith(
+          dbRegularRotations: [
+            .init(
+              id: uuid("1"),
+              observedAt: .iso("2024-11-14T12:00:00Z")!,
+              champions: ["Nocturne"],
+              slug: "s1w1",
+            )
+          ],
+          dbChampions: [
+            .init(id: uuid("1"), riotId: "Nocturne", name: "Nocturne")
+          ],
+          b2AuthorizeDownloadData: .init(authorizationToken: "123")
         )
-      ],
-      dbChampions: [
-        .init(id: uuid("1"), riotId: "Nocturne", name: "Nocturne")
-      ],
-      b2AuthorizeDownloadData: .init(authorizationToken: "123")
-    )
 
-    try await app.test(
-      .GET, "/champions/observed"
-    ) { res async in
-      XCTAssertEqual(res.status, .unauthorized)
+        try await app.test(
+          .GET, "/champions/observed"
+        ) { res async throws in
+          #expect(res.status == .unauthorized)
+        }
+      }
     }
-  }
 
-  func testAuthorizedUser() async throws {
-    _ = try await testConfigureWith(
-      dbRegularRotations: [
-        .init(
-          id: uuid("1"),
-          observedAt: .iso("2024-11-07T12:00:00Z")!,
-          champions: ["Nocturne"],
-          slug: "s1w1",
+    @Test func authorizedUser() async throws {
+      try await withApp { app in
+        _ = try await app.testConfigureWith(
+          dbRegularRotations: [
+            .init(
+              id: uuid("1"),
+              observedAt: .iso("2024-11-07T12:00:00Z")!,
+              champions: ["Nocturne"],
+              slug: "s1w1",
+            )
+          ],
+          dbChampions: [
+            .init(id: uuid("1"), riotId: "Senna", name: "Senna"),
+            .init(id: uuid("2"), riotId: "Garen", name: "Garen"),
+            .init(id: uuid("3"), riotId: "Nocturne", name: "Nocturne"),
+          ],
+          dbUserWatchlists: [
+            .init(
+              userId: mobileUserId,
+              champions: [uuidString("1"), uuidString("3")]
+            )
+          ],
+          b2AuthorizeDownloadData: .init(authorizationToken: "123")
         )
-      ],
-      dbChampions: [
-        .init(id: uuid("1"), riotId: "Senna", name: "Senna"),
-        .init(id: uuid("2"), riotId: "Garen", name: "Garen"),
-        .init(id: uuid("3"), riotId: "Nocturne", name: "Nocturne"),
-      ],
-      dbUserWatchlists: [
-        .init(
-          userId: mobileUserId,
-          champions: [uuidString("1"), uuidString("3")]
-        )
-      ],
-      b2AuthorizeDownloadData: .init(authorizationToken: "123")
-    )
 
-    try await app.test(
-      .GET, "/champions/observed",
-      headers: reqHeaders(accessToken: mobileToken)
-    ) { res async in
-      XCTAssertEqual(res.status, .ok)
-      XCTAssertBody(
-        res.body,
-        [
-          "champions": [
+        try await app.test(
+          .GET, "/champions/observed",
+          headers: reqHeaders(accessToken: mobileToken)
+        ) { res async throws in
+          #expect(res.status == .ok)
+          try expectBody(
+            res.body,
             [
-              "id": uuidString("3"),
-              "name": "Nocturne",
-              "current": true,
-              "imageUrl": imageUrl("Nocturne"),
-            ],
-            [
-              "id": uuidString("1"),
-              "name": "Senna",
-              "current": false,
-              "imageUrl": imageUrl("Senna"),
-            ],
-          ]
-        ]
-      )
+              "champions": [
+                [
+                  "id": uuidString("3"),
+                  "name": "Nocturne",
+                  "current": true,
+                  "imageUrl": imageUrl("Nocturne"),
+                ],
+                [
+                  "id": uuidString("1"),
+                  "name": "Senna",
+                  "current": false,
+                  "imageUrl": imageUrl("Senna"),
+                ],
+              ]
+            ]
+          )
+        }
+      }
     }
-  }
 
-  func testUserWithoutWatchlist() async throws {
-    _ = try await testConfigureWith(
-      dbRegularRotations: [
-        .init(
-          id: uuid("1"),
-          observedAt: .iso("2024-11-07T12:00:00Z")!,
-          champions: ["Nocturne"],
-          slug: "s1w1",
+    @Test func userWithoutWatchlist() async throws {
+      try await withApp { app in
+        _ = try await app.testConfigureWith(
+          dbRegularRotations: [
+            .init(
+              id: uuid("1"),
+              observedAt: .iso("2024-11-07T12:00:00Z")!,
+              champions: ["Nocturne"],
+              slug: "s1w1",
+            )
+          ],
+          dbChampions: [
+            .init(id: uuid("1"), riotId: "Nocturne", name: "Nocturne")
+
+          ],
+          dbUserWatchlists: [],
+          b2AuthorizeDownloadData: .init(authorizationToken: "123")
         )
-      ],
-      dbChampions: [
-        .init(id: uuid("1"), riotId: "Nocturne", name: "Nocturne")
 
-      ],
-      dbUserWatchlists: [],
-      b2AuthorizeDownloadData: .init(authorizationToken: "123")
-    )
-
-    try await app.test(
-      .GET, "/champions/observed",
-      headers: reqHeaders(accessToken: mobileToken)
-    ) { res async in
-      XCTAssertEqual(res.status, .ok)
-      XCTAssertBody(
-        res.body,
-        [
-          "champions": []
-        ]
-      )
+        try await app.test(
+          .GET, "/champions/observed",
+          headers: reqHeaders(accessToken: mobileToken)
+        ) { res async throws in
+          #expect(res.status == .ok)
+          try expectBody(
+            res.body,
+            [
+              "champions": []
+            ]
+          )
+        }
+      }
     }
   }
 }

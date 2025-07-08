@@ -1,77 +1,87 @@
-import XCTVapor
+import Testing
 
 @testable import App
 
-class PutNotificationsTokenTests: AppTests {
-  func testInvalidAuth() async throws {
-    _ = try await testConfigureWith()
+extension AppTests {
+  @Suite(.serialized) struct PutNotificationsTokenTests {
+    @Test func invalidAuth() async throws {
+      try await withApp { app in
+        _ = try await app.testConfigureWith()
 
-    try await app.test(
-      .PUT, "/notifications/token",
-      headers: reqHeaders(),
-      body: ["token": "123"]
-    ) { res async in
-      XCTAssertEqual(res.status, .unauthorized)
+        try await app.test(
+          .PUT, "/notifications/token",
+          headers: reqHeaders(),
+          body: ["token": "123"]
+        ) { res async throws in
+          #expect(res.status == .unauthorized)
+        }
+      }
     }
-  }
 
-  func testValidAuth() async throws {
-    _ = try await testConfigureWith()
+    @Test func validAuth() async throws {
+      try await withApp { app in
+        _ = try await app.testConfigureWith()
 
-    try await app.test(
-      .PUT, "/notifications/token",
-      headers: reqHeaders(accessToken: mobileToken),
-      body: ["token": "abc"]
-    ) { res async in
-      XCTAssertEqual(res.status, .noContent)
+        try await app.test(
+          .PUT, "/notifications/token",
+          headers: reqHeaders(accessToken: mobileToken),
+          body: ["token": "abc"]
+        ) { res async throws in
+          #expect(res.status == .noContent)
+        }
+      }
     }
-  }
 
-  func testAddingNewToken() async throws {
-    let existingConfig = NotificationsConfigModel(
-      userId: "123", token: "def",
-      rotationChanged: true, championsAvailable: true
-    )
+    @Test func addingNewToken() async throws {
+      try await withApp { app in
+        let existingConfig = NotificationsConfigModel(
+          userId: "123", token: "def",
+          rotationChanged: true, championsAvailable: true
+        )
 
-    _ = try await testConfigureWith(dbNotificationsConfigs: [existingConfig])
+        _ = try await app.testConfigureWith(dbNotificationsConfigs: [existingConfig])
 
-    try await app.test(
-      .PUT, "/notifications/token",
-      headers: reqHeaders(accessToken: mobileToken),
-      body: ["token": "abc"]
-    ) { res async throws in
-      let addedConfig = NotificationsConfigModel(
-        userId: mobileUserId, token: "abc",
-        rotationChanged: false, championsAvailable: false
-      )
-      let configs = try await dbNotificationConfigs()
+        try await app.test(
+          .PUT, "/notifications/token",
+          headers: reqHeaders(accessToken: mobileToken),
+          body: ["token": "abc"]
+        ) { res async throws in
+          let addedConfig = NotificationsConfigModel(
+            userId: mobileUserId, token: "abc",
+            rotationChanged: false, championsAvailable: false
+          )
+          let configs = try await app.dbNotificationConfigs()
 
-      XCTAssertEqual(res.status, .noContent)
-      XCTAssertEqual(configs, [existingConfig, addedConfig])
+          #expect(res.status == .noContent)
+          #expect(configs == [existingConfig, addedConfig])
+        }
+      }
     }
-  }
 
-  func testUpdatingExistingToken() async throws {
-    let existingConfig = NotificationsConfigModel(
-      userId: mobileUserId, token: "def",
-      rotationChanged: true, championsAvailable: true
-    )
+    @Test func updatingExistingToken() async throws {
+      try await withApp { app in
+        let existingConfig = NotificationsConfigModel(
+          userId: mobileUserId, token: "def",
+          rotationChanged: true, championsAvailable: true
+        )
 
-    _ = try await testConfigureWith(dbNotificationsConfigs: [existingConfig])
+        _ = try await app.testConfigureWith(dbNotificationsConfigs: [existingConfig])
 
-    try await app.test(
-      .PUT, "/notifications/token",
-      headers: reqHeaders(accessToken: mobileToken),
-      body: ["token": "abc"]
-    ) { res async throws in
-      let updatedConfig = NotificationsConfigModel(
-        userId: mobileUserId, token: "abc",
-        rotationChanged: true, championsAvailable: true
-      )
-      let configs = try await dbNotificationConfigs()
+        try await app.test(
+          .PUT, "/notifications/token",
+          headers: reqHeaders(accessToken: mobileToken),
+          body: ["token": "abc"]
+        ) { res async throws in
+          let updatedConfig = NotificationsConfigModel(
+            userId: mobileUserId, token: "abc",
+            rotationChanged: true, championsAvailable: true
+          )
+          let configs = try await app.dbNotificationConfigs()
 
-      XCTAssertEqual(res.status, .noContent)
-      XCTAssertEqual(configs, [updatedConfig])
+          #expect(res.status == .noContent)
+          #expect(configs == [updatedConfig])
+        }
+      }
     }
   }
 }

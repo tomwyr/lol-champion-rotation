@@ -1,5 +1,5 @@
+import Testing
 import Vapor
-import XCTest
 
 @testable import App
 

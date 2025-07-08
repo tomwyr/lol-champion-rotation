@@ -1,8 +1,8 @@
-import XCTest
+import Testing
 
 @testable import App
 
-final class ChaChaIdHasherTests: XCTestCase {
+@Suite struct ChaChaIdHasherTests {
   let hasher = ChaChaIdHasher(
     secretKey: "2812b3f1a5eed1c3a9d19764bfd3b32f",
     nonce: "a5132d9e29ba"
@@ -24,22 +24,22 @@ final class ChaChaIdHasherTests: XCTestCase {
     "b7e9b7205a3e99cdc76165ed509d603f5deee7e53382f5db7d5b8e7f902598e681c24dd9",
   ]
 
-  func testIdToToken() throws {
+  @Test func idToToken() throws {
     for (index, token) in tokens.enumerated() {
       let id = ids[index]
-      XCTAssertEqual(try hasher.idToToken(id), token)
+      #expect(try hasher.idToToken(id) == token)
     }
   }
 
-  func testTokenToId() throws {
+  @Test func tokenToId() throws {
     for (index, id) in ids.enumerated() {
       let token = tokens[index]
-      XCTAssertEqual(try hasher.tokenToId(token), id)
+      #expect(try hasher.tokenToId(token) == id)
     }
   }
 }
 
-final class Base62IdHasherTests: XCTestCase {
+@Suite struct Base62IdHasherTests {
   let hasher = Base62IdHasher(
     seed: "a1m4vz1bu9a3ttn4kflvrjy29bw1yol5"
   )
@@ -60,17 +60,17 @@ final class Base62IdHasherTests: XCTestCase {
     "nSHKYty2TKGAQRIFAdoEPlSxsEtIJUGgafLZ6a8Cm8bEoZDS",
   ]
 
-  func testIdToToken() throws {
+  @Test func idToToken() throws {
     for (index, token) in tokens.enumerated() {
       let id = ids[index]
-      XCTAssertEqual(try hasher.idToToken(id), token)
+      #expect(try hasher.idToToken(id) == token)
     }
   }
 
-  func testTokenToId() throws {
+  @Test func tokenToId() throws {
     for (index, id) in ids.enumerated() {
       let token = tokens[index]
-      XCTAssertEqual(try hasher.tokenToId(token), id)
+      #expect(try hasher.tokenToId(token) == id)
     }
   }
 }
