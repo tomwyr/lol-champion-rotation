@@ -27,7 +27,9 @@ struct MobileUserGuard: RequestAuthenticatorGuard {
 
 struct OptionalMobileUserGuard: RequestAuthenticatorGuard {
   func authenticate(request: Request) async throws -> Authenticatable? {
-    if let token = try? await request.jwt.firebaseAuth.verify() {
+    if request.headers.bearerAuthorization != nil,
+      let token = try? await request.jwt.firebaseAuth.verify()
+    {
       MobileUserAuth(userId: token.userID)
     } else {
       nil
