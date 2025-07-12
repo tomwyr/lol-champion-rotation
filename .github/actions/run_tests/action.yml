@@ -1,0 +1,51 @@
+name: Run tests
+description: Runs application tests
+
+inputs:
+  swift-version:
+    description: Swift version that should be used to build and test the application.
+    required: true
+  database-url:
+    description: Connection url to the database that the test suites should run on.
+    required: true
+
+runs:
+  using: composite
+  steps:
+    # Re-enable swift setup action from the marketplace once it supporst 6.1.2.
+    # https://github.com/swift-actions/setup-swift/issues/743
+    # - name: Setup Swift
+    #   uses: swift-actions/setup-swift@v2
+    #   with:
+    #     swift-version: "6.1.2"
+
+    - name: Cache Swiftly and Swift toolchains
+      id: restore-cache
+      uses: actions/cache@v4
+      with:
+        path: ~/.local/share/swiftly
+        key: swiftly-cache-${{ runner.os }}-${{ env.SWIFT_VERSION }}
+        restore-keys: |
+          swiftly-cache-${{ runner.os }}-
+
+    - name: Install Swift
+      shell: ${{ inputs.shell }}
+      run: |
+        sudo apt-get -qq update && sudo apt-get -qq install -y libcurl4-openssl-dev tar gnupg2 libpython3-dev libz3-dev
+        curl -O https://download.swift.org/swiftly/linux/swiftly-$(uname -m).tar.gz
+        tar zxf swiftly-$(uname -m).tar.gz
+        ./swiftly init --quiet-shell-followup --assume-yes --skip-install
+        source "${SWIFTLY_HOME_DIR:-$HOME/.local/share/swiftly}/env.sh"
+        swiftly install $SWIFT_VERSION
+        hash -r
+        echo "${HOME}/.local/share/swiftly/bin" >> $GITHUB_PATH
+
+    - name: Build app
+      shell: ${{ inputs.shell }}
+      run: swift build
+
+    - name: Run tests
+      shell: ${{ inputs.shell }}
+      run: swift test
+      env:
+        TEST_DATABASE_URL: ${{ inputs.database-url }}

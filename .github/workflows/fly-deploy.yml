@@ -7,24 +7,42 @@ on:
     branches:
       - master
 jobs:
+  run-tests:
+    name: Run tests
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_USER: testuser
+          POSTGRES_PASSWORD: testpass
+          POSTGRES_DB: testdb
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - uses: ./.github/actions/run_tests
+        with: 
+          swift-version: "6.1.2"
+          database-url: postgres://testuser:testpass@localhost:5432/testdb?sslmode=disable
+  
   deploy:
     name: Deploy app
+    needs: run-tests
     runs-on: ubuntu-latest
     concurrency: deploy-group # optional: ensure only one action runs at a time
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      # Disabling tests due to the job crashing:
-      # https://github.com/tomwyr/lol-champion-rotation/actions/runs/12807906456/job/35714172330
-      # Possibly caused by a SQLite connection bug:
-      # https://github.com/vapor/vapor/issues/3234#issue-2523171467
-      # - name: Setup Swift
-      #   uses: swift-actions/setup-swift@v2
-      #   with:
-      #     swift-version: "6"
-      # - name: Run tests
-      #   run: swift test
 
       - name: Setup environment
         run: scripts/setup-environment.sh
