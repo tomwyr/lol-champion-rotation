@@ -159,6 +159,31 @@ extension AppDatabase {
     }
   }
 
+  func filterRegularRotations(withChampions championRiotIds: [String]) async throws
+    -> [RegularChampionRotationModel]
+  {
+    try await runner.run { db in
+      try await RegularChampionRotationModel.query(on: db)
+        .filter(\.$champions, .custom("&&"), championRiotIds)
+        .sort(\.$observedAt, .descending)
+        .all()
+    }
+  }
+
+  func filterMostRecentBeginnerRotation(withChampions championRiotIds: [String]) async throws
+    -> BeginnerChampionRotationModel?
+  {
+    try await runner.run { db in
+      try await BeginnerChampionRotationModel.query(on: db)
+        .sort(\.$observedAt, .descending)
+        .limit(1)
+        .filter(\.$champions, .custom("&&"), championRiotIds)
+        .first()
+    }
+  }
+}
+
+extension AppDatabase {
   func champion(id: String) async throws -> ChampionModel? {
     let uuid = try UUID(unsafe: id)
     return try await runner.run { db in
@@ -205,29 +230,6 @@ extension AppDatabase {
         .filter(\.$name, .custom("ilike"), "%\(name)%")
         .sort(\.$name)
         .all()
-    }
-  }
-
-  func filterRegularRotations(withChampions championRiotIds: [String]) async throws
-    -> [RegularChampionRotationModel]
-  {
-    try await runner.run { db in
-      try await RegularChampionRotationModel.query(on: db)
-        .filter(\.$champions, .custom("&&"), championRiotIds)
-        .sort(\.$observedAt, .descending)
-        .all()
-    }
-  }
-
-  func filterMostRecentBeginnerRotation(withChampions championRiotIds: [String]) async throws
-    -> BeginnerChampionRotationModel?
-  {
-    try await runner.run { db in
-      try await BeginnerChampionRotationModel.query(on: db)
-        .sort(\.$observedAt, .descending)
-        .limit(1)
-        .filter(\.$champions, .custom("&&"), championRiotIds)
-        .first()
     }
   }
 
