@@ -409,5 +409,94 @@ extension AppTests {
         }
       }
     }
+
+    @Test func predictionGeneratedWhenRotationChanged() async throws {
+      try await withApp { app in
+        let mocks = try await app.testConfigureWith(
+          appManagementKey: "123",
+          dbRegularRotations: [
+            .init(
+              observedAt: Date.now,
+              champions: ["Sett", "Senna"],
+              slug: "s1w1",
+            )
+          ],
+          dbBeginnerRotations: [
+            .init(
+              observedAt: Date.now,
+              maxLevel: 10,
+              champions: ["Nocturne"]
+            )
+          ],
+          dbPatchVersions: [.init(value: "1")],
+          riotPatchVersions: ["1"],
+          riotChampionRotationsData: .init(
+            freeChampionIds: [1, 2],
+            freeChampionIdsForNewPlayers: [3],
+            maxNewPlayerLevel: 10,
+          ),
+          riotChampionsData: .init(data: [
+            "Sett": .init(id: "Sett", key: "1", name: "Sett"),
+            "Garen": .init(id: "Garen", key: "2", name: "Garen"),
+            "Nocturne": .init(id: "Nocturne", key: "3", name: "Nocturne"),
+            "Senna": .init(id: "Senna", key: "4", name: "Senna"),
+          ])
+        )
+
+        try await app.test(
+          .GET, "/data/refresh",
+          headers: ["Authorization": "Bearer 123"]
+        ) { res async throws in
+          #expect(res.status == .ok)
+          #expect(mocks.rotationForecast.predictCalls == 1)
+          let predictions = try await app.dbRotationPredictions()
+          #expect(predictions.count == 1)
+        }
+      }
+    }
+
+    @Test func predictionNotGeneratedWhenRotationNotChanged() async throws {
+      try await withApp { app in
+        let mocks = try await app.testConfigureWith(
+          appManagementKey: "123",
+          dbRegularRotations: [
+            .init(
+              observedAt: Date.now,
+              champions: ["Sett", "Garen"],
+              slug: "s1w1",
+            )
+          ],
+          dbBeginnerRotations: [
+            .init(
+              observedAt: Date.now,
+              maxLevel: 10,
+              champions: ["Nocturne"]
+            )
+          ],
+          dbPatchVersions: [.init(value: "1")],
+          riotPatchVersions: ["1"],
+          riotChampionRotationsData: .init(
+            freeChampionIds: [1, 2],
+            freeChampionIdsForNewPlayers: [3],
+            maxNewPlayerLevel: 10,
+          ),
+          riotChampionsData: .init(data: [
+            "Sett": .init(id: "Sett", key: "1", name: "Sett"),
+            "Garen": .init(id: "Garen", key: "2", name: "Garen"),
+            "Nocturne": .init(id: "Nocturne", key: "3", name: "Nocturne"),
+          ])
+        )
+
+        try await app.test(
+          .GET, "/data/refresh",
+          headers: ["Authorization": "Bearer 123"]
+        ) { res async throws in
+          #expect(res.status == .ok)
+          #expect(mocks.rotationForecast.predictCalls == 0)
+          let predictions = try await app.dbRotationPredictions()
+          #expect(predictions.count == 0)
+        }
+      }
+    }
   }
 }

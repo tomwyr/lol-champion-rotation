@@ -177,7 +177,7 @@ extension AppTests {
       }
     }
 
-    @Test func savingGeneratedPrediction() async throws {
+    @Test func generatedPredictionSaved() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
           idHasherSeed: idHasherSeed,
