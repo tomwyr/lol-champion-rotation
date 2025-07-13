@@ -24,7 +24,7 @@ extension DefaultRotationService {
     do {
       guard let currentRotation = try await appDb.currentRegularRotation(),
         let currentRotationId = currentRotation.idString,
-        let prediction = try await appDb.rotationPrediction(previousRotationId: currentRotationId)
+        let prediction = try await appDb.rotationPrediction(refRotationId: currentRotationId)
       else {
         return nil
       }
@@ -81,7 +81,7 @@ extension DefaultRotationService {
   {
     let champions = data.champions.map(\.riotId)
     let rotations = data.regularRotations.map(\.champions)
-    guard let previousRotationId = data.regularRotations.first?.idString else {
+    guard let refRotationId = data.regularRotations.first?.idString else {
       throw .rotationDataMissing()
     }
 
@@ -89,7 +89,7 @@ extension DefaultRotationService {
       return try rotationForecast.predict(
         champions: champions,
         rotations: rotations,
-        previousRotationId: previousRotationId
+        refRotationId: refRotationId
       )
     } catch {
       throw .predictionError(cause: error)
@@ -115,12 +115,12 @@ extension DefaultRotationService {
     _ localData: GeneratePredictionLocalData,
     _ predictedChampions: [String],
   ) async throws(ChampionRotationError) {
-    guard let previousRotationId = localData.regularRotations.first?.id else {
+    guard let refRotationId = localData.regularRotations.first?.id else {
       throw .rotationDataMissing()
     }
     do {
       let data = ChampionRotationPredictionModel(
-        previousRotationId: previousRotationId,
+        refRotationId: refRotationId,
         champions: predictedChampions,
       )
       try await appDb.saveRotationPrediction(data: data)

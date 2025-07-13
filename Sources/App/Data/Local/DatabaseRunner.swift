@@ -6,6 +6,21 @@ protocol DatabaseRunner: Sendable {
   func runSql<T>(block: (SQLDatabase) async throws -> T) async throws -> T
 }
 
+struct DefaultDatabaseRunner: DatabaseRunner {
+  let database: Database
+
+  func run<T>(block: (Database) async throws -> T) async throws -> T {
+    try await block(database)
+  }
+
+  func runSql<T>(block: (SQLDatabase) async throws -> T) async throws -> T {
+    guard let database = database as? SQLDatabase else {
+      fatalError("The underlying database isn't an SQL database.")
+    }
+    return try await block(database)
+  }
+}
+
 struct StartupRetryRunner: DatabaseRunner, RunRetrying {
   let database: Database
 

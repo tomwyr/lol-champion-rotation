@@ -195,16 +195,16 @@ final class ChampionRotationPredictionModel: Model, @unchecked Sendable {
   @ID(key: .id)
   var id: UUID?
 
-  @Field(key: "previous_rotation_id")
-  var previousRotationId: UUID
+  @Field(key: "ref_rotation_id")
+  var refRotationId: UUID
 
   @Field(key: "champions")
   var champions: [String]
 
   init() {}
 
-  init(previousRotationId: UUID, champions: [String]) {
-    self.previousRotationId = previousRotationId
+  init(refRotationId: UUID, champions: [String]) {
+    self.refRotationId = refRotationId
     self.champions = champions
   }
 }

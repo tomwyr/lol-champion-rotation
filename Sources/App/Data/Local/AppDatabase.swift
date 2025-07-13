@@ -142,13 +142,13 @@ extension AppDatabase {
     }
   }
 
-  func rotationPrediction(previousRotationId: String) async throws
+  func rotationPrediction(refRotationId: String) async throws
     -> ChampionRotationPredictionModel?
   {
-    let uuid = try UUID(unsafe: previousRotationId)
+    let uuid = try UUID(unsafe: refRotationId)
     return try await runner.run { db in
       try await ChampionRotationPredictionModel.query(on: db)
-        .filter(\.$previousRotationId == uuid)
+        .filter(\.$refRotationId == uuid)
         .first()
     }
   }

@@ -266,7 +266,7 @@ extension AppTests {
           let predictions = try await app.dbRotationPredictions()
           #expect(predictions.count == 1)
           let prediction = predictions[0]
-          #expect(prediction.previousRotationId == uuid("5"))
+          #expect(prediction.refRotationId == uuid("5"))
           #expect(
             prediction.champions == [
               "Akshan", "Azir", "Bard", "Chogath", "Draven", "Fiddlesticks", "Fizz", "Gangplank",
@@ -294,7 +294,7 @@ extension AppTests {
           ],
           dbRotationPredictions: [
             .init(
-              previousRotationId: uuid("1")!,
+              refRotationId: uuid("1")!,
               champions: [
                 "Akshan", "Braum", "Chogath", "Gangplank", "Ivern", "Janna",
               ],
@@ -431,7 +431,7 @@ extension AppTests {
           ],
           dbRotationPredictions: [
             .init(
-              previousRotationId: uuid("1")!,
+              refRotationId: uuid("1")!,
               champions: [
                 "Akshan", "Chogath", "Ekko", "Gangplank", "Gwen",
               ],

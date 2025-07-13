@@ -16,6 +16,7 @@ extension Migrations {
     add(AddChampionsAvailableNotification())
     add(AddChampionRotationSlugs())
     add(AddChampionRotationPredictions())
+    add(PopulateRotationPredictions())
   }
 }
 
@@ -314,13 +315,29 @@ struct AddChampionRotationPredictions: AsyncMigration {
   func prepare(on db: Database) async throws {
     try await db.schema("champion-rotation-predictions")
       .id()
-      .field("previous_rotation_id", .uuid)
+      .field("ref_rotation_id", .uuid)
       .field("champions", .array(of: .string))
       .create()
   }
 
   func revert(on db: Database) async throws {
     try await db.schema("champion-rotation-predictions").delete()
+  }
+}
+
+struct PopulateRotationPredictions: AsyncMigration {
+  func prepare(on db: Database) async throws {
+    let rotations = try await RegularChampionRotationModel.query(on: db)
+      .sort(\.$observedAt, .ascending)
+      .all()
+
+    for rotation in rotations {
+      try await PredictionGenerator(db: db).generate(refRotationId: rotation.idString!)
+    }
+  }
+
+  func revert(on db: Database) async throws {
+    try await ChampionRotationPredictionModel.query(on: db).delete()
   }
 }
 
@@ -338,5 +355,36 @@ extension ChampionRotationModel {
       maxLevel: beginnerMaxLevel,
       champions: beginnerChampions
     )
+  }
+}
+
+private struct PredictionGenerator {
+  private let appDb: AppDatabase
+  private let rotationForecast: RotationForecast
+
+  init(db database: Database) {
+    appDb = AppDatabase(runner: DefaultDatabaseRunner(database: database))
+    rotationForecast = DefaultRotationForecast()
+  }
+
+  func generate(refRotationId: String) async throws {
+    let regularRotations = try await appDb.regularRotations()
+    let champions = try await appDb.champions()
+
+    let championIds = champions.map(\.riotId)
+    let rotationChampions = regularRotations.map(\.champions)
+
+    let predictedChampions = try rotationForecast.predict(
+      champions: championIds,
+      rotations: rotationChampions,
+      refRotationId: refRotationId
+    )
+
+    let data = ChampionRotationPredictionModel(
+      refRotationId: UUID(refRotationId)!,
+      champions: predictedChampions,
+    )
+
+    try await appDb.saveRotationPrediction(data: data)
   }
 }
