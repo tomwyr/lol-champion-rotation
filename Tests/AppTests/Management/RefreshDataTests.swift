@@ -249,7 +249,7 @@ extension AppTests {
 
     @Test func multipleLocalVersions() async throws {
       try await withApp { app in
-        let (httpClient, _) = try await app.testConfigureWith(
+        let mocks = try await app.testConfigureWith(
           appManagementKey: "123",
           dbPatchVersions: [
             .init(value: "15.23.5"),
@@ -264,14 +264,14 @@ extension AppTests {
           headers: ["Authorization": "Bearer 123"]
         ) { res async throws in
           let latestChampionsUrl = requestUrls.riotChampions("15.23.5")
-          #expect(httpClient.requestedUrls.contains(latestChampionsUrl))
+          #expect(mocks.httpClient.requestedUrls.contains(latestChampionsUrl))
         }
       }
     }
 
     @Test func multipleRiotVersions() async throws {
       try await withApp { app in
-        let (httpClient, _) = try await app.testConfigureWith(
+        let mocks = try await app.testConfigureWith(
           appManagementKey: "123",
           dbPatchVersions: [.init(value: "1")],
           riotPatchVersions: ["15.23.5", "15.23.0", "15.22.8"]
@@ -282,7 +282,7 @@ extension AppTests {
           headers: ["Authorization": "Bearer 123"]
         ) { res async throws in
           let latestChampionsUrl = requestUrls.riotChampions("15.23.5")
-          #expect(httpClient.requestedUrls.contains(latestChampionsUrl))
+          #expect(mocks.httpClient.requestedUrls.contains(latestChampionsUrl))
         }
       }
     }

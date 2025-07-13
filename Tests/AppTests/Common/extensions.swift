@@ -73,4 +73,8 @@ extension Application {
   func dbRegularRotations() async throws -> [RegularChampionRotationModel] {
     try await RegularChampionRotationModel.query(on: db).all()
   }
+
+  func dbRotationPredictions() async throws -> [ChampionRotationPredictionModel] {
+    try await ChampionRotationPredictionModel.query(on: db).all()
+  }
 }

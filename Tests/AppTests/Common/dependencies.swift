@@ -9,14 +9,16 @@ extension Dependencies {
     httpClient: HttpClient = MockHttpClient(),
     fcm: FcmDispatcher = MockFcmDispatcher(),
     mobileUserGuard: RequestAuthenticatorGuard = MockMobileUserGuard(),
-    optionalMobileUserGuard: RequestAuthenticatorGuard = MockOptionalMobileUserGuard()
+    optionalMobileUserGuard: RequestAuthenticatorGuard = MockOptionalMobileUserGuard(),
+    rotationForecast: RotationForecast = SpyRotationForecast(),
   ) -> Dependencies {
     .init(
       appConfig: appConfig,
       httpClient: httpClient,
       fcm: { _ in fcm },
       mobileUserGuard: mobileUserGuard,
-      optionalMobileUserGuard: optionalMobileUserGuard
+      optionalMobileUserGuard: optionalMobileUserGuard,
+      rotationForecast: rotationForecast,
     )
   }
 }

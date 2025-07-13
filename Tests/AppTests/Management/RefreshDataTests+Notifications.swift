@@ -8,7 +8,7 @@ extension AppTests {
   @Suite(.serialized) struct RefreshDataNotificationsTests {
     @Test func rotationChangedRecipients() async throws {
       try await withApp { app in
-        let (_, fcm) = try await app.testConfigureWith(
+        let mocks = try await app.testConfigureWith(
           appManagementKey: "123",
           dbRegularRotations: [
             .init(
@@ -43,7 +43,7 @@ extension AppTests {
           headers: ["Authorization": "Bearer 123"]
         ) { res async throws in
           #expect(res.status == .ok)
-          let tokens = fcm.rotationChangedMessages.map(\.token)
+          let tokens = mocks.fcm.rotationChangedMessages.map(\.token)
           #expect(tokens == ["1", "2"])
         }
       }
@@ -51,7 +51,7 @@ extension AppTests {
 
     @Test func rotationChangedContent() async throws {
       try await withApp { app in
-        let (_, fcm) = try await app.testConfigureWith(
+        let mocks = try await app.testConfigureWith(
           appManagementKey: "123",
           dbRegularRotations: [
             .init(
@@ -81,8 +81,8 @@ extension AppTests {
           headers: ["Authorization": "Bearer 123"]
         ) { res async throws in
           #expect(res.status == .ok)
-          #expect(fcm.rotationChangedMessages.count == 1)
-          let notification = fcm.rotationChangedMessages[0].notification!
+          #expect(mocks.fcm.rotationChangedMessages.count == 1)
+          let notification = mocks.fcm.rotationChangedMessages[0].notification!
           #expect(notification.title == "Rotation Changed")
           #expect(notification.body == "New champion rotation is now available")
         }
@@ -91,7 +91,7 @@ extension AppTests {
 
     @Test func championsAvailableRecipients() async throws {
       try await withApp { app in
-        let (_, fcm) = try await app.testConfigureWith(
+        let mocks = try await app.testConfigureWith(
           appManagementKey: "123",
           dbRegularRotations: [
             .init(
@@ -138,7 +138,7 @@ extension AppTests {
           headers: ["Authorization": "Bearer 123"]
         ) { res async throws in
           #expect(res.status == .ok)
-          let tokens = fcm.championsAvailableMessages.compactMap(\.token).sorted()
+          let tokens = mocks.fcm.championsAvailableMessages.compactMap(\.token).sorted()
           #expect(tokens == ["2", "3", "4"])
         }
       }
@@ -146,7 +146,7 @@ extension AppTests {
 
     @Test func championsAvailableContent() async throws {
       try await withApp { app in
-        let (_, fcm) = try await app.testConfigureWith(
+        let mocks = try await app.testConfigureWith(
           appManagementKey: "123",
           dbRegularRotations: [
             .init(
@@ -194,10 +194,10 @@ extension AppTests {
           headers: ["Authorization": "Bearer 123"]
         ) { res async throws in
           #expect(res.status == .ok)
-          let notifications = fcm.championsAvailableMessages
+          let notifications = mocks.fcm.championsAvailableMessages
             .sorted(byComparable: \.token)
             .map(\.notification!)
-          #expect(fcm.championsAvailableMessages.count == 3)
+          #expect(mocks.fcm.championsAvailableMessages.count == 3)
           #expect(notifications[0].title == "Champion Available")
           #expect(notifications[0].body == "Sett is now available in the rotation")
           #expect(notifications[1].title == "Champions Available")

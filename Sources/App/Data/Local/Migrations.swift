@@ -15,6 +15,7 @@ extension Migrations {
     add(AddChampionsToUserWatchlists())
     add(AddChampionsAvailableNotification())
     add(AddChampionRotationSlugs())
+    add(AddChampionRotationPredictions())
   }
 }
 
@@ -306,6 +307,20 @@ struct AddChampionRotationSlugs: AsyncMigration {
       rotation.slug = slug
       try await rotation.save(on: db)
     }
+  }
+}
+
+struct AddChampionRotationPredictions: AsyncMigration {
+  func prepare(on db: Database) async throws {
+    try await db.schema("champion-rotation-predictions")
+      .id()
+      .field("previous_rotation_id", .uuid)
+      .field("champions", .array(of: .string))
+      .create()
+  }
+
+  func revert(on db: Database) async throws {
+    try await db.schema("champion-rotation-predictions").delete()
   }
 }
 

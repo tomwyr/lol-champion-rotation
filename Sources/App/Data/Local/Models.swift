@@ -189,6 +189,26 @@ final class UserWatchlistsModel: Model, @unchecked Sendable {
   }
 }
 
+final class ChampionRotationPredictionModel: Model, @unchecked Sendable {
+  static let schema = "champion-rotation-predictions"
+
+  @ID(key: .id)
+  var id: UUID?
+
+  @Field(key: "previous_rotation_id")
+  var previousRotationId: UUID
+
+  @Field(key: "champions")
+  var champions: [String]
+
+  init() {}
+
+  init(previousRotationId: UUID, champions: [String]) {
+    self.previousRotationId = previousRotationId
+    self.champions = champions
+  }
+}
+
 struct ChampionRotationsCountModel: Codable {
   let champion: String
   let presentIn: Int

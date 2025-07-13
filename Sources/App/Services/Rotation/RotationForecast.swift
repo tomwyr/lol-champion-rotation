@@ -1,6 +1,6 @@
 import Foundation
 
-protocol RotationForecast {
+protocol RotationForecast: Sendable {
   func predict(champions: [String], rotations: [[String]], previousRotationId: String)
     throws(RotationForecastError) -> [String]
 }

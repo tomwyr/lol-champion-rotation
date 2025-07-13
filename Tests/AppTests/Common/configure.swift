@@ -7,7 +7,8 @@ typealias InitDb = (Database) async throws -> Void
 
 typealias AppTestsMocks = (
   httpClient: MockHttpClient,
-  fcm: MockFcmDispatcher
+  fcm: MockFcmDispatcher,
+  rotationForecast: SpyRotationForecast
 )
 
 extension Application {
@@ -16,6 +17,7 @@ extension Application {
     idHasherSeed: String? = nil,
     dbRegularRotations: [RegularChampionRotationModel] = [],
     dbBeginnerRotations: [BeginnerChampionRotationModel] = [],
+    dbRotationPredictions: [ChampionRotationPredictionModel] = [],
     dbChampions: [ChampionModel] = [],
     dbPatchVersions: [PatchVersionModel] = [],
     dbNotificationsConfigs: [NotificationsConfigModel] = [],
@@ -45,6 +47,8 @@ extension Application {
       sendFcmMessage?(message) ?? ""
     }
 
+    let rotationForecast = SpyRotationForecast()
+
     try await testConfigure(
       deps: .mock(
         appConfig: .empty(
@@ -52,7 +56,8 @@ extension Application {
           idHasherSeed: idHasherSeed ?? ""
         ),
         httpClient: httpClient,
-        fcm: fcm
+        fcm: fcm,
+        rotationForecast: rotationForecast,
       ),
       initDb: { db async throws in
         for rotation in dbRegularRotations {
@@ -60,6 +65,9 @@ extension Application {
         }
         for rotation in dbBeginnerRotations {
           try await rotation.create(on: db)
+        }
+        for prediction in dbRotationPredictions {
+          try await prediction.create(on: db)
         }
         for champion in dbChampions {
           try await champion.create(on: db)
@@ -81,7 +89,7 @@ extension Application {
       }
     )
 
-    return (httpClient, fcm)
+    return (httpClient, fcm, rotationForecast)
   }
 
   private func testConfigure(deps: Dependencies, initDb: InitDb) async throws {

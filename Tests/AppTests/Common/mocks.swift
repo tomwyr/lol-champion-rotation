@@ -67,6 +67,26 @@ final class MockFcmDispatcher: FcmDispatcher, @unchecked Sendable {
   }
 }
 
+final class SpyRotationForecast: RotationForecast, @unchecked Sendable {
+  private(set) var predictCalls = 0
+  private let delegate: RotationForecast
+
+  init(delegate: RotationForecast = DefaultRotationForecast()) {
+    self.delegate = delegate
+  }
+
+  func predict(champions: [String], rotations: [[String]], previousRotationId: String)
+    throws(App.RotationForecastError) -> [String]
+  {
+    predictCalls += 1
+    return try delegate.predict(
+      champions: champions,
+      rotations: rotations,
+      previousRotationId: previousRotationId,
+    )
+  }
+}
+
 struct MockMobileUserGuard: RequestAuthenticatorGuard {
   let userId: String
   let token: String

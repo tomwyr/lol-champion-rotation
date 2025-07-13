@@ -3,12 +3,13 @@ import Vapor
 
 typealias Late<Dependency> = @Sendable (Request) -> Dependency
 
-struct Dependencies {
+struct Dependencies: Sendable {
   var appConfig: AppConfig
   var httpClient: HttpClient
   var fcm: Late<FcmDispatcher>
   var mobileUserGuard: RequestAuthenticatorGuard
   var optionalMobileUserGuard: RequestAuthenticatorGuard
+  var rotationForecast: RotationForecast
 
   static func `default`() -> Dependencies {
     .init(
@@ -17,6 +18,7 @@ struct Dependencies {
       fcm: { req in req.fcm },
       mobileUserGuard: MobileUserGuard(),
       optionalMobileUserGuard: OptionalMobileUserGuard(),
+      rotationForecast: DefaultRotationForecast(),
     )
   }
 
@@ -28,7 +30,7 @@ struct Dependencies {
       versionService: versionService(request: request),
       notificationsService: notificationsService(request: request),
       idHasher: idHasher(),
-      rotationForecast: DefaultRotationForecast(),
+      rotationForecast: rotationForecast,
       seededSelector: seededSelector(),
       slugGenerator: SlugGenerator(),
     )
