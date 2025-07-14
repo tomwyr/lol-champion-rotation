@@ -1,9 +1,12 @@
 extension ChampionsService {
   func updateObserveChampion(riotId: String, by userId: String, observing: Bool)
-    async throws(ChampionsError)
+    async throws(ChampionsError) -> Bool?
   {
     let (watchlists, champion) = try await getLocalData(userId: userId, riotId: riotId)
-    guard let championId = champion?.idString else {
+    guard let champion else {
+      return nil
+    }
+    guard let championId = champion.idString else {
       throw .dataInvalidOrMissing(riotId: riotId)
     }
     if observing {
@@ -12,6 +15,7 @@ extension ChampionsService {
       watchlists.champions.removeAll(championId)
     }
     try await saveWatchlists(watchlists)
+    return watchlists.champions.contains(championId)
   }
 
   private func getLocalData(userId: String, riotId: String) async throws(ChampionsError)

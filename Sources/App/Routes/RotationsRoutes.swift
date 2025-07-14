@@ -24,12 +24,12 @@ func rotationsRoutes(_ app: Application, _ deps: Dependencies) {
       let slug = req.parameters.get("slug")!
       let input = try req.content.decode(UpdateObserveRotationInput.self)
       let rotationService = deps.rotationService(request: req)
-      try await rotationService.updateObserveRotation(
+      let result = try await rotationService.updateObserveRotation(
         slug: slug,
         by: auth.userId,
         observing: input.observing
       )
-      return HTTPStatus.ok
+      return result != nil ? HTTPStatus.ok : HTTPStatus.notFound
     }
 
     rotations.protected(with: mobileUserGuard).get("observed") { req in

@@ -36,6 +36,9 @@ final class RegularChampionRotationModel: Model, @unchecked Sendable {
   @ID(key: .id)
   var id: UUID?
 
+  @Field(key: "active")
+  var active: Bool
+
   @Field(key: "observed_at")
   var observedAt: Date
 
@@ -49,11 +52,13 @@ final class RegularChampionRotationModel: Model, @unchecked Sendable {
 
   init(
     id: UUID? = nil,
+    active: Bool = true,
     observedAt: Date,
     champions: [String],
     slug: String,
   ) {
     self.id = id
+    self.active = active
     self.observedAt = observedAt
     self.champions = champions
     self.slug = slug

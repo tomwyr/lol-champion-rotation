@@ -12,27 +12,19 @@ extension AppDatabase {
       try await data.create(on: db)
     }
   }
-  func addBeginnerRotation(data: BeginnerChampionRotationModel) async throws {
-    try await runner.run { db in
-      try await data.create(on: db)
-    }
-  }
 
   func currentRegularRotation() async throws -> RegularChampionRotationModel? {
     try await runner.run { db in
-      try await RegularChampionRotationModel.query(on: db).sort(\.$observedAt, .descending).first()
-    }
-  }
-
-  func currentBeginnerRotation() async throws -> BeginnerChampionRotationModel? {
-    try await runner.run { db in
-      try await BeginnerChampionRotationModel.query(on: db).sort(\.$observedAt, .descending).first()
+      try await RegularChampionRotationModel.query(on: db)
+        .filter(\.$active == true)
+        .sort(\.$observedAt, .descending).first()
     }
   }
 
   func regularRotations(after minDate: Date? = nil) async throws -> [RegularChampionRotationModel] {
     try await runner.run { db in
       var query = RegularChampionRotationModel.query(on: db)
+        .filter(\.$active == true)
         .sort(\.$observedAt, .descending)
       if let minDate {
         query = query.filter(\.$observedAt > minDate)
@@ -41,9 +33,56 @@ extension AppDatabase {
     }
   }
 
+  func regularRotation(id: String) async throws -> RegularChampionRotationModel? {
+    guard let uuid = try? UUID(unsafe: id) else {
+      return nil
+    }
+    return try await runner.run { db in
+      try await RegularChampionRotationModel.query(on: db)
+        .filter(\.$active == true)
+        .filter(\.$id == uuid)
+        .first()
+    }
+  }
+
+  func regularRotation(slug: String) async throws -> RegularChampionRotationModel? {
+    try await runner.run { db in
+      try await RegularChampionRotationModel.query(on: db)
+        .filter(\.$active == true)
+        .filter(\.$slug == slug)
+        .first()
+    }
+  }
+
+  func regularRotations(ids: [String]) async throws -> [RegularChampionRotationModel] {
+    let uuids = ids.compactMap { id in
+      try? UUID(unsafe: id)
+    }
+    return try await runner.run { db in
+      try await RegularChampionRotationModel.query(on: db)
+        .filter(\.$active == true)
+        .filter(\.$id ~~ uuids)
+        .sort(\.$observedAt, .descending)
+        .all()
+    }
+  }
+
+  func filterRegularRotations(withChampions championRiotIds: [String]) async throws
+    -> [RegularChampionRotationModel]
+  {
+    try await runner.run { db in
+      try await RegularChampionRotationModel.query(on: db)
+        .filter(\.$active == true)
+        .filter(\.$champions, .custom("&&"), championRiotIds)
+        .sort(\.$observedAt, .descending)
+        .all()
+    }
+  }
+
   func regularRotationsIds(withChampion championRiotId: String) async throws -> [UUID] {
     try await runner.run { db in
       try await RegularChampionRotationModel.query(on: db)
+        .filter(\.$active == true)
         .sort(\.$observedAt, .descending)
         .filter(\.$champions, .custom("&&"), [championRiotId])
         .all()
@@ -56,9 +95,70 @@ extension AppDatabase {
   {
     try await runner.run { db in
       try await RegularChampionRotationModel.query(on: db)
+        .filter(\.$active == true)
         .sort(\.$observedAt, .descending)
         .filter(\.$champions, .custom("&&"), [championRiotId])
         .first()
+    }
+  }
+
+  func findPreviousRegularRotation(before id: String) async throws
+    -> RegularChampionRotationModel?
+  {
+    try await runner.run { db in
+      let uuid = try UUID(unsafe: id)
+      let nextRotation = try await RegularChampionRotationModel.query(on: db)
+        .filter(\.$active == true)
+        .filter(\.$id == uuid)
+        .field(\.$observedAt)
+        .first()
+
+      guard let nextDate = nextRotation?.observedAt else {
+        return nil
+      }
+
+      return try await RegularChampionRotationModel.query(on: db)
+        .filter(\.$active == true)
+        .sort(\.$observedAt, .descending)
+        .filter(\.$observedAt < nextDate)
+        .first()
+    }
+  }
+
+  func findNextRegularRotation(after id: String) async throws
+    -> RegularChampionRotationModel?
+  {
+    try await runner.run { db in
+      let uuid = try UUID(unsafe: id)
+      let previousRotation = try await RegularChampionRotationModel.query(on: db)
+        .filter(\.$active == true)
+        .filter(\.$id == uuid)
+        .field(\.$observedAt)
+        .first()
+
+      guard let previousDate = previousRotation?.observedAt else {
+        return nil
+      }
+
+      return try await RegularChampionRotationModel.query(on: db)
+        .filter(\.$active == true)
+        .sort(\.$observedAt, .ascending)
+        .filter(\.$observedAt > previousDate)
+        .first()
+    }
+  }
+}
+
+extension AppDatabase {
+  func addBeginnerRotation(data: BeginnerChampionRotationModel) async throws {
+    try await runner.run { db in
+      try await data.create(on: db)
+    }
+  }
+
+  func currentBeginnerRotation() async throws -> BeginnerChampionRotationModel? {
+    try await runner.run { db in
+      try await BeginnerChampionRotationModel.query(on: db).sort(\.$observedAt, .descending).first()
     }
   }
 
@@ -73,75 +173,20 @@ extension AppDatabase {
     }
   }
 
-  func regularRotation(id: String) async throws -> RegularChampionRotationModel? {
-    guard let uuid = try? UUID(unsafe: id) else {
-      return nil
-    }
-    return try await runner.run { db in
-      try await RegularChampionRotationModel.query(on: db).filter(\.$id == uuid).first()
-    }
-  }
-
-  func regularRotation(slug: String) async throws -> RegularChampionRotationModel? {
-    try await runner.run { db in
-      try await RegularChampionRotationModel.query(on: db).filter(\.$slug == slug).first()
-    }
-  }
-
-  func regularRotations(ids: [String]) async throws -> [RegularChampionRotationModel] {
-    let uuids = ids.compactMap { id in
-      try? UUID(unsafe: id)
-    }
-    return try await runner.run { db in
-      try await RegularChampionRotationModel.query(on: db)
-        .filter(\.$id ~~ uuids)
-        .sort(\.$observedAt, .descending)
-        .all()
-    }
-  }
-
-  func findPreviousRegularRotation(before id: String) async throws
-    -> RegularChampionRotationModel?
+  func filterMostRecentBeginnerRotation(withChampions championRiotIds: [String]) async throws
+    -> BeginnerChampionRotationModel?
   {
     try await runner.run { db in
-      let uuid = try UUID(unsafe: id)
-      let nextRotation = try await RegularChampionRotationModel.query(on: db)
-        .filter(\.$id == uuid)
-        .field(\.$observedAt)
-        .first()
-
-      guard let nextDate = nextRotation?.observedAt else {
-        return nil
-      }
-
-      return try await RegularChampionRotationModel.query(on: db)
+      try await BeginnerChampionRotationModel.query(on: db)
         .sort(\.$observedAt, .descending)
-        .filter(\.$observedAt < nextDate)
+        .limit(1)
+        .filter(\.$champions, .custom("&&"), championRiotIds)
         .first()
     }
   }
+}
 
-  func findNextRegularRotation(after id: String) async throws
-    -> RegularChampionRotationModel?
-  {
-    try await runner.run { db in
-      let uuid = try UUID(unsafe: id)
-      let previousRotation = try await RegularChampionRotationModel.query(on: db)
-        .filter(\.$id == uuid)
-        .field(\.$observedAt)
-        .first()
-
-      guard let previousDate = previousRotation?.observedAt else {
-        return nil
-      }
-
-      return try await RegularChampionRotationModel.query(on: db)
-        .sort(\.$observedAt, .ascending)
-        .filter(\.$observedAt > previousDate)
-        .first()
-    }
-  }
-
+extension AppDatabase {
   func rotationPrediction(refRotationId: String) async throws
     -> ChampionRotationPredictionModel?
   {
@@ -156,29 +201,6 @@ extension AppDatabase {
   func saveRotationPrediction(data: ChampionRotationPredictionModel) async throws {
     try await runner.run { db in
       try await data.create(on: db)
-    }
-  }
-
-  func filterRegularRotations(withChampions championRiotIds: [String]) async throws
-    -> [RegularChampionRotationModel]
-  {
-    try await runner.run { db in
-      try await RegularChampionRotationModel.query(on: db)
-        .filter(\.$champions, .custom("&&"), championRiotIds)
-        .sort(\.$observedAt, .descending)
-        .all()
-    }
-  }
-
-  func filterMostRecentBeginnerRotation(withChampions championRiotIds: [String]) async throws
-    -> BeginnerChampionRotationModel?
-  {
-    try await runner.run { db in
-      try await BeginnerChampionRotationModel.query(on: db)
-        .sort(\.$observedAt, .descending)
-        .limit(1)
-        .filter(\.$champions, .custom("&&"), championRiotIds)
-        .first()
     }
   }
 }
@@ -260,14 +282,17 @@ extension AppDatabase {
     -> [ChampionRotationsCountModel]
   {
     let query: SQLQueryString = """
+      WITH active_champions AS (
+        SELECT * FROM "regular-champion-rotations" WHERE active = TRUE
+      )
       SELECT riot_id as "champion",
-        (SELECT COUNT(*) FROM "regular-champion-rotations" WHERE riot_id = ANY(champions)) AS "presentIn",
+        (SELECT COUNT(*) FROM active_champions WHERE riot_id = ANY(champions)) AS "presentIn",
         CASE
           WHEN released_at IS NULL THEN NULL
         ELSE
-          (SELECT COUNT(*) FROM "regular-champion-rotations" WHERE observed_at >= released_at)
+          (SELECT COUNT(*) FROM active_champions WHERE observed_at >= released_at)
         END AS "afterRelease",
-        (SELECT COUNT(*) FROM "regular-champion-rotations") AS "total"
+        (SELECT COUNT(*) FROM active_champions) AS "total"
       FROM "champions"
       """
 
@@ -284,7 +309,7 @@ extension AppDatabase {
         ),
         rotations_after_release AS (
           SELECT * FROM "regular-champion-rotations"
-          WHERE observed_at >= (SELECT released_at FROM champion_release_date)
+          WHERE active = TRUE AND observed_at >= (SELECT released_at FROM champion_release_date)
         ),
         latest_rotation_with_champion AS (
           SELECT observed_at

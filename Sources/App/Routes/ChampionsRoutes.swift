@@ -26,12 +26,12 @@ func championsRoutes(_ app: Application, _ deps: Dependencies) {
       let riotId = req.parameters.get("riotId")!
       let input = try req.content.decode(UpdateObserveChampionInput.self)
       let championsService = deps.championsService(request: req)
-      try await championsService.updateObserveChampion(
+      let result = try await championsService.updateObserveChampion(
         riotId: riotId,
         by: auth.userId,
         observing: input.observing
       )
-      return HTTPStatus.ok
+      return result != nil ? HTTPStatus.ok : HTTPStatus.notFound
     }
 
     champions.protected(with: mobileUserGuard).get("observed") { req in

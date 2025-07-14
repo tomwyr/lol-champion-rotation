@@ -17,6 +17,7 @@ extension Migrations {
     add(AddChampionRotationSlugs())
     add(AddChampionRotationPredictions())
     add(PopulateRotationPredictions())
+    add(AddChampionRotationActive())
   }
 }
 
@@ -116,7 +117,7 @@ struct SplitChampionRotations: AsyncMigration {
   func populateRegularRotations(_ db: Database) async throws {
     let allRotations = try await ChampionRotationModel.query(on: db).all()
 
-    var regularRotations = [OldRegularChampionRotationModel]()
+    var regularRotations = [RegularChampionRotationModelBeforeSlug]()
     for rotation in allRotations {
       let lastRotation = regularRotations.last
       let nextRotation = rotation.toRegularRotation()
@@ -284,7 +285,7 @@ struct AddChampionRotationSlugs: AsyncMigration {
       .field("slug", .string)
       .update()
 
-    try await RegularChampionRotationModel.query(on: db)
+    try await RegularChampionRotationModelBeforeActive.query(on: db)
       .set(\.$slug, to: "")
       .update()
   }
@@ -296,7 +297,7 @@ struct AddChampionRotationSlugs: AsyncMigration {
   }
 
   private func populateSlugs(_ db: any Database) async throws {
-    let rotations = try await RegularChampionRotationModel.query(on: db).all()
+    let rotations = try await RegularChampionRotationModelBeforeActive.query(on: db).all()
     let versions = try await PatchVersionModel.query(on: db).all()
 
     let slugs = try SlugGenerator().resolveAllUnique(
@@ -327,7 +328,7 @@ struct AddChampionRotationPredictions: AsyncMigration {
 
 struct PopulateRotationPredictions: AsyncMigration {
   func prepare(on db: Database) async throws {
-    let rotations = try await RegularChampionRotationModel.query(on: db)
+    let rotations = try await RegularChampionRotationModelBeforeActive.query(on: db)
       .sort(\.$observedAt, .ascending)
       .all()
 
@@ -341,8 +342,22 @@ struct PopulateRotationPredictions: AsyncMigration {
   }
 }
 
+struct AddChampionRotationActive: AsyncMigration {
+  func prepare(on db: Database) async throws {
+    try await db.schema("regular-champion-rotations")
+      .field("active", .bool, .sql(.default(true)))
+      .update()
+  }
+
+  func revert(on db: Database) async throws {
+    try await db.schema("regular-champion-rotations")
+      .deleteField("active")
+      .update()
+  }
+}
+
 extension ChampionRotationModel {
-  func toRegularRotation() -> OldRegularChampionRotationModel {
+  func toRegularRotation() -> RegularChampionRotationModelBeforeSlug {
     .init(
       observedAt: observedAt!,
       champions: regularChampions,
@@ -359,17 +374,12 @@ extension ChampionRotationModel {
 }
 
 private struct PredictionGenerator {
-  private let appDb: AppDatabase
-  private let rotationForecast: RotationForecast
-
-  init(db database: Database) {
-    appDb = AppDatabase(runner: DefaultDatabaseRunner(database: database))
-    rotationForecast = DefaultRotationForecast()
-  }
+  let db: Database
+  let rotationForecast: RotationForecast = DefaultRotationForecast()
 
   func generate(refRotationId: String) async throws {
-    let regularRotations = try await appDb.regularRotations()
-    let champions = try await appDb.champions()
+    let regularRotations = try await RegularChampionRotationModelBeforeActive.query(on: db).all()
+    let champions = try await ChampionModel.query(on: db).all()
 
     let championIds = champions.map(\.riotId)
     let rotationChampions = regularRotations.map(\.champions)
@@ -385,6 +395,6 @@ private struct PredictionGenerator {
       champions: predictedChampions,
     )
 
-    try await appDb.saveRotationPrediction(data: data)
+    try await data.save(on: db)
   }
 }

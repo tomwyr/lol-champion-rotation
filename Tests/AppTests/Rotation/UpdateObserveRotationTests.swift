@@ -134,5 +134,46 @@ extension AppTests {
       }
     }
 
+    @Test func unknownRotation() async throws {
+      try await withApp { app in
+        _ = try await app.testConfigureWith(
+          dbRegularRotations: [
+            .init(id: uuid("1"), slug: "s1w1")
+          ],
+          dbUserWatchlists: [
+            .init(userId: mobileUserId, rotations: [uuidString("1")])
+          ]
+        )
+
+        try await app.test(
+          .POST, "/rotations/s1w2/observe",
+          headers: reqHeaders(accessToken: mobileToken),
+          body: ["observing": true]
+        ) { res async throws in
+          #expect(res.status == .notFound)
+        }
+      }
+    }
+
+    @Test func inactiveRotation() async throws {
+      try await withApp { app in
+        _ = try await app.testConfigureWith(
+          dbRegularRotations: [
+            .init(id: uuid("1"), active: false, slug: "s1w1")
+          ],
+          dbUserWatchlists: [
+            .init(userId: mobileUserId, rotations: [uuidString("1")])
+          ]
+        )
+
+        try await app.test(
+          .POST, "/rotations/s1w1/observe",
+          headers: reqHeaders(accessToken: mobileToken),
+          body: ["observing": true]
+        ) { res async throws in
+          #expect(res.status == .notFound)
+        }
+      }
+    }
   }
 }

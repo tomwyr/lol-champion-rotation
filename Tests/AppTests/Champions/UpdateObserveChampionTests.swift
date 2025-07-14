@@ -177,5 +177,26 @@ extension AppTests {
         }
       }
     }
+
+    @Test func unknownChampion() async throws {
+      try await withApp { app in
+        _ = try await app.testConfigureWith(
+          dbChampions: [
+            .init(id: uuid("1"), riotId: "Garen"),
+          ],
+          dbUserWatchlists: [
+            .init(userId: mobileUserId, champions: [uuidString("1")])
+          ],
+        )
+
+        try await app.test(
+          .POST, "/champions/Nocturne/observe",
+          headers: reqHeaders(accessToken: mobileToken),
+          body: ["observing": true]
+        ) { res async throws in
+          #expect(res.status == .notFound)
+        }
+      }
+    }
   }
 }

@@ -14,7 +14,7 @@ protocol RotationService {
   func observedRotations(by userId: String) async throws(ChampionRotationError)
     -> ObservedRotationsData
   func updateObserveRotation(slug: String, by userId: String, observing: Bool)
-    async throws(ChampionRotationError)
+    async throws(ChampionRotationError) -> Bool?
 }
 
 struct DefaultRotationService: RotationService {

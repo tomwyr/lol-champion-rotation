@@ -17,8 +17,8 @@ extension ChampionData {
 }
 
 extension RegularChampionRotationModel {
-  convenience init(id: UUID?, slug: String) {
-    self.init(id: id, observedAt: Date.now, champions: [], slug: slug)
+  convenience init(id: UUID?, active: Bool = true, slug: String) {
+    self.init(id: id, active: active, observedAt: Date.now, champions: [], slug: slug)
   }
 }
 

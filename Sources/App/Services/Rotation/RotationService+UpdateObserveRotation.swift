@@ -1,9 +1,12 @@
 extension DefaultRotationService {
   func updateObserveRotation(slug: String, by userId: String, observing: Bool)
-    async throws(ChampionRotationError)
+    async throws(ChampionRotationError) -> Bool?
   {
     let (watchlists, rotation) = try await getLocalData(userId: userId, slug: slug)
-    guard let rotationId = rotation?.idString else {
+    guard let rotation else {
+      return nil
+    }
+    guard let rotationId = rotation.idString else {
       throw .rotationDataMissing(slug: slug)
     }
     if observing {
@@ -12,6 +15,7 @@ extension DefaultRotationService {
       watchlists.rotations.removeAll(rotationId)
     }
     try await saveWatchlists(watchlists)
+    return watchlists.rotations.contains(rotationId)
   }
 
   private func getLocalData(userId: String, slug: String) async throws(ChampionRotationError)

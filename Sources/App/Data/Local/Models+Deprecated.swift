@@ -36,7 +36,7 @@ final class ChampionRotationModel: Model, @unchecked Sendable {
 }
 
 /// Deprecated: Replaced by a model that includes a slug.
-final class OldRegularChampionRotationModel: Model, @unchecked Sendable {
+final class RegularChampionRotationModelBeforeSlug: Model, @unchecked Sendable {
   static let schema = "regular-champion-rotations"
 
   @ID(key: .id)
@@ -60,7 +60,39 @@ final class OldRegularChampionRotationModel: Model, @unchecked Sendable {
     self.champions = champions
   }
 
-  func same(as other: OldRegularChampionRotationModel) -> Bool {
+  func same(as other: RegularChampionRotationModelBeforeSlug) -> Bool {
     champions.sorted() == other.champions.sorted()
+  }
+}
+
+
+/// Deprecated: Replaced by a model that includes active flag.
+final class RegularChampionRotationModelBeforeActive: Model, @unchecked Sendable {
+  static let schema = "regular-champion-rotations"
+
+  @ID(key: .id)
+  var id: UUID?
+
+  @Field(key: "observed_at")
+  var observedAt: Date
+
+  @Field(key: "champions")
+  var champions: [String]
+
+  @Field(key: "slug")
+  var slug: String
+
+  init() {}
+
+  init(
+    id: UUID? = nil,
+    observedAt: Date,
+    champions: [String],
+    slug: String,
+  ) {
+    self.id = id
+    self.observedAt = observedAt
+    self.champions = champions
+    self.slug = slug
   }
 }
