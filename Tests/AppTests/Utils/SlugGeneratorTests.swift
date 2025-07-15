@@ -126,4 +126,17 @@ import Testing
       slugs == ["s14w1-2", "s14w4-3", "s15w1-2", "s15w1-4"],
     )
   }
+
+  @Test func versionsInReversedOrder() throws {
+    let slug = try SlugGenerator().resolve(
+      rotationStart: .isoDate("2025-01-25")!,
+      versions: [
+        .init(observedAt: .isoDate("2025-01-24")!, value: "15.4.0"),
+        .init(observedAt: .isoDate("2025-01-17")!, value: "15.3.0"),
+        .init(observedAt: .isoDate("2025-01-10")!, value: "15.2.0"),
+        .init(observedAt: .isoDate("2025-01-03")!, value: "15.1.0"),
+      ],
+    )
+    #expect(slug == "s15w4")
+  }
 }

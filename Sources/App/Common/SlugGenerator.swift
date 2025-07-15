@@ -34,8 +34,16 @@ struct SlugGenerator {
     for rotationStart: Date,
     versions: [PatchVersionModel],
   ) throws(SlugGeneratorError) -> (start: PatchVersionModel, end: PatchVersionModel?) {
+    let versionsFirstToLatest = versions.sorted { lhs, rhs in
+      switch (lhs.observedAt, rhs.observedAt) {
+      case (.none, _): true
+      case (_, .none): false
+      case let (.some(left), .some(right)): left <= right
+      }
+    }
+
     var versionsUntilRotation = [PatchVersionModel]()
-    for version in versions {
+    for version in versionsFirstToLatest {
       guard let observedAt = version.observedAt else {
         throw .missingVersionDate(version: version.value)
       }
@@ -60,10 +68,10 @@ struct SlugGenerator {
       }
     }
 
-    let startIndex = versions.firstIndex { version in start === version } ?? 0
+    let startIndex = versionsFirstToLatest.firstIndex { version in start === version } ?? 0
     let startSeason = try patchSeason(of: start)
     var end: PatchVersionModel?
-    for version in versions[startIndex...] {
+    for version in versionsFirstToLatest[startIndex...] {
       if try patchSeason(of: version) != startSeason {
         end = version
         break
