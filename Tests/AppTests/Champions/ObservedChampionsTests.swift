@@ -36,14 +36,14 @@ extension AppTests {
             .init(
               id: uuid("1"),
               observedAt: .iso("2024-11-07T12:00:00Z")!,
-              champions: ["Nocturne"],
+              champions: ["Nunu"],
               slug: "s1w1",
             )
           ],
           dbChampions: [
             .init(id: uuid("1"), riotId: "Senna", name: "Senna"),
             .init(id: uuid("2"), riotId: "Garen", name: "Garen"),
-            .init(id: uuid("3"), riotId: "Nocturne", name: "Nocturne"),
+            .init(id: uuid("3"), riotId: "Nunu", name: "Nunu & Willump"),
           ],
           dbUserWatchlists: [
             .init(
@@ -64,13 +64,13 @@ extension AppTests {
             [
               "champions": [
                 [
-                  "id": uuidString("3"),
-                  "name": "Nocturne",
+                  "id": "Nunu",
+                  "name": "Nunu & Willump",
                   "current": true,
-                  "imageUrl": imageUrl("Nocturne"),
+                  "imageUrl": imageUrl("Nunu"),
                 ],
                 [
-                  "id": uuidString("1"),
+                  "id": "Senna",
                   "name": "Senna",
                   "current": false,
                   "imageUrl": imageUrl("Senna"),

@@ -38,10 +38,7 @@ extension ChampionsService {
     _ champion: ChampionModel,
     _ currentRotation: RegularChampionRotationModel?
   ) async throws(ChampionsError) -> ObservedChampion? {
-    guard let id = champion.idString else {
-      return nil
-    }
-
+    let id = champion.riotId
     let name = champion.name
     let current = currentRotation?.champions.contains(champion.riotId) ?? false
     let imageUrl = imageUrlProvider.champion(with: champion.riotId)
