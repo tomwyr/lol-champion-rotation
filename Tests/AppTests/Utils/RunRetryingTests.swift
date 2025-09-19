@@ -42,42 +42,44 @@ import Testing
   }
 
   @Test func retriesOrder() async throws {
-    var results = [throwExpectedError, throwExpectedError, throwExpectedError, throwExpectedError, returnFive]
+    var results = [
+      throwExpectedError, throwExpectedError, throwExpectedError, throwExpectedError, returnFive,
+    ]
 
-    var attempts = 0
+    let attempts = Counter()
 
     async let asyncResult = task.runRetrying(
       retryDelays: [.seconds(1), .seconds(2), .seconds(3), .seconds(4)],
       clock: clock
     ) {
-      attempts += 1
+      await attempts.increment()
       return try results.removeFirst()()
     }
 
     await clock.advance()
 
     // 0 seconds in total.
-    #expect(attempts == 1)
+    #expect(await attempts.value == 1)
 
     await clock.advance(by: .seconds(2))
 
     // 2 seconds in total.
-    #expect(attempts == 2)
+    #expect(await attempts.value == 2)
 
     await clock.advance(by: .seconds(2))
 
     // 4 seconds in total.
-    #expect(attempts == 3)
+    #expect(await attempts.value == 3)
 
     await clock.advance(by: .seconds(3))
 
     // 7 seconds in total.
-    #expect(attempts == 4)
+    #expect(await attempts.value == 4)
 
     await clock.advance(by: .seconds(4))
 
     // 11 seconds in total.
-    #expect(attempts == 5)
+    #expect(await attempts.value == 5)
 
     let result = try await asyncResult
 
@@ -152,5 +154,13 @@ struct TestTaskUnexpectedError: Error {}
 extension Duration {
   static func seconds(_ amount: Int64) -> Duration {
     .init(.seconds(amount))
+  }
+}
+
+private actor Counter {
+  var value = 0
+
+  func increment() {
+    value += 1
   }
 }

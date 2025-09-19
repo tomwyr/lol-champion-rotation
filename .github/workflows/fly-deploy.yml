@@ -32,7 +32,7 @@ jobs:
 
       - uses: ./.github/actions/run_tests
         with: 
-          swift-version: "6.1.2"
+          swift-version: "6.2"
           database-url: postgres://testuser:testpass@localhost:5432/testdb?sslmode=disable
   
   deploy:
