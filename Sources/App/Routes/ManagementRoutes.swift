@@ -1,6 +1,6 @@
 import Vapor
 
-func managementRutes(_ app: Application, _ deps: Dependencies) {
+func managementRoutes(_ app: Application, _ deps: Dependencies) {
   let managementGuard = ManagementGuard(
     appManagementKey: deps.appConfig.appManagementKey
   )
