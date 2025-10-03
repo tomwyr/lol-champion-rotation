@@ -498,5 +498,76 @@ extension AppTests {
         }
       }
     }
+
+    @Test func asd() async throws {
+      try await withApp { app in
+        _ = try await app.testConfigureWith(
+          appManagementKey: "123",
+          dbRegularRotations: [
+            .init(
+              id: uuid("1"),
+              observedAt: .isoDate("2025-09-15")!,
+              champions: ["Ahri", "Aurora", "Belveth,Braum"],
+              slug: "s15w36",
+            ),
+            .init(
+              id: uuid("2"),
+              observedAt: .isoDate("2025-09-22")!,
+              champions: ["Akshan", "Azir", "Ekko"],
+              slug: "s15w37",
+            ),
+            .init(
+              id: uuid("3"),
+              observedAt: .isoDate("2025-09-29")!,
+              champions: ["Alistar", "AurelionSol", "Illaoi"],
+              slug: "s15w38",
+            ),
+          ],
+          dbPatchVersions: [
+            .init(observedAt: .isoDate("2025-09-24")!, value: "15.19.1"),
+            .init(observedAt: .isoDate("2025-09-10")!, value: "15.18.1"),
+            .init(observedAt: .isoDate("2025-08-27")!, value: "15.17.1"),
+            .init(observedAt: .isoDate("2025-08-13")!, value: "15.16.1"),
+            .init(observedAt: .isoDate("2025-07-30")!, value: "15.15.1"),
+            .init(observedAt: .isoDate("2025-07-16")!, value: "15.14.1"),
+            .init(observedAt: .isoDate("2025-06-25")!, value: "15.13.1"),
+            .init(observedAt: .isoDate("2025-06-11")!, value: "15.12.1"),
+            .init(observedAt: .isoDate("2025-05-29")!, value: "15.11.1"),
+            .init(observedAt: .isoDate("2025-05-14")!, value: "15.10.1"),
+            .init(observedAt: .isoDate("2025-04-30")!, value: "15.9.1"),
+            .init(observedAt: .isoDate("2025-04-16")!, value: "15.8.1"),
+            .init(observedAt: .isoDate("2025-04-02")!, value: "15.7.1"),
+            .init(observedAt: .isoDate("2025-03-19")!, value: "15.6.1"),
+            .init(observedAt: .isoDate("2025-03-05")!, value: "15.5.1"),
+            .init(observedAt: .isoDate("2025-02-20")!, value: "15.4.1"),
+            .init(observedAt: .isoDate("2025-02-07")!, value: "15.3.1"),
+            .init(observedAt: .isoDate("2025-01-23")!, value: "15.2.1"),
+            .init(observedAt: .isoDate("2025-01-09")!, value: "15.1.1"),
+          ],
+          riotPatchVersions: ["15.19.1"],
+          riotChampionRotationsData: .init(
+            freeChampionIds: [1, 2, 3, 4],
+            freeChampionIdsForNewPlayers: [],
+            maxNewPlayerLevel: 10,
+          ),
+          riotChampionsData: .init(data: [
+            "Ahri": .init(id: "Ahri", key: "1", name: "Ahri"),
+            "Annie": .init(id: "Annie", key: "2", name: "Annie"),
+            "Aurora": .init(id: "Aurora", key: "3", name: "Aurora"),
+            "Belveth": .init(id: "Belveth", key: "4", name: "Belveth"),
+          ]),
+          getCurrentDate: { .isoDate("2025-09-30")! },
+        )
+
+        try await app.test(
+          .GET, "/data/refresh",
+          headers: ["Authorization": "Bearer 123"]
+        ) { res async throws in
+          #expect(res.status == .ok)
+          let slugs = try await app.dbRotationSlugs()
+          #expect(slugs == ["s15w36", "s15w37", "s15w38", "s15w38-2"])
+        }
+      }
+    }
   }
 }

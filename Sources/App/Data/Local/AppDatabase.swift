@@ -4,6 +4,7 @@ import Foundation
 
 struct AppDatabase {
   let runner: DatabaseRunner
+  let instant: Instant
 }
 
 extension AppDatabase {
@@ -147,6 +148,15 @@ extension AppDatabase {
         .first()
     }
   }
+
+  func regularRotationSlugs() async throws -> [String] {
+    try await runner.run { db in
+      try await RegularChampionRotationModel.query(on: db)
+        .field(\.$slug)
+        .all()
+        .map(\.slug)
+    }
+  }
 }
 
 extension AppDatabase {
@@ -268,7 +278,7 @@ extension AppDatabase {
             model.$id.exists = true
             try await model.update(on: db)
           } else {
-            model.releasedAt = Date.now.trimTime()
+            model.releasedAt = instant.now.trimTime()
             try await model.create(on: db)
             createdChampionsIds.append(model.riotId)
           }

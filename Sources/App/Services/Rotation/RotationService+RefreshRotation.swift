@@ -18,7 +18,9 @@ extension DefaultRotationService {
 
   private func loadLocalData() async throws(ChampionRotationError) -> RefreshRotationLocalData {
     do {
-      return try await appDb.patchVersions()
+      let patchVersions = try await appDb.patchVersions()
+      let existingSlugs = try await appDb.regularRotationSlugs()
+      return (patchVersions: patchVersions, existingSlugs: existingSlugs)
     } catch {
       throw .dataOperationFailed(cause: error)
     }
@@ -41,7 +43,7 @@ extension DefaultRotationService {
     _ localData: RefreshRotationLocalData,
     _ riotData: CurrentRotationRiotData,
   ) throws(ChampionRotationError) -> ChampionRotationModels {
-    let patchVersions = localData
+    let (patchVersions, existingSlugs) = localData
 
     let (championRotations, champions) = riotData
     let championsByRiotKey = champions.data.values.associatedBy(key: \.key)
@@ -59,12 +61,13 @@ extension DefaultRotationService {
     let regularChampions = try championRotations.freeChampionIds
       .map(championRiotId).sorted()
 
-    let observedAt = Date.now
+    let observedAt = instant.now
     let slug: String
     do {
-      slug = try slugGenerator.resolve(
+      slug = try slugGenerator.resolveUnique(
         rotationStart: observedAt,
         versions: patchVersions,
+        existingSlugs: existingSlugs,
       )
     } catch {
       throw .slugError(cause: error)
@@ -76,7 +79,7 @@ extension DefaultRotationService {
       slug: slug
     )
     let beginnerRotation = BeginnerChampionRotationModel(
-      observedAt: Date.now,
+      observedAt: instant.now,
       maxLevel: beginnerMaxLevel,
       champions: beginnerChampions
     )
@@ -128,7 +131,10 @@ extension DefaultRotationService {
   }
 }
 
-private typealias RefreshRotationLocalData = [PatchVersionModel]
+private typealias RefreshRotationLocalData = (
+  patchVersions: [PatchVersionModel],
+  existingSlugs: [String],
+)
 
 private typealias CurrentRotationRiotData = (
   championRotations: ChampionRotationsData,

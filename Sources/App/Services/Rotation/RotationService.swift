@@ -27,6 +27,7 @@ struct DefaultRotationService: RotationService {
   let rotationForecast: RotationForecast
   let seededSelector: SeededSelector
   let slugGenerator: SlugGenerator
+  let instant: Instant
 
   typealias OutError = ChampionRotationError
 

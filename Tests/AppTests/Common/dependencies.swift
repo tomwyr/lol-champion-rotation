@@ -11,6 +11,7 @@ extension Dependencies {
     mobileUserGuard: RequestAuthenticatorGuard = MockMobileUserGuard(),
     optionalMobileUserGuard: RequestAuthenticatorGuard = MockOptionalMobileUserGuard(),
     rotationForecast: RotationForecast = SpyRotationForecast(),
+    instant: Instant = MockInstant(),
   ) -> Dependencies {
     .init(
       appConfig: appConfig,
@@ -19,6 +20,7 @@ extension Dependencies {
       mobileUserGuard: mobileUserGuard,
       optionalMobileUserGuard: optionalMobileUserGuard,
       rotationForecast: rotationForecast,
+      instant: instant,
     )
   }
 }

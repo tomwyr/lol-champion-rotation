@@ -10,6 +10,7 @@ struct Dependencies: Sendable {
   var mobileUserGuard: RequestAuthenticatorGuard
   var optionalMobileUserGuard: RequestAuthenticatorGuard
   var rotationForecast: RotationForecast
+  var instant: Instant
 
   static func `default`() -> Dependencies {
     .init(
@@ -19,6 +20,7 @@ struct Dependencies: Sendable {
       mobileUserGuard: MobileUserGuard(),
       optionalMobileUserGuard: OptionalMobileUserGuard(),
       rotationForecast: DefaultRotationForecast(),
+      instant: .system,
     )
   }
 
@@ -33,6 +35,7 @@ struct Dependencies: Sendable {
       rotationForecast: rotationForecast,
       seededSelector: seededSelector(),
       slugGenerator: SlugGenerator(),
+      instant: instant,
     )
   }
 
@@ -85,6 +88,7 @@ struct Dependencies: Sendable {
   func appDb(request: Request) -> AppDatabase {
     AppDatabase(
       runner: StartupRetryRunner(database: request.db),
+      instant: instant,
     )
   }
 

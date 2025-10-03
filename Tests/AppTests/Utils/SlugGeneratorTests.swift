@@ -95,6 +95,20 @@ import Testing
         .init(observedAt: .isoDate("2025-01-17")!, value: "15.3.0"),
         .init(observedAt: .isoDate("2025-01-24")!, value: "15.4.0"),
       ],
+      existingSlugs: ["s15w4"],
+    )
+    #expect(slug == "s15w4-2")
+  }
+
+  @Test func nonUniqueSlugWithSkippedPreExisting() throws {
+    let slug = try SlugGenerator().resolveUnique(
+      rotationStart: .isoDate("2025-01-25")!,
+      versions: [
+        .init(observedAt: .isoDate("2025-01-03")!, value: "15.1.0"),
+        .init(observedAt: .isoDate("2025-01-10")!, value: "15.2.0"),
+        .init(observedAt: .isoDate("2025-01-17")!, value: "15.3.0"),
+        .init(observedAt: .isoDate("2025-01-24")!, value: "15.4.0"),
+      ],
       existingSlugs: ["s15w4", "s15w4-1"],
     )
     #expect(slug == "s15w4-2")
@@ -119,11 +133,11 @@ import Testing
         .init(observedAt: .isoDate("2025-01-24")!, value: "15.4.0"),
       ],
       existingSlugs: [
-        "s14w1", "s14w4", "s14w4-1", "s14w4-2", "s15w1", "s15w1-1", "s15w1-3",
+        "s14w1", "s14w4", "s14w4-2", "s14w4-3", "s15w1", "s15w1-2", "s15w1-4",
       ],
     )
     #expect(
-      slugs == ["s14w1-2", "s14w4-3", "s15w1-2", "s15w1-4"],
+      slugs == ["s14w1-2", "s14w4-4", "s15w1-3", "s15w1-5"],
     )
   }
 

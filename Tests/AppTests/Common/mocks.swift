@@ -123,3 +123,15 @@ struct MockOptionalMobileUserGuard: RequestAuthenticatorGuard {
     }
   }
 }
+
+typealias GetDate = @Sendable () -> Date
+
+struct MockInstant: Instant {
+  let getCurrentDate: GetDate?
+
+  init(getCurrentDate: GetDate? = nil) {
+    self.getCurrentDate = getCurrentDate
+  }
+
+  var now: Date { getCurrentDate?() ?? Date.now }
+}

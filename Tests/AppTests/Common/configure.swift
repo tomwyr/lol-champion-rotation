@@ -27,6 +27,7 @@ extension Application {
     riotChampionRotationsData: ChampionRotationsData? = nil,
     riotChampionsData: ChampionsData? = nil,
     sendFcmMessage: SendFcmMessage? = nil,
+    getCurrentDate: GetDate? = nil,
   ) async throws -> AppTestsMocks {
     let httpClient = MockHttpClient { url in
       return switch url {
@@ -49,6 +50,8 @@ extension Application {
 
     let rotationForecast = SpyRotationForecast()
 
+    let instant = MockInstant(getCurrentDate: getCurrentDate)
+
     try await testConfigure(
       deps: .mock(
         appConfig: .empty(
@@ -58,6 +61,7 @@ extension Application {
         httpClient: httpClient,
         fcm: fcm,
         rotationForecast: rotationForecast,
+        instant: instant,
       ),
       initDb: { db async throws in
         for rotation in dbRegularRotations {
