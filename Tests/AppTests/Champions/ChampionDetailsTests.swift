@@ -189,6 +189,7 @@ extension AppTests {
               name: "Nocturne", title: "the Eternal Nightmare")
           ],
           dbPatchVersions: [.init(value: "15.0.1")],
+          dbChampionRotationConfigs: [.init(rotationChangeWeekday: 4)],
           b2AuthorizeDownloadData: .init(authorizationToken: "123"),
         )
 
@@ -344,6 +345,7 @@ extension AppTests {
               title: "the Grand Duelist"),
           ],
           dbPatchVersions: [.init(value: "15.0.1")],
+          dbChampionRotationConfigs: [.init(rotationChangeWeekday: 4)],
           b2AuthorizeDownloadData: .init(authorizationToken: "123")
         )
 
@@ -475,6 +477,7 @@ extension AppTests {
               title: "the Grand Duelist"),
           ],
           dbPatchVersions: [.init(value: "15.0.1")],
+          dbChampionRotationConfigs: [.init(rotationChangeWeekday: 4)],
           b2AuthorizeDownloadData: .init(authorizationToken: "123")
         )
 
@@ -582,6 +585,7 @@ extension AppTests {
               title: "the Grand Duelist"),
           ],
           dbPatchVersions: [.init(value: "15.0.1")],
+          dbChampionRotationConfigs: [.init(rotationChangeWeekday: 4)],
           b2AuthorizeDownloadData: .init(authorizationToken: "123")
         )
 
@@ -780,6 +784,7 @@ extension AppTests {
               title: "the Grand Duelist"),
           ],
           dbPatchVersions: [.init(value: "15.0.1")],
+          dbChampionRotationConfigs: [.init(rotationChangeWeekday: 5)],
           b2AuthorizeDownloadData: .init(authorizationToken: "123")
         )
 
@@ -1006,6 +1011,7 @@ extension AppTests {
               title: "the Grand Duelist"),
           ],
           dbPatchVersions: [.init(value: "15.0.1")],
+          dbChampionRotationConfigs: [.init(rotationChangeWeekday: 4)],
           b2AuthorizeDownloadData: .init(authorizationToken: "123")
         )
 

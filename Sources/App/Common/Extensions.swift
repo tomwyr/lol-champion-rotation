@@ -154,11 +154,40 @@ extension Date {
   }
 
   func adding(_ value: Int, _ component: Calendar.Component) -> Date? {
-    Calendar.current.date(byAdding: component, value: value, to: self)
+    Calendar.currentUtc.date(byAdding: component, value: value, to: self)
   }
 
   func trimTime() -> Date {
-    Calendar.current.startOfDay(for: self)
+    Calendar.currentUtc.startOfDay(for: self)
+  }
+
+  func withTime(of other: Date) -> Date? {
+    let calendar = Calendar.currentUtc
+    let components = calendar.dateComponents([.hour, .minute, .second], from: other)
+    guard let hour = components.hour,
+      let minute = components.minute,
+      let second = components.second
+    else {
+      return nil
+    }
+    return calendar.date(bySettingHour: hour, minute: minute, second: second, of: self)
+  }
+
+  func advancedToNext(weekday: Int? = nil) -> Date? {
+    Calendar.currentUtc.nextDate(
+      after: self,
+      matching: DateComponents(weekday: weekday),
+      matchingPolicy: .nextTime,
+    )
+  }
+
+}
+
+extension Calendar {
+  static var currentUtc: Calendar {
+    var calendar = Calendar.current
+    calendar.timeZone = TimeZone(secondsFromGMT: 0)!
+    return calendar
   }
 }
 

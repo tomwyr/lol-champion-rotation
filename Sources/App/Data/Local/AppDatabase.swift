@@ -8,6 +8,14 @@ struct AppDatabase {
 }
 
 extension AppDatabase {
+  func rotationConfigs() async throws -> [ChampionRotationConfigModel] {
+    try await runner.run { db in
+      try await ChampionRotationConfigModel.query(on: db).all()
+    }
+  }
+}
+
+extension AppDatabase {
   func addRegularRotation(data: RegularChampionRotationModel) async throws {
     try await runner.run { db in
       try await data.create(on: db)

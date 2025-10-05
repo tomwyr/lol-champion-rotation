@@ -15,19 +15,27 @@ extension RotationDurationService {
   func getRotationDuration(_ rotation: RegularChampionRotationModel)
     async throws(OutError) -> ChampionRotationDuration
   {
-    let nextRotationDate = try await getNextRotationDate(rotation)
+    let changeWeekday = try await getRotationChangeWeekday()
     let startDate = rotation.observedAt
-    guard let endDate = nextRotationDate ?? startDate.addingExpectedDuration() else {
-      throw wrapError(.computedDateInvalid)
-    }
+
+    let endDate =
+      if let nextStart = try await getNextRotationDate(rotation) {
+        nextStart
+      } else if let expectedEnd = try getRotationExpectedEndDate(startDate, changeWeekday) {
+        expectedEnd
+      } else {
+        throw wrapError(.computedDateInvalid)
+      }
+
     return ChampionRotationDuration(start: startDate, end: endDate)
   }
 
   func getRotationPredictionDuration(_ currentRotation: RegularChampionRotationModel)
     async throws(OutError) -> ChampionRotationDuration
   {
-    guard let startDate = currentRotation.observedAt.addingExpectedDuration(),
-      let endDate = startDate.addingExpectedDuration()
+    let changeWeekday = try await getRotationChangeWeekday()
+    guard let startDate = try getRotationExpectedEndDate(currentRotation.observedAt, changeWeekday),
+      let endDate = try getRotationExpectedEndDate(startDate, changeWeekday) ?? startDate.adding(1, .weekOfYear)
     else {
       throw wrapError(.computedDateInvalid)
     }
@@ -47,17 +55,40 @@ extension RotationDurationService {
       throw wrapError(.dataOperationFailed(cause: error))
     }
   }
-}
 
-extension Date {
-  func addingExpectedDuration() -> Date? {
-    adding(1, .weekOfYear)
+  private func getRotationExpectedEndDate(
+    _ startDate: Date, _ changeWeekday: Int,
+  ) throws(OutError) -> Date? {
+    guard 1...7 ~= changeWeekday else {
+      throw wrapError(.rotationChangeWeekdayInvalid(weekday: changeWeekday))
+    }
+    let swiftChangeWeekday = (changeWeekday + 1) % 7
+    return startDate.advancedToNext(weekday: swiftChangeWeekday)?.withTime(of: startDate)
+  }
+
+  private func getRotationChangeWeekday() async throws(OutError) -> Int {
+    let configs: [ChampionRotationConfigModel]
+    do {
+      configs = try await appDb.rotationConfigs()
+    } catch {
+      throw wrapError(.dataOperationFailed(cause: error))
+    }
+    if configs.count > 1 {
+      throw wrapError(.rotationConfigAmbiguous)
+    }
+    guard let config = configs.first else {
+      throw wrapError(.rotationConfigMissing)
+    }
+    return config.rotationChangeWeekday
   }
 }
 
 enum RotationDurationError: Error {
   case computedDateInvalid
   case dataOperationFailed(cause: any Error)
+  case rotationConfigMissing
+  case rotationConfigAmbiguous
+  case rotationChangeWeekdayInvalid(weekday: Int)
 }
 
 extension ChampionsService: RotationDurationService {

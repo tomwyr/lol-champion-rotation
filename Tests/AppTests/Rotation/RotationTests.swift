@@ -80,6 +80,7 @@ extension AppTests {
             .init(id: uuid("3"), riotId: "Sett", name: "Sett"),
           ],
           dbPatchVersions: [.init(observedAt: .iso("2024-11-10T12:00:00Z")!, value: "15.0.1")],
+          dbChampionRotationConfigs: [.init(rotationChangeWeekday: 4)],
           b2AuthorizeDownloadData: .init(authorizationToken: "123")
         )
 
@@ -138,6 +139,7 @@ extension AppTests {
             .init(id: uuid("3"), riotId: "Sett", name: "Sett"),
           ],
           dbPatchVersions: [.init(observedAt: .iso("2024-11-10T12:00:00Z")!, value: "15.0.1")],
+          dbChampionRotationConfigs: [.init(rotationChangeWeekday: 4)],
           b2AuthorizeDownloadData: .init(authorizationToken: "123")
         )
 
@@ -193,6 +195,7 @@ extension AppTests {
           dbUserWatchlists: [
             .init(userId: mobileUserId, rotations: [uuidString("1")])
           ],
+          dbChampionRotationConfigs: [.init(rotationChangeWeekday: 4)],
           b2AuthorizeDownloadData: .init(authorizationToken: "123")
         )
 
@@ -250,6 +253,7 @@ extension AppTests {
           dbUserWatchlists: [
             .init(userId: mobileUserId, rotations: [uuidString("2")])
           ],
+          dbChampionRotationConfigs: [.init(rotationChangeWeekday: 4)],
           b2AuthorizeDownloadData: .init(authorizationToken: "123")
         )
 

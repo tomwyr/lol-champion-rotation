@@ -37,6 +37,7 @@ extension AppTests {
         _ = try await app.testConfigureWith(
           appManagementKey: "123",
           dbPatchVersions: [.init(value: "1")],
+          dbChampionRotationConfigs: [.init(rotationChangeWeekday: 4)],
           riotPatchVersions: ["1"]
         )
 
@@ -68,6 +69,7 @@ extension AppTests {
             )
           ],
           dbPatchVersions: [.init(value: "1")],
+          dbChampionRotationConfigs: [.init(rotationChangeWeekday: 4)],
           riotPatchVersions: ["1"],
           riotChampionRotationsData: .init(
             freeChampionIds: [1, 2],
@@ -117,6 +119,7 @@ extension AppTests {
             )
           ],
           dbPatchVersions: [.init(value: "1")],
+          dbChampionRotationConfigs: [.init(rotationChangeWeekday: 4)],
           riotPatchVersions: ["1"],
           riotChampionRotationsData: .init(
             freeChampionIds: [1, 2],
@@ -292,6 +295,7 @@ extension AppTests {
         _ = try await app.testConfigureWith(
           appManagementKey: "123",
           dbPatchVersions: [.init(value: "14.0.0")],
+          dbChampionRotationConfigs: [.init(rotationChangeWeekday: 4)],
           riotPatchVersions: ["15.23.5"]
         )
 
@@ -315,6 +319,7 @@ extension AppTests {
         _ = try await app.testConfigureWith(
           appManagementKey: "123",
           dbPatchVersions: [.init(value: "15.23.5")],
+          dbChampionRotationConfigs: [.init(rotationChangeWeekday: 4)],
           riotPatchVersions: ["15.23.5"]
         )
 
@@ -338,6 +343,7 @@ extension AppTests {
         _ = try await app.testConfigureWith(
           appManagementKey: "123",
           dbPatchVersions: [],
+          dbChampionRotationConfigs: [.init(rotationChangeWeekday: 4)],
           riotPatchVersions: ["15.23.5"]
         )
 
@@ -429,6 +435,7 @@ extension AppTests {
             )
           ],
           dbPatchVersions: [.init(value: "1")],
+          dbChampionRotationConfigs: [.init(rotationChangeWeekday: 4)],
           riotPatchVersions: ["1"],
           riotChampionRotationsData: .init(
             freeChampionIds: [1, 2],
@@ -499,7 +506,7 @@ extension AppTests {
       }
     }
 
-    @Test func asd() async throws {
+    @Test func uniqueSlugsForManyRotationsInWeek() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
           appManagementKey: "123",
@@ -507,7 +514,7 @@ extension AppTests {
             .init(
               id: uuid("1"),
               observedAt: .isoDate("2025-09-15")!,
-              champions: ["Ahri", "Aurora", "Belveth,Braum"],
+              champions: ["Ahri", "Aurora", "Belveth", "Braum"],
               slug: "s15w36",
             ),
             .init(
@@ -527,23 +534,9 @@ extension AppTests {
             .init(observedAt: .isoDate("2025-09-24")!, value: "15.19.1"),
             .init(observedAt: .isoDate("2025-09-10")!, value: "15.18.1"),
             .init(observedAt: .isoDate("2025-08-27")!, value: "15.17.1"),
-            .init(observedAt: .isoDate("2025-08-13")!, value: "15.16.1"),
-            .init(observedAt: .isoDate("2025-07-30")!, value: "15.15.1"),
-            .init(observedAt: .isoDate("2025-07-16")!, value: "15.14.1"),
-            .init(observedAt: .isoDate("2025-06-25")!, value: "15.13.1"),
-            .init(observedAt: .isoDate("2025-06-11")!, value: "15.12.1"),
-            .init(observedAt: .isoDate("2025-05-29")!, value: "15.11.1"),
-            .init(observedAt: .isoDate("2025-05-14")!, value: "15.10.1"),
-            .init(observedAt: .isoDate("2025-04-30")!, value: "15.9.1"),
-            .init(observedAt: .isoDate("2025-04-16")!, value: "15.8.1"),
-            .init(observedAt: .isoDate("2025-04-02")!, value: "15.7.1"),
-            .init(observedAt: .isoDate("2025-03-19")!, value: "15.6.1"),
-            .init(observedAt: .isoDate("2025-03-05")!, value: "15.5.1"),
-            .init(observedAt: .isoDate("2025-02-20")!, value: "15.4.1"),
-            .init(observedAt: .isoDate("2025-02-07")!, value: "15.3.1"),
-            .init(observedAt: .isoDate("2025-01-23")!, value: "15.2.1"),
             .init(observedAt: .isoDate("2025-01-09")!, value: "15.1.1"),
           ],
+          dbChampionRotationConfigs: [.init(rotationChangeWeekday: 4)],
           riotPatchVersions: ["15.19.1"],
           riotChampionRotationsData: .init(
             freeChampionIds: [1, 2, 3, 4],

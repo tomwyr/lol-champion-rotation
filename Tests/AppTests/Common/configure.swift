@@ -22,6 +22,7 @@ extension Application {
     dbPatchVersions: [PatchVersionModel] = [],
     dbNotificationsConfigs: [NotificationsConfigModel] = [],
     dbUserWatchlists: [UserWatchlistsModel] = [],
+    dbChampionRotationConfigs: [ChampionRotationConfigModel] = [],
     b2AuthorizeDownloadData: AuthorizationData? = nil,
     riotPatchVersions: [String]? = nil,
     riotChampionRotationsData: ChampionRotationsData? = nil,
@@ -89,6 +90,9 @@ extension Application {
         }
         for watchlists in dbUserWatchlists {
           try await watchlists.create(on: db)
+        }
+        for config in dbChampionRotationConfigs {
+          try await config.create(on: db)
         }
       }
     )

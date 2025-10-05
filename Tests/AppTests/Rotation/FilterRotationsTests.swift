@@ -86,6 +86,7 @@ extension AppTests {
             .init(id: uuid("3"), riotId: "Sett", name: "Sett"),
           ],
           dbPatchVersions: [.init(value: "15.0.1")],
+          dbChampionRotationConfigs: [.init(rotationChangeWeekday: 4)],
           b2AuthorizeDownloadData: .init(authorizationToken: "123")
         )
 
@@ -136,6 +137,7 @@ extension AppTests {
             .init(id: uuid("3"), riotId: "Sett", name: "Sett"),
           ],
           dbPatchVersions: [.init(value: "15.0.1")],
+          dbChampionRotationConfigs: [.init(rotationChangeWeekday: 4)],
           b2AuthorizeDownloadData: .init(authorizationToken: "123")
         )
 
@@ -187,6 +189,7 @@ extension AppTests {
             .init(id: uuid("4"), riotId: "Rengar", name: "Rengar"),
           ],
           dbPatchVersions: [.init(value: "15.0.1")],
+          dbChampionRotationConfigs: [.init(rotationChangeWeekday: 4)],
           b2AuthorizeDownloadData: .init(authorizationToken: "123")
         )
 
@@ -256,6 +259,7 @@ extension AppTests {
             .init(id: uuid("5"), riotId: "Samira", name: "Samira"),
           ],
           dbPatchVersions: [.init(value: "15.0.1")],
+          dbChampionRotationConfigs: [.init(rotationChangeWeekday: 4)],
           b2AuthorizeDownloadData: .init(authorizationToken: "123")
         )
 
@@ -325,6 +329,7 @@ extension AppTests {
             .init(id: uuid("3"), riotId: "Nunu", name: "Nunu & Willump"),
           ],
           dbPatchVersions: [.init(value: "15.0.1")],
+          dbChampionRotationConfigs: [.init(rotationChangeWeekday: 4)],
           b2AuthorizeDownloadData: .init(authorizationToken: "123")
         )
 
@@ -385,6 +390,7 @@ extension AppTests {
             .init(id: uuid("1"), riotId: "Sett", name: "Sett")
           ],
           dbPatchVersions: [.init(value: "15.0.1")],
+          dbChampionRotationConfigs: [.init(rotationChangeWeekday: 4)],
           b2AuthorizeDownloadData: .init(authorizationToken: "123")
         )
 
@@ -524,6 +530,7 @@ extension AppTests {
             .init(id: uuid("4"), riotId: "Senna", name: "Senna"),
           ],
           dbPatchVersions: [.init(value: "15.0.1")],
+          dbChampionRotationConfigs: [.init(rotationChangeWeekday: 4)],
           b2AuthorizeDownloadData: .init(authorizationToken: "123")
         )
 
@@ -603,6 +610,7 @@ extension AppTests {
             .init(id: uuid("5"), riotId: "Samira", name: "Samira"),
           ],
           dbPatchVersions: [.init(value: "15.0.1")],
+          dbChampionRotationConfigs: [.init(rotationChangeWeekday: 4)],
           b2AuthorizeDownloadData: .init(authorizationToken: "123")
         )
 

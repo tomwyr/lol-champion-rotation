@@ -24,6 +24,7 @@ extension AppTests {
             .init(userId: "3", token: "3", rotationChanged: false, championsAvailable: true),
             .init(userId: "4", token: "4", rotationChanged: false, championsAvailable: false),
           ],
+          dbChampionRotationConfigs: [.init(rotationChangeWeekday: 4)],
           riotPatchVersions: ["1"],
           riotChampionRotationsData: .init(
             freeChampionIds: [1, 2],
@@ -64,6 +65,7 @@ extension AppTests {
           dbNotificationsConfigs: [
             .init(userId: "1", token: "1", rotationChanged: true, championsAvailable: false)
           ],
+          dbChampionRotationConfigs: [.init(rotationChangeWeekday: 4)],
           riotPatchVersions: ["1"],
           riotChampionRotationsData: .init(
             freeChampionIds: [1, 2],
@@ -119,6 +121,7 @@ extension AppTests {
             .init(userId: "3", champions: [uuidString("1"), uuidString("2")]),
             .init(userId: "4", champions: [uuidString("1"), uuidString("2"), uuidString("4")]),
           ],
+          dbChampionRotationConfigs: [.init(rotationChangeWeekday: 4)],
           riotPatchVersions: ["1"],
           riotChampionRotationsData: .init(
             freeChampionIds: [1, 2],
@@ -175,6 +178,7 @@ extension AppTests {
               champions: [uuidString("1"), uuidString("2"), uuidString("3"), uuidString("4")]
             ),
           ],
+          dbChampionRotationConfigs: [.init(rotationChangeWeekday: 4)],
           riotPatchVersions: ["1"],
           riotChampionRotationsData: .init(
             freeChampionIds: [1, 2, 3, 4],

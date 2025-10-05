@@ -69,6 +69,7 @@ extension AppTests {
               rotations: [uuidString("1"), uuidString("3")]
             )
           ],
+          dbChampionRotationConfigs: [.init(rotationChangeWeekday: 4)],
           b2AuthorizeDownloadData: .init(authorizationToken: "123"),
         )
 
@@ -179,6 +180,7 @@ extension AppTests {
               rotations: [uuidString("1"), uuidString("3")]
             )
           ],
+          dbChampionRotationConfigs: [.init(rotationChangeWeekday: 4)],
           b2AuthorizeDownloadData: .init(authorizationToken: "123"),
         )
 

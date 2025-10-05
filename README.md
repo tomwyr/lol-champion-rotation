@@ -19,6 +19,18 @@ The application uses a `.env` file to provide necessary configuration at runtime
 | ID_HASHER_SEED                | Seed used for generating hashed identifiers
 | FIREBASE_PROJECT_ID           | Firebase project identifier
 
+## Required Database Data
+
+The application requires the database to contain a single-entry initial configuration in the tables listed below.
+
+### `champion-rotation-configs`
+
+Defines configuration related to the champion rotation updates.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `rotation_change_weekday` | `Int` | Day of the week when the champion rotation updates (1 = Monday, 7 = Sunday) |
+
 ## Related Projects
 
 - [LoL Champion Rotation Mobile](https://github.com/tomwyr/lol-champion-rotation-mobile) - Mobile version of the application.

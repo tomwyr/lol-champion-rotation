@@ -18,6 +18,7 @@ extension Migrations {
     add(AddChampionRotationPredictions())
     add(PopulateRotationPredictions())
     add(AddChampionRotationActive())
+    add(AddChampionRotationConfigs())
   }
 }
 
@@ -353,6 +354,19 @@ struct AddChampionRotationActive: AsyncMigration {
     try await db.schema("regular-champion-rotations")
       .deleteField("active")
       .update()
+  }
+}
+
+struct AddChampionRotationConfigs: AsyncMigration {
+  func prepare(on db: Database) async throws {
+    try await db.schema("champion-rotation-configs")
+      .id()
+      .field("rotation_change_weekday", .int)
+      .create()
+  }
+
+  func revert(on db: Database) async throws {
+    try await db.schema("champion-rotation-configs").delete()
   }
 }
 

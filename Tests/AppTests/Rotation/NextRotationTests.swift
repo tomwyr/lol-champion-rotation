@@ -120,6 +120,7 @@ extension AppTests {
               value: "15.0.1"
             )
           ],
+          dbChampionRotationConfigs: [.init(rotationChangeWeekday: 4)],
           b2AuthorizeDownloadData: .init(authorizationToken: "123")
         )
 
@@ -190,6 +191,7 @@ extension AppTests {
               value: "15.0.1"
             )
           ],
+          dbChampionRotationConfigs: [.init(rotationChangeWeekday: 4)],
           b2AuthorizeDownloadData: .init(authorizationToken: "123")
         )
 
@@ -262,6 +264,7 @@ extension AppTests {
               value: "15.0.1"
             )
           ],
+          dbChampionRotationConfigs: [.init(rotationChangeWeekday: 4)],
           b2AuthorizeDownloadData: .init(authorizationToken: "123")
         )
 

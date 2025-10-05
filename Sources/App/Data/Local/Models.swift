@@ -214,6 +214,22 @@ final class ChampionRotationPredictionModel: Model, @unchecked Sendable {
   }
 }
 
+final class ChampionRotationConfigModel: Model, @unchecked Sendable {
+  static let schema = "champion-rotation-configs"
+
+  @ID(key: .id)
+  var id: UUID?
+
+  @Field(key: "rotation_change_weekday")
+  var rotationChangeWeekday: Int
+
+  init() {}
+
+  init(rotationChangeWeekday: Int) {
+    self.rotationChangeWeekday = rotationChangeWeekday
+  }
+}
+
 struct ChampionRotationsCountModel: Codable {
   let champion: String
   let presentIn: Int

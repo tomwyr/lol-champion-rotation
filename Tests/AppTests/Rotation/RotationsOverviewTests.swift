@@ -30,7 +30,8 @@ extension AppTests {
             .init(id: uuid("3"), riotId: "Sett", name: "Sett"),
           ],
           dbPatchVersions: [.init(value: "15.0.1")],
-          b2AuthorizeDownloadData: .init(authorizationToken: "123")
+          dbChampionRotationConfigs: [.init(rotationChangeWeekday: 4)],
+          b2AuthorizeDownloadData: .init(authorizationToken: "123"),
         )
 
         try await app.test(
@@ -71,6 +72,7 @@ extension AppTests {
         }
       }
     }
+
     @Test func inactiveRotation() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
@@ -95,7 +97,7 @@ extension AppTests {
               observedAt: .iso("2024-11-14T12:00:00Z")!,
               maxLevel: 10,
               champions: ["Nocturne"]
-            ),
+            )
           ],
           dbChampions: [
             .init(id: uuid("1"), riotId: "Nocturne", name: "Nocturne"),
@@ -103,7 +105,8 @@ extension AppTests {
             .init(id: uuid("3"), riotId: "Sett", name: "Sett"),
           ],
           dbPatchVersions: [.init(value: "15.0.1")],
-          b2AuthorizeDownloadData: .init(authorizationToken: "123")
+          dbChampionRotationConfigs: [.init(rotationChangeWeekday: 4)],
+          b2AuthorizeDownloadData: .init(authorizationToken: "123"),
         )
 
         try await app.test(
@@ -171,7 +174,8 @@ extension AppTests {
             .init(id: uuid("5"), riotId: "Jax", name: "Jax"),
             .init(id: uuid("6"), riotId: "Sett", name: "Sett"),
           ],
-          b2AuthorizeDownloadData: .init(authorizationToken: "123")
+          dbChampionRotationConfigs: [.init(rotationChangeWeekday: 4)],
+          b2AuthorizeDownloadData: .init(authorizationToken: "123"),
         )
 
         try await app.test(
@@ -221,7 +225,8 @@ extension AppTests {
             .init(id: uuid("2"), riotId: "Sett", name: "Sett"),
             .init(id: uuid("3"), riotId: "Nocturne", name: "Nocturne"),
           ],
-          b2AuthorizeDownloadData: .init(authorizationToken: "123")
+          dbChampionRotationConfigs: [.init(rotationChangeWeekday: 4)],
+          b2AuthorizeDownloadData: .init(authorizationToken: "123"),
         )
 
         try await app.test(
@@ -266,7 +271,8 @@ extension AppTests {
             )
           ],
           dbChampions: [],
-          dbPatchVersions: []
+          dbPatchVersions: [],
+          dbChampionRotationConfigs: [.init(rotationChangeWeekday: 4)],
         )
 
         try await app.test(
@@ -310,7 +316,8 @@ extension AppTests {
             )
           ],
           dbChampions: [],
-          dbPatchVersions: []
+          dbPatchVersions: [],
+          dbChampionRotationConfigs: [.init(rotationChangeWeekday: 4)],
         )
 
         try await app.test(
@@ -360,7 +367,8 @@ extension AppTests {
             )
           ],
           dbChampions: [],
-          dbPatchVersions: []
+          dbPatchVersions: [],
+          dbChampionRotationConfigs: [.init(rotationChangeWeekday: 4)],
         )
 
         try await app.test(
@@ -423,7 +431,8 @@ extension AppTests {
             )
           ],
           dbChampions: [],
-          dbPatchVersions: []
+          dbPatchVersions: [],
+          dbChampionRotationConfigs: [.init(rotationChangeWeekday: 4)],
         )
 
         try await app.test(
