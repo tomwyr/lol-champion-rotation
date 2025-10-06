@@ -1,6 +1,6 @@
 import Vapor
 
-func routes(_ app: Application, _ deps: Dependencies) throws {
+func routes(_ app: Application, _ deps: Dependencies) {
   managementRoutes(app, deps)
   championsRoutes(app, deps)
   rotationsRoutes(app, deps)

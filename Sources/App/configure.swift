@@ -3,9 +3,12 @@ import Vapor
 
 func configure(_ app: Application, _ deps: Dependencies) async throws {
   try database(app, deps)
-  try routes(app, deps)
-  try cors(app, deps)
-  try firebase(app, deps)
+  routes(app, deps)
+  cors(app, deps)
+  // Configure error handling after CORS to prevent the behavior of missing
+  // response headers when responding with non-ok status (e.g. 404).
+  errorHandler(app, deps)
+  firebase(app, deps)
 }
 
 private func database(_ app: Application, _ deps: Dependencies) throws {
@@ -13,7 +16,7 @@ private func database(_ app: Application, _ deps: Dependencies) throws {
   app.migrations.addAppMigrations()
 }
 
-private func cors(_ app: Application, _ deps: Dependencies) throws {
+private func cors(_ app: Application, _ deps: Dependencies) {
   app.middleware.use(
     CORSMiddleware(
       configuration: .init(
@@ -25,7 +28,11 @@ private func cors(_ app: Application, _ deps: Dependencies) throws {
   )
 }
 
-private func firebase(_ app: Application, _ deps: Dependencies) throws {
+private func errorHandler(_ app: Application, _ deps: Dependencies) {
+  app.middleware.use(ErrorMiddleware.default(environment: app.environment))
+}
+
+private func firebase(_ app: Application, _ deps: Dependencies) {
   app.jwt.firebaseAuth.applicationIdentifier = deps.appConfig.firebaseProjectId
   app.fcm.configuration = .envServiceAccountKey
 }
