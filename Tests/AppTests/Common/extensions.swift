@@ -38,7 +38,10 @@ extension AppConfig {
     b2AppKeySecret: String = "",
     riotApiKey: String = "",
     idHasherSeed: String = "",
-    firebaseProjectId: String = ""
+    firebaseProjectId: String = "",
+    linearAccessToken: String = "",
+    linearTeamId: String = "",
+    linearFeedbackStateId: String = "",
   ) -> AppConfig {
     .init(
       databaseUrl: databaseUrl,
@@ -48,7 +51,10 @@ extension AppConfig {
       b2AppKeySecret: b2AppKeySecret,
       riotApiKey: riotApiKey,
       idHasherSeed: idHasherSeed,
-      firebaseProjectId: firebaseProjectId
+      firebaseProjectId: firebaseProjectId,
+      linearAccessToken: linearAccessToken,
+      linearTeamId: linearTeamId,
+      linearFeedbackStateId: linearFeedbackStateId,
     )
   }
 }

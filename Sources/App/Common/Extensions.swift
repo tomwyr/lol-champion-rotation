@@ -255,6 +255,12 @@ extension Dictionary {
   }
 }
 
+extension Dictionary {
+  func compacted<T>() -> [Key: T] where Value == T? {
+    self.compactMapValues { $0 }
+  }
+}
+
 extension Dictionary where Key: Comparable {
   func sorted(by keyPath: KeyPath<Self.Element, some Comparable>) -> [(Key, Value)] {
     sorted { lhs, rhs in lhs[keyPath: keyPath] < rhs[keyPath: keyPath] }

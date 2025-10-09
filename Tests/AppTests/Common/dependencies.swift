@@ -7,6 +7,7 @@ extension Dependencies {
   static func mock(
     appConfig: AppConfig = .empty(),
     httpClient: HttpClient = MockHttpClient(),
+    graphQLClient: GraphQLClient = MockGraphQLClient(),
     fcm: FcmDispatcher = MockFcmDispatcher(),
     mobileUserGuard: RequestAuthenticatorGuard = MockMobileUserGuard(),
     optionalMobileUserGuard: RequestAuthenticatorGuard = MockOptionalMobileUserGuard(),
@@ -16,6 +17,7 @@ extension Dependencies {
     .init(
       appConfig: appConfig,
       httpClient: httpClient,
+      graphQLClient: graphQLClient,
       fcm: { _ in fcm },
       mobileUserGuard: mobileUserGuard,
       optionalMobileUserGuard: optionalMobileUserGuard,

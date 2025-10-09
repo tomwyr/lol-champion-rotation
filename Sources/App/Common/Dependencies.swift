@@ -6,6 +6,7 @@ typealias Late<Dependency> = @Sendable (Request) -> Dependency
 struct Dependencies: Sendable {
   var appConfig: AppConfig
   var httpClient: HttpClient
+  var graphQLClient: GraphQLClient
   var fcm: Late<FcmDispatcher>
   var mobileUserGuard: RequestAuthenticatorGuard
   var optionalMobileUserGuard: RequestAuthenticatorGuard
@@ -16,6 +17,7 @@ struct Dependencies: Sendable {
     .init(
       appConfig: .fromEnvironment(),
       httpClient: NetworkHttpClient(),
+      graphQLClient: NetworkGraphQLClient(http: NetworkHttpClient()),
       fcm: { req in req.fcm },
       mobileUserGuard: MobileUserGuard(),
       optionalMobileUserGuard: OptionalMobileUserGuard(),
@@ -59,6 +61,17 @@ struct Dependencies: Sendable {
       versionType: String.self,
       riotApiClient: riotApiClient(),
       appDb: appDb(request: request),
+    )
+  }
+
+  func feedbackService(request: Request) -> FeedbackService {
+    FeedbackService(
+      linearClient: LinearClient(
+        gql: graphQLClient,
+        accessToken: appConfig.linearAccessToken,
+      ),
+      linearTeamId: appConfig.linearTeamId,
+      linearFeedbackStateId: appConfig.linearFeedbackStateId,
     )
   }
 

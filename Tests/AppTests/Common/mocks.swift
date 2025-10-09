@@ -44,6 +44,40 @@ class MockHttpClient: HttpClient, @unchecked Sendable {
   }
 }
 
+typealias GraphQLRespond = @Sendable (String) -> Any?
+
+class MockGraphQLClient: GraphQLClient, @unchecked Sendable {
+  private(set) var requestedQueries: [String] = []
+  private(set) var requestedVariables: [[String: String]] = []
+  private(set) var requestedHeaders: [[String: String]] = []
+
+  private let respond: GraphQLRespond
+
+  init(respond: @escaping GraphQLRespond = { _ in nil }) {
+    self.respond = respond
+  }
+
+  func execute<T>(
+    endpoint: String,
+    query: String,
+    headers: [String: String],
+    variables: [String: String],
+    into type: T.Type
+  ) async throws -> T where T: Decodable, T: Sendable {
+    requestedQueries.append(query)
+    requestedVariables.append(variables)
+    requestedHeaders.append(headers)
+
+    guard let response = respond(query) ?? respondDefault(query) else {
+      fatalError("Response of type \(T.self) for request query not found:\n\(query)")
+    }
+    guard let response = (response as? T) else {
+      fatalError("Response for request query is not of expected type \(T.self):\n\(query)")
+    }
+    return response
+  }
+}
+
 typealias SendFcmMessage = @Sendable (FCMMessageDefault) -> String?
 
 final class MockFcmDispatcher: FcmDispatcher, @unchecked Sendable {

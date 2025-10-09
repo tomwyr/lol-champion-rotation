@@ -6,4 +6,5 @@ func routes(_ app: Application, _ deps: Dependencies) {
   rotationsRoutes(app, deps)
   notificationsRoutes(app, deps)
   userRoutes(app, deps)
+  feedbackRoutes(app, deps)
 }

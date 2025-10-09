@@ -9,6 +9,9 @@ struct AppConfig {
   var riotApiKey: String
   var idHasherSeed: String
   var firebaseProjectId: String
+  var linearAccessToken: String
+  var linearTeamId: String
+  var linearFeedbackStateId: String
 
   static func fromEnvironment() -> AppConfig {
     AppConfig(
@@ -19,7 +22,10 @@ struct AppConfig {
       b2AppKeySecret: read("B2_APP_KEY_SECRET"),
       riotApiKey: read("RIOT_API_KEY"),
       idHasherSeed: read("ID_HASHER_SEED"),
-      firebaseProjectId: read("FIREBASE_PROJECT_ID")
+      firebaseProjectId: read("FIREBASE_PROJECT_ID"),
+      linearAccessToken: read("LINEAR_ACCESS_TOKEN"),
+      linearTeamId: read("LINEAR_TEAM_ID"),
+      linearFeedbackStateId: read("LINEAR_FEEDBACK_STATE_ID"),
     )
   }
 }

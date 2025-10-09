@@ -41,3 +41,14 @@ extension MockHttpClient {
     }
   }
 }
+
+extension MockGraphQLClient {
+  @Sendable func respondDefault(_ query: String) -> Any? {
+    switch query {
+    case LinearClient.createIssueMutation:
+      CreateIssueData(issueCreate: CreateIssueResult(success: true))
+    default:
+      nil
+    }
+  }
+}

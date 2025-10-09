@@ -7,6 +7,7 @@ typealias InitDb = (Database) async throws -> Void
 
 typealias AppTestsMocks = (
   httpClient: MockHttpClient,
+  graphQLClient: MockGraphQLClient,
   fcm: MockFcmDispatcher,
   rotationForecast: SpyRotationForecast
 )
@@ -29,9 +30,13 @@ extension Application {
     riotChampionsData: ChampionsData? = nil,
     sendFcmMessage: SendFcmMessage? = nil,
     getCurrentDate: GetDate? = nil,
+    linearAccessToken: String? = nil,
+    linearTeamId: String? = nil,
+    linearFeedbackStateId: String? = nil,
+    linearCreateIssueData: CreateIssueData? = nil,
   ) async throws -> AppTestsMocks {
     let httpClient = MockHttpClient { url in
-      return switch url {
+      switch url {
       case requestUrls.riotPatchVersions:
         riotPatchVersions
       case requestUrls.riotChampionRotations:
@@ -40,6 +45,15 @@ extension Application {
         riotChampionsData
       case requestUrls.b2AuthorizeDownload:
         b2AuthorizeDownloadData
+      default:
+        nil
+      }
+    }
+
+    let graphQLClient = MockGraphQLClient { query in
+      switch query {
+      case LinearClient.createIssueMutation:
+        linearCreateIssueData
       default:
         nil
       }
@@ -57,9 +71,13 @@ extension Application {
       deps: .mock(
         appConfig: .empty(
           appManagementKey: appManagementKey ?? "",
-          idHasherSeed: idHasherSeed ?? ""
+          idHasherSeed: idHasherSeed ?? "",
+          linearAccessToken: linearAccessToken ?? "",
+          linearTeamId: linearTeamId ?? "",
+          linearFeedbackStateId: linearFeedbackStateId ?? "",
         ),
         httpClient: httpClient,
+        graphQLClient: graphQLClient,
         fcm: fcm,
         rotationForecast: rotationForecast,
         instant: instant,
@@ -97,7 +115,7 @@ extension Application {
       }
     )
 
-    return (httpClient, fcm, rotationForecast)
+    return (httpClient, graphQLClient, fcm, rotationForecast)
   }
 
   private func testConfigure(deps: Dependencies, initDb: InitDb) async throws {
@@ -106,7 +124,7 @@ extension Application {
   }
 
   private func routes(_ deps: Dependencies) throws {
-    try App.routes(self, deps)
+    App.routes(self, deps)
   }
 
   private func database(_ deps: Dependencies, _ initDb: InitDb) async throws {
