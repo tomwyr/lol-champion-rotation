@@ -18,6 +18,9 @@ The application uses a `.env` file to provide necessary configuration at runtime
 | FCM_SERVICE_ACCOUNT_KEY_PATH  | Relative path to Firebase Cloud Messaging service account JSON file
 | ID_HASHER_SEED                | Seed used for generating hashed identifiers
 | FIREBASE_PROJECT_ID           | Firebase project identifier
+| LINEAR_ACCESS_TOKEN           | Token used to authenticate with the Linear API
+| LINEAR_TEAM_ID                | ID of the Linear team where feedback issues are created
+| LINEAR_FEEDBACK_STATE_ID      | ID of the Linear issue type used for feedback issues
 
 ## Required Database Data
 
