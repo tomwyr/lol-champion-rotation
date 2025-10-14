@@ -9,8 +9,8 @@ struct UserFeedback {
   let title: String?
   let description: String
 
-  static let titleMaxLength = 100
-  static let descriptionMaxLength = 2000
+  static let titleMaxLength = 50
+  static let descriptionMaxLength = 1000
 
   init(input: UserFeedbackInput) throws(UserFeedbackError) {
     if var title = input.title {
