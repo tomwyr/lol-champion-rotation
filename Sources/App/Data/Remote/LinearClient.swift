@@ -5,7 +5,7 @@ struct LinearClient {
   func createIssue(
     teamId: String,
     stateId: String,
-    title: String? = nil,
+    title: String,
     description: String,
   ) async throws -> CreateIssueResult {
     try await gql.execute(

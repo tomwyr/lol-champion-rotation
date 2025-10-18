@@ -3,11 +3,17 @@ import Vapor
 struct UserFeedbackInput: Content {
   let title: String?
   let description: String
+  let type: UserFeedbackType?
+}
+
+enum UserFeedbackType: String, Content {
+  case bug, feature
 }
 
 struct UserFeedback {
   let title: String?
   let description: String
+  let type: UserFeedbackType?
 
   static let titleMaxLength = 50
   static let descriptionMaxLength = 1000
@@ -30,6 +36,8 @@ struct UserFeedback {
       throw .descriptionTooLong(maxLength: Self.descriptionMaxLength)
     }
     self.description = description
+
+    self.type = input.type
   }
 }
 

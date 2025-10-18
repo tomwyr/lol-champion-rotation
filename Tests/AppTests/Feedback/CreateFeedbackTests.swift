@@ -146,7 +146,7 @@ extension AppTests {
       }
     }
 
-    @Test func linearIssueCreationSuccessful() async throws {
+    @Test func linearIssueCreation() async throws {
       try await withApp { app in
         let issueData = CreateIssueData(issueCreate: CreateIssueResult(success: true))
 
@@ -173,6 +173,116 @@ extension AppTests {
           #expect(mocks.graphQLClient.requestedVariables == [expectedVariables])
           let expectedHeaders = ["Authorization": "123"]
           #expect(mocks.graphQLClient.requestedHeaders == [expectedHeaders])
+        }
+      }
+    }
+
+    @Test func linearIssueCreationWithoutTitle() async throws {
+      try await withApp { app in
+        let issueData = CreateIssueData(issueCreate: CreateIssueResult(success: true))
+
+        let mocks = try await app.testConfigureWith(
+          linearAccessToken: "123",
+          linearTeamId: "456",
+          linearFeedbackStateId: "789",
+          linearCreateIssueData: issueData,
+        )
+
+        try await app.test(
+          .POST, "/feedbacks",
+          headers: reqHeaders(accessToken: mobileToken),
+          body: ["description": "content"],
+        ) { res async throws in
+          #expect(res.status == .noContent)
+          #expect(mocks.graphQLClient.requestedQueries == [LinearClient.createIssueMutation])
+          let expectedVariables = [
+            "teamId": "456",
+            "stateId": "789",
+            "title": "Untitled",
+            "description": "content",
+          ]
+          #expect(mocks.graphQLClient.requestedVariables == [expectedVariables])
+        }
+      }
+    }
+
+    @Test func linearIssueCreationWithBugType() async throws {
+      try await withApp { app in
+        let issueData = CreateIssueData(issueCreate: CreateIssueResult(success: true))
+
+        let mocks = try await app.testConfigureWith(
+          linearAccessToken: "123",
+          linearTeamId: "456",
+          linearFeedbackStateId: "789",
+          linearCreateIssueData: issueData,
+        )
+
+        try await app.test(
+          .POST, "/feedbacks",
+          headers: reqHeaders(accessToken: mobileToken),
+          body: ["title": "feedback", "description": "content", "type": "bug"],
+        ) { res async throws in
+          #expect(res.status == .noContent)
+          #expect(mocks.graphQLClient.requestedQueries == [LinearClient.createIssueMutation])
+          let expectedVariables = [
+            "teamId": "456",
+            "stateId": "789",
+            "title": "[Bug] feedback",
+            "description": "content",
+          ]
+          #expect(mocks.graphQLClient.requestedVariables == [expectedVariables])
+        }
+      }
+    }
+
+    @Test func linearIssueCreationWithFeatureType() async throws {
+      try await withApp { app in
+        let issueData = CreateIssueData(issueCreate: CreateIssueResult(success: true))
+
+        let mocks = try await app.testConfigureWith(
+          linearAccessToken: "123",
+          linearTeamId: "456",
+          linearFeedbackStateId: "789",
+          linearCreateIssueData: issueData,
+        )
+
+        try await app.test(
+          .POST, "/feedbacks",
+          headers: reqHeaders(accessToken: mobileToken),
+          body: ["title": "feedback", "description": "content", "type": "feature"],
+        ) { res async throws in
+          #expect(res.status == .noContent)
+          #expect(mocks.graphQLClient.requestedQueries == [LinearClient.createIssueMutation])
+          let expectedVariables = [
+            "teamId": "456",
+            "stateId": "789",
+            "title": "[Feature] feedback",
+            "description": "content",
+          ]
+          #expect(mocks.graphQLClient.requestedVariables == [expectedVariables])
+        }
+      }
+    }
+
+    @Test func linearIssueCreationWithUnknownType() async throws {
+      try await withApp { app in
+        let issueData = CreateIssueData(issueCreate: CreateIssueResult(success: true))
+
+        let mocks = try await app.testConfigureWith(
+          linearAccessToken: "123",
+          linearTeamId: "456",
+          linearFeedbackStateId: "789",
+          linearCreateIssueData: issueData,
+        )
+
+        try await app.test(
+          .POST, "/feedbacks",
+          headers: reqHeaders(accessToken: mobileToken),
+          body: ["title": "feedback", "description": "content", "type": "other"],
+        ) { res async throws in
+          #expect(res.status == .badRequest)
+          #expect(mocks.graphQLClient.requestedVariables.isEmpty)
+
         }
       }
     }
