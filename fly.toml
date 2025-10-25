@@ -9,7 +9,7 @@ primary_region = 'ams'
 [build]
 
 [deploy]
-  release_command = "./App migrate -y"
+  release_command = "./scripts/await-postgres.sh && ./App migrate -y"
 
 [http_service]
   internal_port = 8080

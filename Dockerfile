@@ -35,6 +35,9 @@ WORKDIR /staging
 # Copy main executable to staging area
 RUN cp "$(swift build --package-path /build -c release --show-bin-path)/App" ./
 
+# Copy scripts to staging area
+COPY scripts ./scripts/
+
 # Copy static swift backtracer binary to staging area
 RUN cp "/usr/libexec/swift/linux/swift-backtrace-static" ./
 
@@ -64,6 +67,8 @@ RUN export DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
   libcurl4 \
   # If your app or its dependencies import FoundationXML, also install `libxml2`.
   # libxml2 \
+  # Install for the pg_isready command in fly.toml.
+  postgresql-client \
   && rm -r /var/lib/apt/lists/*
 
 # Create a vapor user and group with /app as its home directory
