@@ -50,12 +50,29 @@ struct StartupRetryRunner: DatabaseRunner, RunRetrying {
 
   private func isStartupError(_ error: any Error) -> Bool {
     switch error {
-    case let error as PSQLError where error.code == .serverClosedConnection:
+    case let error as PSQLError
+    where error.code == .serverClosedConnection
+      || error.code == .server && error.serverCode == .cannotConnectNow:
       true
     case NIOCore.ChannelError.ioOnClosedChannel:
       true
     default:
       false
+    }
+  }
+
+}
+
+private enum PSQLErrorServerCode: String, CaseIterable {
+  case cannotConnectNow = "57P03"
+}
+
+extension PSQLError {
+  fileprivate var serverCode: PSQLErrorServerCode? {
+    if let code = serverInfo?[.sqlState] {
+      PSQLErrorServerCode.allCases.first { $0.rawValue == code }
+    } else {
+      nil
     }
   }
 }
