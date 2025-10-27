@@ -2,7 +2,7 @@
 
 let requestUrls = (
   riotPatchVersions: "https://ddragon.leagueoflegends.com/api/versions.json",
-  riotChampionRotations: "https://eun1.api.riotgames.com/lol/platform/v3/champion-rotations",
+  riotChampionRotations: "https://euw1.api.riotgames.com/lol/platform/v3/champion-rotations",
   riotChampions: { @Sendable (version: String) -> String in
     "https://ddragon.leagueoflegends.com/cdn/\(version)/data/en_US/champion.json"
   },
