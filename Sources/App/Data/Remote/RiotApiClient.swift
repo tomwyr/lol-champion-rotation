@@ -26,11 +26,11 @@ struct RiotApiClient {
   }
 }
 
-private let platform = "eun1"
+private let region = "euw1"
 
 private let patchVersionsUrl = "https://ddragon.leagueoflegends.com/api/versions.json"
 private let championRotationsUrl =
-  "https://\(platform).api.riotgames.com/lol/platform/v3/champion-rotations"
+  "https://\(region).api.riotgames.com/lol/platform/v3/champion-rotations"
 private func championsDataUrl(_ version: String) -> String {
   "https://ddragon.leagueoflegends.com/cdn/\(version)/data/en_US/champion.json"
 }
