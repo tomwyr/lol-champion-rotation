@@ -423,6 +423,12 @@ extension AppDatabase {
       try await NotificationsConfigModel.query(on: db).filter(\.$championsAvailable == true).all()
     }
   }
+
+  func getChampionReleasedNotificationConfigs() async throws -> [NotificationsConfigModel] {
+    try await runner.run { db in
+      try await NotificationsConfigModel.query(on: db).filter(\.$championReleased == true).all()
+    }
+  }
 }
 
 extension AppDatabase {

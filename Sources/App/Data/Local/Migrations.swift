@@ -19,6 +19,7 @@ extension Migrations {
     add(PopulateRotationPredictions())
     add(AddChampionRotationActive())
     add(AddChampionRotationConfigs())
+    add(AddChampionReleasedNotification())
   }
 }
 
@@ -367,6 +368,27 @@ struct AddChampionRotationConfigs: AsyncMigration {
 
   func revert(on db: Database) async throws {
     try await db.schema("champion-rotation-configs").delete()
+  }
+}
+
+struct AddChampionReleasedNotification: AsyncMigration {
+  func prepare(on db: Database) async throws {
+    try await db.schema("notifications-configs")
+      .field("champion_released", .bool)
+      .update()
+
+    try await (db as! SQLDatabase).raw(
+      """
+      UPDATE "notifications-configs"
+      SET champion_released = false
+      """
+    ).run()
+  }
+
+  func revert(on db: Database) async throws {
+    try await db.schema("notifications-configs")
+      .deleteField("champion_released")
+      .update()
   }
 }
 

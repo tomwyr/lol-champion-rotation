@@ -7,8 +7,9 @@ struct NotificationsTokenInput: Content {
 struct NotificationsSettings: Content {
   let rotationChanged: Bool
   let championsAvailable: Bool
+  let championReleased: Bool
 
   var anyEnabled: Bool {
-    rotationChanged || championsAvailable
+    rotationChanged || championsAvailable || championReleased
   }
 }

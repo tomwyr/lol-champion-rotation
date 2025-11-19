@@ -15,6 +15,11 @@ func managementRoutes(_ app: Application, _ deps: Dependencies) {
     if rotationResult.rotationChanged {
       try? await notificationsService.onRotationChanged()
     }
+    if !rotationResult.championsAdded.isEmpty {
+      try? await notificationsService.onChampionsAdded(
+        championIds: rotationResult.championsAdded,
+      )
+    }
     return RefreshDataResult(version: versionResult, rotation: rotationResult)
   }
 }

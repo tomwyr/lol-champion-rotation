@@ -19,7 +19,8 @@ struct NotificationsService {
     }
     return NotificationsSettings(
       rotationChanged: data.rotationChanged,
-      championsAvailable: data.championsAvailable
+      championsAvailable: data.championsAvailable,
+      championReleased: data.championReleased,
     )
   }
 
@@ -28,6 +29,12 @@ struct NotificationsService {
     config.rotationChanged = input.rotationChanged
     config.championsAvailable = input.championsAvailable
     try await appDb.updateNotificationsConfig(data: config)
+  }
+
+  func onChampionsAdded(championIds: [String]) async throws {
+    for championId in championIds {
+      try await notifyChampionReleased(championId: championId)
+    }
   }
 
   func onRotationChanged() async throws {
@@ -50,11 +57,20 @@ struct NotificationsService {
   }
 
   private func getOrCreateConfig(_ userId: String) async throws -> NotificationsConfigModel {
-    try await appDb.getNotificationsConfig(userId: userId)
-      ?? .init(userId: userId, token: "", rotationChanged: false, championsAvailable: false)
+    if let config = try await appDb.getNotificationsConfig(userId: userId) {
+      return config
+    }
+
+    return .init(
+      userId: userId, token: "",
+      rotationChanged: false,
+      championsAvailable: false,
+      championReleased: false,
+    )
   }
 }
 
 enum NotificationsError: Error {
   case currentRotationUnavailable
+  case unknownChampion(championId: String)
 }

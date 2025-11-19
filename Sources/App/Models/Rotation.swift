@@ -51,7 +51,7 @@ struct Champion: Content {
 
 struct RefreshRotationResult: Content {
   let rotationChanged: Bool
-  let championsAdded: Bool
+  let championsAdded: [String]
 }
 
 struct FilterRotationsResult: Content {
