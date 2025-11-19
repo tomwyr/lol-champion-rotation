@@ -127,7 +127,7 @@ extension AppTests {
       try await withApp { app in
         let existingConfig = NotificationsConfigModel(
           userId: mobileUserId, token: "abc",
-          rotationChanged: false, championsAvailable: true, championReleased: true,
+          rotationChanged: false, championsAvailable: false, championReleased: false,
         )
 
         _ = try await app.testConfigureWith(dbNotificationsConfigs: [existingConfig])
@@ -135,11 +135,11 @@ extension AppTests {
         try await app.test(
           .PUT, "/notifications/settings",
           headers: reqHeaders(accessToken: mobileToken),
-          body: ["rotationChanged": true, "championsAvailable": false, "championReleased": false]
+          body: ["rotationChanged": true, "championsAvailable": true, "championReleased": true]
         ) { res async throws in
           let updatedConfig = NotificationsConfigModel(
             userId: mobileUserId, token: "abc",
-            rotationChanged: true, championsAvailable: false, championReleased: false,
+            rotationChanged: true, championsAvailable: true, championReleased: true,
           )
           let configs = try await app.dbNotificationConfigs()
 

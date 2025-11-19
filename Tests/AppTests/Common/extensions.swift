@@ -24,8 +24,10 @@ extension RegularChampionRotationModel {
 
 extension NotificationsConfigModel: Equatable {
   static public func == (lhs: NotificationsConfigModel, rhs: NotificationsConfigModel) -> Bool {
-    lhs.userId == rhs.userId && lhs.token == rhs.token && lhs.rotationChanged == rhs.rotationChanged
+    lhs.userId == rhs.userId && lhs.token == rhs.token
+      && lhs.rotationChanged == rhs.rotationChanged
       && lhs.championsAvailable == rhs.championsAvailable
+      && lhs.championReleased == rhs.championReleased
   }
 }
 

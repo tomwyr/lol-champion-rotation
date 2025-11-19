@@ -28,6 +28,7 @@ struct NotificationsService {
     let config = try await getOrCreateConfig(userId)
     config.rotationChanged = input.rotationChanged
     config.championsAvailable = input.championsAvailable
+    config.championReleased = input.championReleased
     try await appDb.updateNotificationsConfig(data: config)
   }
 
