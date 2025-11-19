@@ -34,9 +34,8 @@ extension AppTests {
 
     @Test func addingNewToken() async throws {
       try await withApp { app in
-        let existingConfig = NotificationsConfigModel(
+        let existingConfig = NotificationsConfigModel.enabled(
           userId: "123", token: "def",
-          rotationChanged: true, championsAvailable: true
         )
 
         _ = try await app.testConfigureWith(dbNotificationsConfigs: [existingConfig])
@@ -46,9 +45,8 @@ extension AppTests {
           headers: reqHeaders(accessToken: mobileToken),
           body: ["token": "abc"]
         ) { res async throws in
-          let addedConfig = NotificationsConfigModel(
+          let addedConfig = NotificationsConfigModel.disabled(
             userId: mobileUserId, token: "abc",
-            rotationChanged: false, championsAvailable: false
           )
           let configs = try await app.dbNotificationConfigs()
 
@@ -60,9 +58,8 @@ extension AppTests {
 
     @Test func updatingExistingToken() async throws {
       try await withApp { app in
-        let existingConfig = NotificationsConfigModel(
+        let existingConfig = NotificationsConfigModel.enabled(
           userId: mobileUserId, token: "def",
-          rotationChanged: true, championsAvailable: true
         )
 
         _ = try await app.testConfigureWith(dbNotificationsConfigs: [existingConfig])
@@ -72,9 +69,8 @@ extension AppTests {
           headers: reqHeaders(accessToken: mobileToken),
           body: ["token": "abc"]
         ) { res async throws in
-          let updatedConfig = NotificationsConfigModel(
+          let updatedConfig = NotificationsConfigModel.enabled(
             userId: mobileUserId, token: "abc",
-            rotationChanged: true, championsAvailable: true
           )
           let configs = try await app.dbNotificationConfigs()
 

@@ -33,9 +33,8 @@ extension AppTests {
 
     @Test func nonExistingConfig() async throws {
       try await withApp { app in
-        let existingConfig = NotificationsConfigModel(
+        let existingConfig = NotificationsConfigModel.enabled(
           userId: "123", token: "def",
-          rotationChanged: true, championsAvailable: true
         )
 
         _ = try await app.testConfigureWith(dbNotificationsConfigs: [existingConfig])
@@ -51,9 +50,8 @@ extension AppTests {
 
     @Test func existingConfig() async throws {
       try await withApp { app in
-        let existingConfig = NotificationsConfigModel(
+        let existingConfig = NotificationsConfigModel.enabled(
           userId: mobileUserId, token: "abc",
-          rotationChanged: true, championsAvailable: true
         )
 
         _ = try await app.testConfigureWith(dbNotificationsConfigs: [existingConfig])
@@ -65,7 +63,7 @@ extension AppTests {
           #expect(res.status == .ok)
           try expectBody(
             res.body,
-            ["rotationChanged": true, "championsAvailable": true]
+            ["rotationChanged": true, "championsAvailable": true, "championReleased": true]
           )
         }
       }
@@ -80,7 +78,7 @@ extension AppTests {
         try await app.test(
           .PUT, "/notifications/settings",
           headers: reqHeaders(),
-          body: ["rotationChanged": true, "championsAvailable": true]
+          body: ["rotationChanged": true, "championsAvailable": true, "championReleased": true]
         ) { res async throws in
           #expect(res.status == .unauthorized)
         }
@@ -94,7 +92,7 @@ extension AppTests {
         try await app.test(
           .PUT, "/notifications/settings",
           headers: reqHeaders(accessToken: mobileToken),
-          body: ["rotationChanged": true, "championsAvailable": true]
+          body: ["rotationChanged": true, "championsAvailable": true, "championReleased": true]
         ) { res async throws in
           #expect(res.status == .noContent)
         }
@@ -103,9 +101,8 @@ extension AppTests {
 
     @Test func addingSettings() async throws {
       try await withApp { app in
-        let existingConfig = NotificationsConfigModel(
+        let existingConfig = NotificationsConfigModel.disabled(
           userId: "123", token: "def",
-          rotationChanged: false, championsAvailable: false
         )
 
         _ = try await app.testConfigureWith(dbNotificationsConfigs: [existingConfig])
@@ -113,11 +110,10 @@ extension AppTests {
         try await app.test(
           .PUT, "/notifications/settings",
           headers: reqHeaders(accessToken: mobileToken),
-          body: ["rotationChanged": true, "championsAvailable": true]
+          body: ["rotationChanged": true, "championsAvailable": true, "championReleased": true]
         ) { res async throws in
-          let addedConfig = NotificationsConfigModel(
+          let addedConfig = NotificationsConfigModel.enabled(
             userId: mobileUserId, token: "",
-            rotationChanged: true, championsAvailable: true
           )
           let configs = try await app.dbNotificationConfigs()
 
@@ -131,7 +127,7 @@ extension AppTests {
       try await withApp { app in
         let existingConfig = NotificationsConfigModel(
           userId: mobileUserId, token: "abc",
-          rotationChanged: false, championsAvailable: true
+          rotationChanged: false, championsAvailable: true, championReleased: true,
         )
 
         _ = try await app.testConfigureWith(dbNotificationsConfigs: [existingConfig])
@@ -139,11 +135,11 @@ extension AppTests {
         try await app.test(
           .PUT, "/notifications/settings",
           headers: reqHeaders(accessToken: mobileToken),
-          body: ["rotationChanged": true, "championsAvailable": false]
+          body: ["rotationChanged": true, "championsAvailable": false, "championReleased": false]
         ) { res async throws in
           let updatedConfig = NotificationsConfigModel(
             userId: mobileUserId, token: "abc",
-            rotationChanged: true, championsAvailable: false
+            rotationChanged: true, championsAvailable: false, championReleased: false,
           )
           let configs = try await app.dbNotificationConfigs()
 

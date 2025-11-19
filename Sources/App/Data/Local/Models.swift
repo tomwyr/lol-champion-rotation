@@ -169,13 +169,27 @@ final class NotificationsConfigModel: Model, @unchecked Sendable {
     userId: String, token: String,
     rotationChanged: Bool,
     championsAvailable: Bool,
-    championReleased: Bool
+    championReleased: Bool,
   ) {
     self.userId = userId
     self.token = token
     self.rotationChanged = rotationChanged
     self.championsAvailable = championsAvailable
     self.championReleased = championReleased
+  }
+
+  static func enabled(userId: String, token: String) -> NotificationsConfigModel {
+    .init(
+      userId: userId, token: token,
+      rotationChanged: true, championsAvailable: true, championReleased: true,
+    )
+  }
+
+  static func disabled(userId: String, token: String) -> NotificationsConfigModel {
+    .init(
+      userId: userId, token: token,
+      rotationChanged: false, championsAvailable: false, championReleased: false,
+    )
   }
 }
 

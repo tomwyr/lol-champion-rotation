@@ -105,7 +105,7 @@ extension DefaultRotationService {
     do {
       let data = riotData.champions.data.values.toModels()
       let createdChampionsIds = try await appDb.saveChampions(data: data)
-      return createdChampionsIds
+      return createdChampionsIds.sorted()
     } catch {
       throw .dataOperationFailed(cause: error)
     }

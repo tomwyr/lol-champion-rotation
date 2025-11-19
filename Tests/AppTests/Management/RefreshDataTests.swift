@@ -93,7 +93,61 @@ extension AppTests {
             res.body, at: "rotation",
             [
               "rotationChanged": true,
-              "championsAdded": true,
+              "championsAdded": ["Garen", "Nocturne", "Senna", "Sett"],
+            ]
+          )
+        }
+      }
+    }
+
+    @Test func rotationChampionsPartiallyChanged() async throws {
+      try await withApp { app in
+        _ = try await app.testConfigureWith(
+          appManagementKey: "123",
+          dbRegularRotations: [
+            .init(
+              observedAt: Date.now,
+              champions: ["Sett", "Senna"],
+              slug: "s1w1",
+            )
+          ],
+          dbBeginnerRotations: [
+            .init(
+              observedAt: Date.now,
+              maxLevel: 10,
+              champions: ["Nocturne"]
+            )
+          ],
+          dbChampions: [
+            .init(id: uuid("1"), riotId: "Nocturne", name: "Nocturne"),
+            .init(id: uuid("2"), riotId: "Sett", name: "Sett"),
+          ],
+          dbPatchVersions: [.init(value: "1")],
+          dbChampionRotationConfigs: [.init(rotationChangeWeekday: 4)],
+          riotPatchVersions: ["1"],
+          riotChampionRotationsData: .init(
+            freeChampionIds: [1, 2],
+            freeChampionIdsForNewPlayers: [3],
+            maxNewPlayerLevel: 10,
+          ),
+          riotChampionsData: .init(data: [
+            "Sett": .init(id: "Sett", key: "1", name: "Sett"),
+            "Garen": .init(id: "Garen", key: "2", name: "Garen"),
+            "Nocturne": .init(id: "Nocturne", key: "3", name: "Nocturne"),
+            "Senna": .init(id: "Senna", key: "4", name: "Senna"),
+          ])
+        )
+
+        try await app.test(
+          .GET, "/data/refresh",
+          headers: ["Authorization": "Bearer 123"]
+        ) { res async throws in
+          #expect(res.status == .ok)
+          try expectBody(
+            res.body, at: "rotation",
+            [
+              "rotationChanged": true,
+              "championsAdded": ["Garen", "Senna"],
             ]
           )
         }
@@ -142,7 +196,7 @@ extension AppTests {
             res.body, at: "rotation",
             [
               "rotationChanged": true,
-              "championsAdded": true,
+              "championsAdded": ["Garen", "Nocturne", "Sett"],
             ]
           )
         }
@@ -190,7 +244,7 @@ extension AppTests {
             res.body, at: "rotation",
             [
               "rotationChanged": false,
-              "championsAdded": true,
+              "championsAdded": ["Garen", "Nocturne", "Sett"],
             ]
           )
         }
@@ -243,7 +297,7 @@ extension AppTests {
             res.body, at: "rotation",
             [
               "rotationChanged": false,
-              "championsAdded": false,
+              "championsAdded": [],
             ]
           )
         }

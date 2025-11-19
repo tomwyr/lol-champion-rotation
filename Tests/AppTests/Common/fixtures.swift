@@ -11,6 +11,7 @@ let mobileToken =
 
 let rotationChangedData = ["type": "rotationChanged"]
 let championsAvailableData = ["type": "championsAvailable"]
+let championReleasedData = ["type": "championReleased"]
 
 func nextRotationToken(_ rotationId: String) -> String {
   let tokens = [

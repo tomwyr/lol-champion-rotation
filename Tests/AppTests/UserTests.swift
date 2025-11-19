@@ -33,7 +33,7 @@ extension AppTests {
       try await withApp { app in
         _ = try await app.testConfigureWith(
           dbNotificationsConfigs: [
-            .init(userId: "123", token: "abc", rotationChanged: true, championsAvailable: true)
+            .enabled(userId: "123", token: "abc")
           ]
         )
 
@@ -51,10 +51,7 @@ extension AppTests {
       try await withApp { app in
         _ = try await app.testConfigureWith(
           dbNotificationsConfigs: [
-            .init(
-              userId: mobileUserId, token: "abc",
-              rotationChanged: false, championsAvailable: false
-            )
+            .disabled(userId: mobileUserId, token: "abc")
           ]
         )
 
@@ -70,18 +67,30 @@ extension AppTests {
 
     @Test func enabledNotifications() async throws {
       let configs = [
-        (rotationChanged: true, championsAvailable: false),
-        (rotationChanged: false, championsAvailable: true),
-        (rotationChanged: true, championsAvailable: true),
+        (rotationChanged: true, championsAvailable: true, championReleased: true),
+
+        (rotationChanged: true, championsAvailable: false, championReleased: false),
+        (rotationChanged: true, championsAvailable: true, championReleased: false),
+        (rotationChanged: true, championsAvailable: false, championReleased: true),
+
+        (rotationChanged: false, championsAvailable: true, championReleased: false),
+        (rotationChanged: true, championsAvailable: true, championReleased: true),
+        (rotationChanged: true, championsAvailable: true, championReleased: false),
+
+        (rotationChanged: false, championsAvailable: false, championReleased: true),
+        (rotationChanged: true, championsAvailable: true, championReleased: true),
+        (rotationChanged: false, championsAvailable: true, championReleased: true),
       ]
 
-      for (rotationChanged, championsAvailable) in configs {
+      for (rotationChanged, championsAvailable, championReleased) in configs {
         try await withApp { app in
           _ = try await app.testConfigureWith(
             dbNotificationsConfigs: [
               .init(
                 userId: mobileUserId, token: "abc",
-                rotationChanged: rotationChanged, championsAvailable: championsAvailable
+                rotationChanged: rotationChanged,
+                championsAvailable: championsAvailable,
+                championReleased: championReleased,
               )
             ]
           )

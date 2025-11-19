@@ -11,7 +11,7 @@ extension NotificationsService {
 
   private func loadLocalData(_ championId: String) async throws -> LocalData {
     let configs = try await appDb.getChampionReleasedNotificationConfigs()
-    guard let champion = try await appDb.champion(id: championId) else {
+    guard let champion = try await appDb.champion(riotId: championId) else {
       throw NotificationsError.unknownChampion(championId: championId)
     }
     return (configs, champion)
