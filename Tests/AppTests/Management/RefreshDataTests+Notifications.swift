@@ -346,7 +346,8 @@ extension AppTests {
           ],
           dbChampions: [
             .init(id: uuid("1"), riotId: "Sett", name: "Sett")
-          ], dbPatchVersions: [.init(value: "1")],
+          ],
+          dbPatchVersions: [.init(value: "1")],
           dbNotificationsConfigs: [
             .init(
               userId: "1", token: "1",
@@ -381,6 +382,58 @@ extension AppTests {
       }
     }
 
+    @Test func championReleasedContentWithMultipleChampions() async throws {
+      try await withApp { app in
+        let mocks = try await app.testConfigureWith(
+          appManagementKey: "123",
+          dbRegularRotations: [
+            .init(
+              observedAt: Date.now,
+              champions: ["Sett", "Senna"],
+              slug: "s1w1",
+            )
+          ],
+          dbPatchVersions: [.init(value: "1")],
+          dbNotificationsConfigs: [
+            .init(
+              userId: "1", token: "1",
+              rotationChanged: true, championsAvailable: false, championReleased: true,
+            )
+          ],
+          dbChampionRotationConfigs: [.init(rotationChangeWeekday: 4)],
+          riotPatchVersions: ["1"],
+          riotChampionRotationsData: .init(
+            freeChampionIds: [1, 2],
+            freeChampionIdsForNewPlayers: [],
+            maxNewPlayerLevel: 10,
+          ),
+          riotChampionsData: .init(data: [
+            "Sett": .init(id: "Sett", key: "1", name: "Sett"),
+            "Nunu": .init(id: "Nunu", key: "2", name: "Nunu & Willump"),
+          ])
+        )
+
+        try await app.test(
+          .GET, "/data/refresh",
+          headers: ["Authorization": "Bearer 123"]
+        ) { res async throws in
+          #expect(res.status == .ok)
+          #expect(mocks.fcm.championReleasedMessages.count == 2)
+
+          let message1 = mocks.fcm.championReleasedMessages[0]
+          let notification1 = message1.notification!
+          #expect(notification1.title == "Champion released")
+          #expect(notification1.body == "Nunu & Willump is now available in the champion pool")
+          #expect(message1.data == ["type": "championReleased", "championId": "Nunu"])
+
+          let message2 = mocks.fcm.championReleasedMessages[1]
+          let notification2 = message2.notification!
+          #expect(notification2.title == "Champion released")
+          #expect(notification2.body == "Sett is now available in the champion pool")
+          #expect(message2.data == ["type": "championReleased", "championId": "Sett"])
+        }
+      }
+    }
   }
 }
 
