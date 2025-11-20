@@ -372,9 +372,11 @@ extension AppTests {
         ) { res async throws in
           #expect(res.status == .ok)
           #expect(mocks.fcm.championReleasedMessages.count == 1)
-          let notification = mocks.fcm.championReleasedMessages[0].notification!
+          let message = mocks.fcm.championReleasedMessages[0]
+          let notification = message.notification!
           #expect(notification.title == "Champion released")
           #expect(notification.body == "Nunu & Willump is now available in the champion pool")
+          #expect(message.data == ["type": "championReleased", "championId": "Nunu"])
         }
       }
     }
@@ -384,14 +386,14 @@ extension AppTests {
 
 extension MockFcmDispatcher {
   var rotationChangedMessages: [FCMMessageDefault] {
-    sentMessages.filter { $0.data == rotationChangedData }
+    sentMessages.filter { $0.data["type"] == rotationChangedType }
   }
 
   var championsAvailableMessages: [FCMMessageDefault] {
-    sentMessages.filter { $0.data == championsAvailableData }
+    sentMessages.filter { $0.data["type"] == championsAvailableType }
   }
 
   var championReleasedMessages: [FCMMessageDefault] {
-    sentMessages.filter { $0.data == championReleasedData }
+    sentMessages.filter { $0.data["type"] == championReleasedType }
   }
 }

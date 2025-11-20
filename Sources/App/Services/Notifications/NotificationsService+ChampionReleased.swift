@@ -23,7 +23,7 @@ extension PushNotification {
     PushNotification(
       title: "Champion released",
       body: "\(champion.name) is now available in the champion pool",
-      data: ["type": "championReleased"],
+      data: ["type": "championReleased", "championId": champion.riotId],
       tokens: tokens
     )
   }
