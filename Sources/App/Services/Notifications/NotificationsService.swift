@@ -34,6 +34,7 @@ struct NotificationsService {
 
   func onChampionsAdded(championIds: [String]) async throws {
     for championId in championIds {
+      if try await isChampionAmbiguous(championId) { continue }
       try await notifyChampionReleased(championId: championId)
     }
   }
@@ -55,6 +56,19 @@ struct NotificationsService {
     if !staleUserIds.isEmpty {
       try await appDb.removeNotificationsConfigs(userIds: staleUserIds)
     }
+  }
+
+  // Checks whether a champion with the given riotId has the same name as
+  // another champion, to prevent notifications from being sent when an
+  // existing champion changes its id.
+  private func isChampionAmbiguous(_ riotId: String) async throws -> Bool {
+    guard let champion = try await appDb.champion(riotId: riotId) else {
+      throw NotificationsError.unknownChampion(championId: riotId)
+    }
+    let duplicateChampions = try await appDb.filterChampions(name: champion.name).filter {
+      $0.riotId != riotId
+    }
+    return !duplicateChampions.isEmpty
   }
 
   private func getOrCreateConfig(_ userId: String) async throws -> NotificationsConfigModel {

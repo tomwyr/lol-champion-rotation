@@ -434,6 +434,69 @@ extension AppTests {
         }
       }
     }
+
+    @Test func championReleasedSkippedForAmbiguousChampion() async throws {
+      try await withApp { app in
+        let mocks = try await app.testConfigureWith(
+          appManagementKey: "123",
+          dbRegularRotations: [
+            .init(
+              observedAt: Date.now,
+              champions: ["MonkeyKing"],
+              slug: "s1w1",
+            )
+          ],
+          dbChampions: [
+            .init(id: uuid("1"), riotId: "MonkeyKing", name: "Wukong")
+          ],
+          dbPatchVersions: [.init(value: "1")],
+          dbNotificationsConfigs: [
+            .init(
+              userId: "1", token: "1",
+              rotationChanged: true, championsAvailable: false, championReleased: true,
+            ),
+            .init(
+              userId: "2", token: "2",
+              rotationChanged: true, championsAvailable: true, championReleased: true,
+            ),
+            .init(
+              userId: "3", token: "3",
+              rotationChanged: false, championsAvailable: true, championReleased: true,
+            ),
+            .init(
+              userId: "4", token: "4",
+              rotationChanged: true, championsAvailable: false, championReleased: false,
+            ),
+            .init(
+              userId: "5", token: "5",
+              rotationChanged: false, championsAvailable: false, championReleased: false,
+            ),
+            .init(
+              userId: "6", token: "6",
+              rotationChanged: false, championsAvailable: false, championReleased: true,
+            ),
+          ],
+          dbChampionRotationConfigs: [.init(rotationChangeWeekday: 4)],
+          riotPatchVersions: ["1"],
+          riotChampionRotationsData: .init(
+            freeChampionIds: [1],
+            freeChampionIdsForNewPlayers: [],
+            maxNewPlayerLevel: 10,
+          ),
+          riotChampionsData: .init(data: [
+            "Wukong": .init(id: "Wukong", key: "1", name: "Wukong")
+          ])
+        )
+
+        try await app.test(
+          .GET, "/data/refresh",
+          headers: ["Authorization": "Bearer 123"]
+        ) { res async throws in
+          #expect(res.status == .ok)
+          #expect(mocks.fcm.championReleasedMessages.isEmpty)
+        }
+      }
+    }
   }
 }
 
