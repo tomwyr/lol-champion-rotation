@@ -15,6 +15,7 @@ let package = Package(
     .package(url: "https://github.com/vapor/fluent.git", from: "4.12.0"),
     .package(url: "https://github.com/vapor/fluent-postgres-driver.git", from: "2.10.0"),
     .package(url: "https://github.com/vapor/fluent-sqlite-driver.git", from: "4.8.0"),
+    .package(url: "https://github.com/vapor/postgres-nio.git", exact: "1.26.2"),
     .package(url: "https://github.com/pointfreeco/swift-clocks.git", from: "1.0.6"),
     .package(url: "https://github.com/MihaelIsaev/FCM.git", from: "3.0.0-beta.1"),
     .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", from: "1.8.3"),
