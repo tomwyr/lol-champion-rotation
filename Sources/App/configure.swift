@@ -8,6 +8,7 @@ func configure(_ app: Application, _ deps: Dependencies) async throws {
   // Configure error handling after CORS to prevent the behavior of missing
   // response headers when responding with non-ok status (e.g. 404).
   errorHandler(app, deps)
+  logger(app, deps)
   firebase(app, deps)
 }
 
@@ -34,6 +35,10 @@ private func cors(_ app: Application, _ deps: Dependencies) {
 
 private func errorHandler(_ app: Application, _ deps: Dependencies) {
   app.middleware.use(ErrorMiddleware.default(environment: app.environment))
+}
+
+private func logger(_ app: Application, _ deps: Dependencies) {
+  app.middleware.use(RouteLoggingMiddleware())
 }
 
 private func firebase(_ app: Application, _ deps: Dependencies) {

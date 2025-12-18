@@ -100,7 +100,10 @@ struct Dependencies: Sendable {
 
   func appDb(request: Request) -> AppDatabase {
     AppDatabase(
-      runner: StartupRetryRunner(database: request.db),
+      runner: StartupRetryRunner(
+        database: request.db,
+        logger: request.logger,
+      ),
       instant: instant,
     )
   }

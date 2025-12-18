@@ -23,6 +23,7 @@ struct DefaultDatabaseRunner: DatabaseRunner {
 
 struct StartupRetryRunner: DatabaseRunner, RunRetrying {
   let database: Database
+  let logger: Logger
 
   func run<T>(block: (Database) async throws -> T) async throws -> T {
     try await runRetrying {
@@ -42,7 +43,8 @@ struct StartupRetryRunner: DatabaseRunner, RunRetrying {
   private func runRetrying<T>(block: () async throws -> T) async throws -> T {
     try await runRetrying(
       retryDelays: [.seconds(2), .seconds(3), .seconds(5)],
-      errorFilter: isStartupError
+      errorFilter: isStartupError,
+      logger: logger,
     ) {
       try await block()
     }
