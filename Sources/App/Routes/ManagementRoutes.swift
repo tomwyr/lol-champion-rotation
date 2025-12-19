@@ -1,13 +1,12 @@
 import Vapor
 
 func managementRoutes(_ app: Application, _ deps: Dependencies) {
-  let logger = app.logger
-
   let managementGuard = ManagementGuard(
     appManagementKey: deps.appConfig.appManagementKey
   )
 
   app.protected(with: managementGuard).get("data", "refresh") { req in
+    let logger = req.logger
     try req.auth.require(ManagerAuth.self)
 
     logger.refreshingData()
