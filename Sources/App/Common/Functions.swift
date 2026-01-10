@@ -54,7 +54,7 @@ extension RunRetrying {
 
 extension Logger {
   fileprivate func unhandledError(cause: any Error) {
-    warning("Unhandled error: \(cause), propagating to caller")
+    warning("Retrying skipped for error, propagating to caller: \(cause)")
   }
 
   fileprivate func outOfRetries(maxCount: Int, cause: any Error) {
