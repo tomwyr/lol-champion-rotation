@@ -15,6 +15,7 @@ let package = Package(
     .package(url: "https://github.com/vapor/fluent.git", from: "4.12.0"),
     .package(url: "https://github.com/vapor/fluent-postgres-driver.git", from: "2.10.0"),
     .package(url: "https://github.com/vapor/fluent-sqlite-driver.git", from: "4.8.0"),
+    // Enforce version 1.30.1 or higher to prevent database connection deadlock bug.
     .package(url: "https://github.com/vapor/postgres-nio.git", from: "1.30.1"),
     .package(url: "https://github.com/pointfreeco/swift-clocks.git", from: "1.0.6"),
     .package(url: "https://github.com/MihaelIsaev/FCM.git", from: "3.0.0-beta.1"),
