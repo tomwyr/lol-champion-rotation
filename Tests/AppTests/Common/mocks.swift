@@ -109,9 +109,10 @@ final class SpyRotationForecast: RotationForecast, @unchecked Sendable {
     self.delegate = delegate
   }
 
-  func predict(champions: [String], rotations: [[String]], refRotationId: String)
-    throws(App.RotationForecastError) -> [String]
-  {
+  func predict(
+    champions: [String], rotations: [[String]],
+    refRotationId: String,
+  ) throws(App.RotationForecastError) -> [String] {
     predictCalls += 1
     return try delegate.predict(
       champions: champions,

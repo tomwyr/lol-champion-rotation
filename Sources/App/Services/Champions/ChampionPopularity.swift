@@ -1,7 +1,8 @@
 struct ChampionPopularity {
-  func calculate(for champion: ChampionModel, data rotationsCount: [ChampionRotationsCountModel])
-    throws(ChampionPopularityError) -> Int
-  {
+  func calculate(
+    for champion: ChampionModel,
+    data rotationsCount: [ChampionRotationsCountModel],
+  ) throws(ChampionPopularityError) -> Int {
     var championScore = 0.0
     var scores = [Double]()
     for count in rotationsCount {
@@ -14,9 +15,9 @@ struct ChampionPopularity {
     return scores.count { $0 > championScore } + 1
   }
 
-  private func calcPopularityScore(_ count: ChampionRotationsCountModel)
-    throws(ChampionPopularityError) -> Double
-  {
+  private func calcPopularityScore(
+    _ count: ChampionRotationsCountModel,
+  ) throws(ChampionPopularityError) -> Double {
     guard let afterRelease = count.afterRelease else {
       throw .insufficientData
     }

@@ -1,20 +1,15 @@
 import Foundation
 
 protocol RotationService {
-  func rotationsOverview() async throws(ChampionRotationError) -> ChampionRotationsOverview
-  func currentRegularRotation() async throws(ChampionRotationError) -> ChampionRotationSummary
-  func predictRotation() async throws(ChampionRotationError) -> ChampionRotationPrediction
-  func rotation(slug: String, userId: String?) async throws(ChampionRotationError)
-    -> ChampionRotationDetails?
-  func nextRotation(nextRotationToken: String) async throws(ChampionRotationError)
-    -> RegularChampionRotation?
-  func refreshRotation() async throws(ChampionRotationError) -> RefreshRotationResult
-  func filterRotations(by championName: String) async throws(ChampionRotationError)
-    -> FilterRotationsResult
-  func observedRotations(by userId: String) async throws(ChampionRotationError)
-    -> ObservedRotationsData
-  func updateObserveRotation(slug: String, by userId: String, observing: Bool)
-    async throws(ChampionRotationError) -> Bool?
+  func rotationsOverview() async throws -> ChampionRotationsOverview
+  func currentRegularRotation() async throws -> ChampionRotationSummary
+  func predictRotation() async throws -> ChampionRotationPrediction
+  func rotation(slug: String, userId: String?) async throws -> ChampionRotationDetails?
+  func nextRotation(nextRotationToken: String) async throws -> RegularChampionRotation?
+  func refreshRotation() async throws -> RefreshRotationResult
+  func filterRotations(by championName: String) async throws -> FilterRotationsResult
+  func observedRotations(by userId: String) async throws -> ObservedRotationsData
+  func updateObserveRotation(slug: String, by userId: String, observing: Bool) async throws -> Bool?
 }
 
 struct DefaultRotationService: RotationService {
@@ -29,29 +24,13 @@ struct DefaultRotationService: RotationService {
   let slugGenerator: SlugGenerator
   let instant: Instant
 
-  typealias OutError = ChampionRotationError
-
-  func getNextRotationToken(_ rotation: RegularChampionRotationModel)
-    throws(ChampionRotationError) -> String?
-  {
+  func getNextRotationToken(_ rotation: RegularChampionRotationModel) throws -> String? {
     let rotationId = rotation.id!.uuidString
-    do {
-      return try idHasher.idToToken(rotationId)
-    } catch {
-      throw .tokenHashingFailed(cause: error)
-    }
+    return try idHasher.idToToken(rotationId)
   }
 }
 
 enum ChampionRotationError: Error {
-  case riotDataUnavailable(cause: Error)
   case unknownChampion(championKey: String)
   case rotationDataMissing(slug: String? = nil)
-  case tokenHashingFailed(cause: Error)
-  case dataOperationFailed(cause: Error)
-  case observedRotationDataInvalid(userId: String)
-  case rotationDurationError(cause: RotationDurationError)
-  case slugError(cause: SlugGeneratorError)
-  case championError(cause: ChampionError)
-  case predictionError(cause: RotationForecastError)
 }

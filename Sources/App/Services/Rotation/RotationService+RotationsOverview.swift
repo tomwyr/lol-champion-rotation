@@ -1,35 +1,29 @@
 import Foundation
 
 extension DefaultRotationService {
-  func rotationsOverview() async throws(ChampionRotationError) -> ChampionRotationsOverview {
+  func rotationsOverview() async throws -> ChampionRotationsOverview {
     let patchVersion = try? await versionService.latestVersion()
     let localData = try await loadRotationsOverviewLocalData()
     return try await createRotationsOverview(patchVersion, localData)
   }
 
-  private func loadRotationsOverviewLocalData() async throws(ChampionRotationError)
-    -> RotationsOverviewLocalData
-  {
-    let regularRotation: RegularChampionRotationModel?
-    let beginnerRotation: BeginnerChampionRotationModel?
-    let champions: [ChampionModel]
+  private func loadRotationsOverviewLocalData() async throws -> RotationsOverviewLocalData {
+    let regularRotation = try await appDb.currentRegularRotation()
+    let beginnerRotation = try await appDb.currentBeginnerRotation()
+    let champions = try await appDb.champions()
+
     let hasPreviousRegularRotation: Bool
-    do {
-      regularRotation = try await appDb.currentRegularRotation()
-      beginnerRotation = try await appDb.currentBeginnerRotation()
-      champions = try await appDb.champions()
-      if let rotationId = regularRotation?.idString {
-        let previousRotation = try await appDb.findPreviousRegularRotation(before: rotationId)
-        hasPreviousRegularRotation = previousRotation != nil
-      } else {
-        hasPreviousRegularRotation = false
-      }
-    } catch {
-      throw .dataOperationFailed(cause: error)
+    if let rotationId = regularRotation?.idString {
+      let previousRotation = try await appDb.findPreviousRegularRotation(before: rotationId)
+      hasPreviousRegularRotation = previousRotation != nil
+    } else {
+      hasPreviousRegularRotation = false
     }
+
     guard let regularRotation, let beginnerRotation else {
-      throw .rotationDataMissing()
+      throw ChampionRotationError.rotationDataMissing()
     }
+
     return (
       regularRotation,
       beginnerRotation,
@@ -38,9 +32,9 @@ extension DefaultRotationService {
     )
   }
 
-  private func createRotationsOverview(_ patchVersion: String?, _ data: RotationsOverviewLocalData)
-    async throws(ChampionRotationError) -> ChampionRotationsOverview
-  {
+  private func createRotationsOverview(
+    _ patchVersion: String?, _ data: RotationsOverviewLocalData,
+  ) async throws -> ChampionRotationsOverview {
     let id = data.regularRotation.slug
     let beginnerMaxLevel = data.beginnerRotation.maxLevel
     let beginnerChampions = try createChampions(

@@ -1,45 +1,30 @@
 extension ChampionsService {
-  func updateObserveChampion(riotId: String, by userId: String, observing: Bool)
-    async throws(ChampionsError) -> Bool?
-  {
-    let (watchlists, champion) = try await getLocalData(userId: userId, riotId: riotId)
-    guard let champion else {
+  func updateObserveChampion(
+    riotId: String, by userId: String, observing: Bool,
+  ) async throws -> Bool? {
+    let watchlists = try await appDb.userWatchlists(userId: userId)
+    guard let champion = try await appDb.champion(riotId: riotId) else {
       return nil
     }
+
+    try updateWatchlist(watchlists, champion, observing)
+    try await appDb.saveUserWatchlists(data: watchlists)
+
+    return observing
+  }
+
+  private func updateWatchlist(
+    _ watchlists: UserWatchlistsModel,
+    _ champion: ChampionModel,
+    _ observing: Bool,
+  ) throws {
     guard let championId = champion.idString else {
-      throw .dataInvalidOrMissing(riotId: riotId)
+      throw ChampionsError.dataInvalidOrMissing(riotId: champion.riotId)
     }
     if observing {
       watchlists.champions.appendIfAbsent(championId)
     } else {
       watchlists.champions.removeAll(championId)
     }
-    try await saveWatchlists(watchlists)
-    return watchlists.champions.contains(championId)
-  }
-
-  private func getLocalData(userId: String, riotId: String) async throws(ChampionsError)
-    -> UpdateObserveChampionLocalData
-  {
-    do {
-      let watchlists = try await appDb.userWatchlists(userId: userId)
-      let champion = try await appDb.champion(riotId: riotId)
-      return (watchlists, champion)
-    } catch {
-      throw .dataOperationFailed(cause: error)
-    }
-  }
-
-  private func saveWatchlists(_ data: UserWatchlistsModel) async throws(ChampionsError) {
-    do {
-      try await appDb.saveUserWatchlists(data: data)
-    } catch {
-      throw .dataOperationFailed(cause: error)
-    }
   }
 }
-
-private typealias UpdateObserveChampionLocalData = (
-  watchlists: UserWatchlistsModel,
-  champion: ChampionModel?
-)

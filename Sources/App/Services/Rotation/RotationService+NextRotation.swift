@@ -1,9 +1,7 @@
 import Foundation
 
 extension DefaultRotationService {
-  func nextRotation(nextRotationToken: String) async throws(ChampionRotationError)
-    -> RegularChampionRotation?
-  {
+  func nextRotation(nextRotationToken: String) async throws -> RegularChampionRotation? {
     let localData = try await loadNextRotationLocalData(nextRotationToken)
     guard let localData else { return nil }
     let nextRotationTime = localData.rotation.observedAt
@@ -11,9 +9,9 @@ extension DefaultRotationService {
     return try await createNextRotation(patchVersion, localData)
   }
 
-  private func loadNextRotationLocalData(_ nextRotationToken: String)
-    async throws(ChampionRotationError) -> RegularRotationLocalData?
-  {
+  private func loadNextRotationLocalData(
+    _ nextRotationToken: String,
+  ) async throws -> RegularRotationLocalData? {
     let nextRotationId: String
     do {
       nextRotationId = try idHasher.tokenToId(nextRotationToken)
@@ -21,30 +19,26 @@ extension DefaultRotationService {
       return nil
     }
 
-    let rotation: RegularChampionRotationModel?
-    let champions: [ChampionModel]
-    let hasPreviousRegularRotation: Bool
-    do {
-      rotation = try await appDb.findPreviousRegularRotation(before: nextRotationId)
-      champions = try await appDb.champions()
-      if let rotationId = rotation?.idString {
-        let previousRotation = try await appDb.findPreviousRegularRotation(before: rotationId)
-        hasPreviousRegularRotation = previousRotation != nil
-      } else {
-        hasPreviousRegularRotation = false
-      }
-    } catch {
-      throw .dataOperationFailed(cause: error)
-    }
-    guard let rotation else {
+    guard let rotation = try await appDb.findPreviousRegularRotation(before: nextRotationId) else {
       return nil
     }
+    let champions = try await appDb.champions()
+
+    let hasPreviousRegularRotation: Bool
+    if let rotationId = rotation.idString {
+      let previousRotation = try await appDb.findPreviousRegularRotation(before: rotationId)
+      hasPreviousRegularRotation = previousRotation != nil
+    } else {
+      hasPreviousRegularRotation = false
+    }
+
     return (rotation, champions, hasPreviousRegularRotation)
   }
 
-  private func createNextRotation(_ patchVersion: String?, _ data: RegularRotationLocalData)
-    async throws(ChampionRotationError) -> RegularChampionRotation
-  {
+  private func createNextRotation(
+    _ patchVersion: String?,
+    _ data: RegularRotationLocalData,
+  ) async throws -> RegularChampionRotation {
     let id = data.rotation.slug
     let duration = try await getRotationDuration(data.rotation)
     let champions = try createChampions(

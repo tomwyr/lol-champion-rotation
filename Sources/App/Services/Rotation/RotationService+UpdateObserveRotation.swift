@@ -1,45 +1,30 @@
 extension DefaultRotationService {
-  func updateObserveRotation(slug: String, by userId: String, observing: Bool)
-    async throws(ChampionRotationError) -> Bool?
-  {
-    let (watchlists, rotation) = try await getLocalData(userId: userId, slug: slug)
-    guard let rotation else {
+  func updateObserveRotation(
+    slug: String, by userId: String, observing: Bool,
+  ) async throws -> Bool? {
+    let watchlists = try await appDb.userWatchlists(userId: userId)
+    guard let rotation = try await appDb.regularRotation(slug: slug) else {
       return nil
     }
+
+    try updateWatchlist(watchlists, rotation, observing)
+    try await appDb.saveUserWatchlists(data: watchlists)
+
+    return observing
+  }
+
+  private func updateWatchlist(
+    _ watchlists: UserWatchlistsModel,
+    _ rotation: RegularChampionRotationModel,
+    _ observing: Bool,
+  ) throws {
     guard let rotationId = rotation.idString else {
-      throw .rotationDataMissing(slug: slug)
+      throw ChampionRotationError.rotationDataMissing(slug: rotation.slug)
     }
     if observing {
       watchlists.rotations.appendIfAbsent(rotationId)
     } else {
       watchlists.rotations.removeAll(rotationId)
     }
-    try await saveWatchlists(watchlists)
-    return watchlists.rotations.contains(rotationId)
-  }
-
-  private func getLocalData(userId: String, slug: String) async throws(ChampionRotationError)
-    -> UpdateObserveRotationLocalData
-  {
-    do {
-      let watchlists = try await appDb.userWatchlists(userId: userId)
-      let rotation = try await appDb.regularRotation(slug: slug)
-      return (watchlists, rotation)
-    } catch {
-      throw .dataOperationFailed(cause: error)
-    }
-  }
-
-  private func saveWatchlists(_ data: UserWatchlistsModel) async throws(ChampionRotationError) {
-    do {
-      try await appDb.saveUserWatchlists(data: data)
-    } catch {
-      throw .dataOperationFailed(cause: error)
-    }
   }
 }
-
-private typealias UpdateObserveRotationLocalData = (
-  watchlists: UserWatchlistsModel,
-  rotation: RegularChampionRotationModel?
-)

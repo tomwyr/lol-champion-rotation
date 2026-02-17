@@ -1,14 +1,17 @@
 import Foundation
 
 protocol RotationForecast: Sendable {
-  func predict(champions: [String], rotations: [[String]], refRotationId: String)
-    throws(RotationForecastError) -> [String]
+  func predict(
+    champions: [String], rotations: [[String]],
+    refRotationId: String,
+  ) throws(RotationForecastError) -> [String]
 }
 
 struct DefaultRotationForecast: RotationForecast {
-  func predict(champions: [String], rotations: [[String]], refRotationId: String)
-    throws(RotationForecastError) -> [String]
-  {
+  func predict(
+    champions: [String], rotations: [[String]],
+    refRotationId: String,
+  ) throws(RotationForecastError) -> [String] {
     var rng = LinearRandomNumberGenerator(seed: calcSeed(of: refRotationId))
 
     let allocation = countAllocation(
@@ -34,9 +37,10 @@ struct DefaultRotationForecast: RotationForecast {
     return selection.sorted()
   }
 
-  func count(rotations: [[String]], rng: inout some RandomNumberGenerator)
-    throws(RotationForecastError) -> Int
-  {
+  func count(
+    rotations: [[String]],
+    rng: inout some RandomNumberGenerator,
+  ) throws(RotationForecastError) -> Int {
     var countOccurrences = [Int: Int]()
     for champions in rotations {
       countOccurrences[champions.count, default: 0] += 1

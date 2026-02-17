@@ -1,5 +1,5 @@
 extension DefaultRotationService {
-  func predictRotation() async throws(ChampionRotationError) -> ChampionRotationPrediction {
+  func predictRotation() async throws -> ChampionRotationPrediction {
     if let existing = try await loadExistingPrediction() {
       existing
     } else {
@@ -9,99 +9,62 @@ extension DefaultRotationService {
 }
 
 extension DefaultRotationService {
-  private func loadExistingPrediction() async throws(ChampionRotationError)
-    -> ChampionRotationPrediction?
-  {
-    guard let data = try await loadExistingLocalData() else {
+  private func loadExistingPrediction() async throws -> ChampionRotationPrediction? {
+    guard let currentRotation = try await appDb.currentRegularRotation(),
+      let currentRotationId = currentRotation.idString,
+      let prediction = try await appDb.rotationPrediction(refRotationId: currentRotationId)
+    else {
       return nil
     }
-    return try await createPrediction(data)
-  }
+    let championModels = try await appDb.champions(riotIds: prediction.champions)
 
-  private func loadExistingLocalData() async throws(ChampionRotationError)
-    -> LoadPredictionLocalData?
-  {
-    do {
-      guard let currentRotation = try await appDb.currentRegularRotation(),
-        let currentRotationId = currentRotation.idString,
-        let prediction = try await appDb.rotationPrediction(refRotationId: currentRotationId)
-      else {
-        return nil
-      }
-
-      let champions = try await appDb.champions(riotIds: prediction.champions)
-
-      return (currentRotation, prediction, champions)
-    } catch {
-      throw .dataOperationFailed(cause: error)
-    }
-  }
-
-  private func createPrediction(_ data: LoadPredictionLocalData)
-    async throws(ChampionRotationError)
-    -> ChampionRotationPrediction
-  {
-    let duration = try await getRotationPredictionDuration(data.currentRotation)
-    let champions = try createChampions(for: data.prediction.champions, models: data.champions)
-
+    let duration = try await getRotationPredictionDuration(currentRotation)
+    let champions = try createChampions(for: prediction.champions, models: championModels)
     return ChampionRotationPrediction(
       duration: duration,
       champions: champions,
     )
   }
+
 }
 
 extension DefaultRotationService {
-  private func generatePrediction() async throws(ChampionRotationError)
-    -> ChampionRotationPrediction
-  {
-    let data = try await loadGenerateLocalData()
-    let champions = try predictChampions(data)
-    let prediction = try await createPrediction(data, champions)
-    try await savePrediction(data, champions)
+  private func generatePrediction() async throws -> ChampionRotationPrediction {
+    let regularRotations = try await appDb.regularRotations()
+    let champions = try await appDb.champions()
+
+    let predictedChampions = try predictChampions(regularRotations, champions)
+    let prediction = try await createPrediction(regularRotations, champions, predictedChampions)
+    try await savePrediction(regularRotations, predictedChampions)
+
     return prediction
   }
 
-  private func loadGenerateLocalData() async throws(ChampionRotationError)
-    -> GeneratePredictionLocalData
-  {
-    let regularRotations: [RegularChampionRotationModel]
-    let champions: [ChampionModel]
-    do {
-      regularRotations = try await appDb.regularRotations()
-      champions = try await appDb.champions()
-    } catch {
-      throw .dataOperationFailed(cause: error)
+  private func predictChampions(
+    _ regularRotations: [RegularChampionRotationModel],
+    _ champions: [ChampionModel],
+  ) throws -> [String] {
+    let championIds = champions.map(\.riotId)
+    let rotations = regularRotations.map(\.champions)
+    guard let refRotationId = regularRotations.first?.idString else {
+      throw ChampionRotationError.rotationDataMissing()
     }
-    return (regularRotations, champions)
+
+    return try rotationForecast.predict(
+      champions: championIds,
+      rotations: rotations,
+      refRotationId: refRotationId
+    )
   }
 
-  private func predictChampions(_ data: GeneratePredictionLocalData)
-    throws(ChampionRotationError) -> [String]
-  {
-    let champions = data.champions.map(\.riotId)
-    let rotations = data.regularRotations.map(\.champions)
-    guard let refRotationId = data.regularRotations.first?.idString else {
-      throw .rotationDataMissing()
-    }
-
-    do {
-      return try rotationForecast.predict(
-        champions: champions,
-        rotations: rotations,
-        refRotationId: refRotationId
-      )
-    } catch {
-      throw .predictionError(cause: error)
-    }
-  }
-
-  private func createPrediction(_ data: GeneratePredictionLocalData, _ predictedChampions: [String])
-    async throws(ChampionRotationError) -> ChampionRotationPrediction
-  {
-    let champions = try createChampions(for: predictedChampions, models: data.champions)
-    guard let currentRotation = data.regularRotations.first else {
-      throw .rotationDataMissing()
+  private func createPrediction(
+    _ regularRotations: [RegularChampionRotationModel],
+    _ champions: [ChampionModel],
+    _ predictedChampions: [String],
+  ) async throws -> ChampionRotationPrediction {
+    let champions = try createChampions(for: predictedChampions, models: champions)
+    guard let currentRotation = regularRotations.first else {
+      throw ChampionRotationError.rotationDataMissing()
     }
     let duration = try await getRotationPredictionDuration(currentRotation)
 
@@ -112,31 +75,16 @@ extension DefaultRotationService {
   }
 
   private func savePrediction(
-    _ localData: GeneratePredictionLocalData,
+    _ regularRotations: [RegularChampionRotationModel],
     _ predictedChampions: [String],
-  ) async throws(ChampionRotationError) {
-    guard let refRotationId = localData.regularRotations.first?.id else {
-      throw .rotationDataMissing()
+  ) async throws {
+    guard let refRotationId = regularRotations.first?.id else {
+      throw ChampionRotationError.rotationDataMissing()
     }
-    do {
-      let data = ChampionRotationPredictionModel(
-        refRotationId: refRotationId,
-        champions: predictedChampions,
-      )
-      try await appDb.saveRotationPrediction(data: data)
-    } catch {
-      throw .dataOperationFailed(cause: error)
-    }
+    let data = ChampionRotationPredictionModel(
+      refRotationId: refRotationId,
+      champions: predictedChampions,
+    )
+    try await appDb.saveRotationPrediction(data: data)
   }
 }
-
-private typealias LoadPredictionLocalData = (
-  currentRotation: RegularChampionRotationModel,
-  prediction: ChampionRotationPredictionModel,
-  champions: [ChampionModel]
-)
-
-private typealias GeneratePredictionLocalData = (
-  regularRotations: [RegularChampionRotationModel],
-  champions: [ChampionModel]
-)

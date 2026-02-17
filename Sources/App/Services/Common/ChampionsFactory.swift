@@ -1,26 +1,21 @@
-protocol ChampionFactory {
-  associatedtype OutError: Error
+protocol ChampionRotationFactory {}
 
+protocol ChampionFactory {
   var imageUrlProvider: ImageUrlProvider { get }
 
-  func createChampion(model: ChampionModel) throws(OutError) -> Champion
-
-  func createChampions(for riotIds: [String], models: [ChampionModel]) throws(OutError)
-    -> [Champion]
-
+  func createChampion(model: ChampionModel) throws -> Champion
+  func createChampions(for riotIds: [String], models: [ChampionModel]) throws -> [Champion]
   func createChampionDetails(
     model: ChampionModel,
     userWatchlists: UserWatchlistsModel?,
     availability: [ChampionDetailsAvailability],
     overview: ChampionDetailsOverview,
     history: [ChampionDetailsHistoryEvent]
-  ) throws(OutError) -> ChampionDetails
-
-  func wrapError(_ error: ChampionError) -> OutError
+  ) throws -> ChampionDetails
 }
 
 extension ChampionFactory {
-  func createChampion(model: ChampionModel) throws(OutError) -> Champion {
+  func createChampion(model: ChampionModel) throws -> Champion {
     let id = model.riotId.lowercased()
     let name = model.name
     let imageUrl = imageUrlProvider.champion(with: model.riotId)
@@ -32,13 +27,11 @@ extension ChampionFactory {
     )
   }
 
-  func createChampions(for riotIds: [String], models: [ChampionModel]) throws(OutError)
-    -> [Champion]
-  {
+  func createChampions(for riotIds: [String], models: [ChampionModel]) throws -> [Champion] {
     let modelsById = models.associatedBy(key: \.riotId)
-    return try riotIds.map { id throws(OutError) in
+    return try riotIds.map { id in
       guard let model = modelsById[id] else {
-        throw wrapError(.dataMissing(championId: id))
+        throw ChampionError.dataMissing(championId: id)
       }
       return try createChampion(model: model)
     }
@@ -50,9 +43,9 @@ extension ChampionFactory {
     availability: [ChampionDetailsAvailability],
     overview: ChampionDetailsOverview,
     history: [ChampionDetailsHistoryEvent]
-  ) throws(OutError) -> ChampionDetails {
+  ) throws -> ChampionDetails {
     guard let championId = model.idString else {
-      throw wrapError(.dataMissing(championId: model.riotId))
+      throw ChampionError.dataMissing(championId: model.riotId)
     }
     let id = model.riotId.lowercased()
     let name = model.name
@@ -77,14 +70,6 @@ enum ChampionError: Error {
   case dataMissing(championId: String)
 }
 
-extension ChampionsService: ChampionFactory {
-  func wrapError(_ error: ChampionError) -> ChampionsError {
-    .championError(cause: error)
-  }
-}
+extension ChampionsService: ChampionFactory {}
 
-extension DefaultRotationService: ChampionFactory {
-  func wrapError(_ error: ChampionError) -> ChampionRotationError {
-    .championError(cause: error)
-  }
-}
+extension DefaultRotationService: ChampionFactory {}

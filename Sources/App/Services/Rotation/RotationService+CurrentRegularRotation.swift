@@ -1,34 +1,23 @@
 extension DefaultRotationService {
-  func currentRegularRotation() async throws(ChampionRotationError) -> ChampionRotationSummary {
-    let localData = try await loadRotationLocalData()
-    return try await createRotationSummary(localData)
-  }
-
-  private func loadRotationLocalData() async throws(ChampionRotationError)
-    -> CurrentRegularRotationLocalData
-  {
-    let regularRotation: RegularChampionRotationModel?
-    let champions: [ChampionModel]
-    do {
-      regularRotation = try await appDb.currentRegularRotation()
-      champions = try await appDb.champions()
-    } catch {
-      throw .dataOperationFailed(cause: error)
-    }
+  func currentRegularRotation() async throws -> ChampionRotationSummary {
+    let regularRotation = try await appDb.currentRegularRotation()
+    let champions = try await appDb.champions()
     guard let regularRotation else {
-      throw .rotationDataMissing()
+      throw ChampionRotationError.rotationDataMissing()
     }
-    return (regularRotation, champions)
+    return try await createRotationSummary(regularRotation, champions)
   }
 
-  private func createRotationSummary(_ data: CurrentRegularRotationLocalData)
-    async throws(ChampionRotationError) -> ChampionRotationSummary
-  {
-    let id = data.regularRotation.slug
+  private func createRotationSummary(
+    _ regularRotation: RegularChampionRotationModel,
+    _ champions: [ChampionModel],
+  ) async throws -> ChampionRotationSummary {
+    let id = regularRotation.slug
     let champions = try createChampions(
-      for: data.regularRotation.champions, models: data.champions
+      for: regularRotation.champions,
+      models: champions,
     ).sorted { $0.name < $1.name }
-    let duration = try await getRotationDuration(data.regularRotation)
+    let duration = try await getRotationDuration(regularRotation)
 
     return ChampionRotationSummary(
       id: id,
@@ -37,8 +26,3 @@ extension DefaultRotationService {
     )
   }
 }
-
-private typealias CurrentRegularRotationLocalData = (
-  regularRotation: RegularChampionRotationModel,
-  champions: [ChampionModel]
-)
