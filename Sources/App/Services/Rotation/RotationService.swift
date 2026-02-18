@@ -1,4 +1,5 @@
 import Foundation
+import Vapor
 
 protocol RotationService {
   func rotationsOverview() async throws -> ChampionRotationsOverview
@@ -13,6 +14,7 @@ protocol RotationService {
 }
 
 struct DefaultRotationService: RotationService {
+  let logger: Logger
   let imageUrlProvider: ImageUrlProvider
   let riotApiClient: RiotApiClient
   let appDb: AppDatabase

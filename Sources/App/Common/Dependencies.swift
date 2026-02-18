@@ -28,6 +28,7 @@ struct Dependencies: Sendable {
 
   func rotationService(request: Request) -> RotationService {
     DefaultRotationService(
+      logger: request.logger,
       imageUrlProvider: imageUrlProvider(request: request),
       riotApiClient: riotApiClient(),
       appDb: appDb(request: request),
