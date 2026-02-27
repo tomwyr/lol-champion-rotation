@@ -128,7 +128,7 @@ extension DefaultRotationService {
   }
 
   private func log(_ message: String) {
-    logger.trace("[refresh-rotation] \(message)")
+    logger.info("[refresh-rotation] \(message)")
   }
 }
 
