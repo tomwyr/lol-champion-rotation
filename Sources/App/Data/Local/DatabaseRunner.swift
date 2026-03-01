@@ -1,3 +1,4 @@
+import AsyncKit
 import Fluent
 import FluentPostgresDriver
 
@@ -57,12 +58,12 @@ struct StartupRetryRunner: DatabaseRunner, RunRetrying {
       || error.code == .server && error.serverCode == .cannotConnectNow:
       true
     case NIOCore.ChannelError.ioOnClosedChannel:
+    case AsyncKit.ConnectionPoolTimeoutError.connectionRequestTimeout:
       true
     default:
       false
     }
   }
-
 }
 
 private enum PSQLErrorServerCode: String, CaseIterable {
