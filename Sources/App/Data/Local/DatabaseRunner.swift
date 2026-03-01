@@ -57,8 +57,8 @@ struct StartupRetryRunner: DatabaseRunner, RunRetrying {
     where error.code == .serverClosedConnection
       || error.code == .server && error.serverCode == .cannotConnectNow:
       true
-    case NIOCore.ChannelError.ioOnClosedChannel:
-    case AsyncKit.ConnectionPoolTimeoutError.connectionRequestTimeout:
+    case NIOCore.ChannelError.ioOnClosedChannel,
+      AsyncKit.ConnectionPoolTimeoutError.connectionRequestTimeout:
       true
     default:
       false
