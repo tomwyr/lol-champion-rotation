@@ -54,15 +54,17 @@ extension RunRetrying {
 
 extension Logger {
   fileprivate func unhandledError(cause: any Error) {
-    warning("Retrying skipped for error, propagating to caller: \(cause)")
+    warning("Retrying skipped for error, propagating to caller: \(String(reflecting: cause))")
   }
 
   fileprivate func outOfRetries(maxCount: Int, cause: any Error) {
-    warning("Retries exhausted after \(maxCount) attempts. Last error: \(cause)")
+    warning(
+      "Retries exhausted after \(maxCount) attempts. Last error: \(String(reflecting: cause))",
+    )
   }
 
   fileprivate func schedulingRetry(delay: any DurationProtocol, cause: any Error) {
-    info("Scheduling retry in \(delay) due to error: \(cause)")
+    info("Scheduling retry in \(delay) due to error: \(String(reflecting: cause))")
   }
 
   fileprivate func retrySucceeded(attempt: Int) {
