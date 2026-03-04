@@ -106,6 +106,7 @@ struct Dependencies: Sendable {
         logger: request.logger,
       ),
       instant: instant,
+      logger: request.logger,
     )
   }
 
