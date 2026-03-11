@@ -279,7 +279,7 @@ extension AppDatabase {
     let championsByRiotId = try await champions().associatedBy(key: \.riotId)
 
     logger.info("Starting transaction")
-    return try await runner.run { db in
+    return try await runner.run(timeout: .seconds(5)) { db in
       logger.info("Inside transaction")
       return try await db.transaction { db in
         logger.info("Transaction started")
@@ -329,7 +329,7 @@ extension AppDatabase {
 
   func championStreak(of championRiotId: String) async throws -> ChampionStreakModel? {
     let query: SQLQueryString = """
-      WITH 
+      WITH
         champion_release_date AS (
           SELECT released_at FROM "champions" WHERE riot_id = \(bind: championRiotId)
         ),

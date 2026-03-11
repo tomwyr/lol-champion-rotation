@@ -2,46 +2,89 @@ import AsyncKit
 import Fluent
 import FluentPostgresDriver
 
-protocol DatabaseRunner: Sendable {
-  func run<T>(block: (Database) async throws -> T) async throws -> T
-  func runSql<T>(block: (SQLDatabase) async throws -> T) async throws -> T
+protocol DatabaseRunner: Sendable, RunRetrying, WithTimeout {
+  func run<T: Sendable>(
+    timeout: Duration,
+    block: @escaping @Sendable (Database) async throws -> T,
+  ) async throws -> T
+
+  func runSql<T: Sendable>(
+    timeout: Duration,
+    block: @escaping @Sendable (SQLDatabase) async throws -> T,
+  ) async throws -> T
+}
+
+extension DatabaseRunner {
+  func run<T: Sendable>(
+    timeout: Duration = .seconds(1),
+    block: @escaping @Sendable (Database) async throws -> T,
+  ) async throws -> T {
+    try await run(timeout: timeout, block: block)
+  }
+
+  func runSql<T: Sendable>(
+    timeout: Duration = .seconds(1),
+    block: @escaping @Sendable (SQLDatabase) async throws -> T,
+  ) async throws -> T {
+    try await runSql(timeout: timeout, block: block)
+  }
 }
 
 struct DefaultDatabaseRunner: DatabaseRunner {
   let database: Database
 
-  func run<T>(block: (Database) async throws -> T) async throws -> T {
-    try await block(database)
-  }
-
-  func runSql<T>(block: (SQLDatabase) async throws -> T) async throws -> T {
-    guard let database = database as? SQLDatabase else {
-      fatalError("The underlying database isn't an SQL database.")
-    }
-    return try await block(database)
-  }
-}
-
-struct StartupRetryRunner: DatabaseRunner, RunRetrying {
-  let database: Database
-  let logger: Logger
-
-  func run<T>(block: (Database) async throws -> T) async throws -> T {
-    try await runRetrying {
+  func run<T: Sendable>(
+    timeout: Duration,
+    block: @escaping @Sendable (Database) async throws -> T,
+  ) async throws -> T {
+    try await withTimeout(of: timeout) {
       try await block(database)
     }
   }
 
-  func runSql<T>(block: (SQLDatabase) async throws -> T) async throws -> T {
-    try await runRetrying {
+  func runSql<T: Sendable>(
+    timeout: Duration,
+    block: @escaping @Sendable (SQLDatabase) async throws -> T,
+  ) async throws -> T {
+    try await withTimeout(of: timeout) {
       guard let database = database as? SQLDatabase else {
         fatalError("The underlying database isn't an SQL database.")
       }
-      do {
-        return try await block(database)
-      } catch {
-        logger.warning(.init(stringLiteral: String(describing: error)))
-        throw error
+      return try await block(database)
+    }
+  }
+}
+
+struct StartupRetryRunner: DatabaseRunner {
+  let database: Database
+  let logger: Logger
+
+  func run<T: Sendable>(
+    timeout: Duration,
+    block: @escaping @Sendable (Database) async throws -> T,
+  ) async throws -> T {
+    try await runRetrying {
+      try await withTimeout(of: timeout) {
+        try await block(database)
+      }
+    }
+  }
+
+  func runSql<T: Sendable>(
+    timeout: Duration,
+    block: @escaping @Sendable (SQLDatabase) async throws -> T,
+  ) async throws -> T {
+    try await runRetrying {
+      try await withTimeout(of: timeout) {
+        guard let database = database as? SQLDatabase else {
+          fatalError("The underlying database isn't an SQL database.")
+        }
+        do {
+          return try await block(database)
+        } catch {
+          logger.warning(.init(stringLiteral: String(describing: error)))
+          throw error
+        }
       }
     }
   }
@@ -64,6 +107,8 @@ struct StartupRetryRunner: DatabaseRunner, RunRetrying {
       true
     case NIOCore.ChannelError.ioOnClosedChannel,
       AsyncKit.ConnectionPoolTimeoutError.connectionRequestTimeout:
+      true
+    case is TaskTimeoutError:
       true
     default:
       false

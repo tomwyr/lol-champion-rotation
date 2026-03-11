@@ -143,13 +143,11 @@ import Testing
       _ = try await asyncResult
     }
   }
+
+  struct TestTask: RunRetrying {}
+  struct TestTaskError: Error {}
+  struct TestTaskUnexpectedError: Error {}
 }
-
-struct TestTask: RunRetrying {}
-
-struct TestTaskError: Error {}
-
-struct TestTaskUnexpectedError: Error {}
 
 extension Duration {
   static func seconds(_ amount: Int64) -> Duration {

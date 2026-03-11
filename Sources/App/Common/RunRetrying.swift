@@ -2,6 +2,7 @@ import Logging
 
 /// Wrap in a protocol because, if defined as a global function, the LSP
 /// analyzer produces error about clock's default value type conformance.
+/// The issue should be fixed in Swift 6.3.
 protocol RunRetrying {
   func runRetrying<T, C>(
     retryDelays: [C.Instant.Duration],
