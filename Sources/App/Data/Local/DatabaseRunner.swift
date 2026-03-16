@@ -79,12 +79,7 @@ struct StartupRetryRunner: DatabaseRunner {
         guard let database = database as? SQLDatabase else {
           fatalError("The underlying database isn't an SQL database.")
         }
-        do {
-          return try await block(database)
-        } catch {
-          logger.warning(.init(stringLiteral: String(describing: error)))
-          throw error
-        }
+        return try await block(database)
       }
     }
   }

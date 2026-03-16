@@ -275,30 +275,23 @@ extension AppDatabase {
   }
 
   func saveChampions(data: [ChampionModel]) async throws -> [String] {
-    logger.info("Loading existing champions")
     let championsByRiotId = try await champions().associatedBy(key: \.riotId)
 
-    logger.info("Starting transaction")
     return try await runner.run(timeout: .seconds(5)) { db in
-      logger.info("Inside transaction")
       return try await db.transaction { db in
-        logger.info("Transaction started")
         var createdChampionsIds = [String]()
         for model in data {
           if let existing = championsByRiotId[model.riotId] {
             model.id = existing.id
             model.releasedAt = existing.releasedAt
             model.$id.exists = true
-            logger.info("Updating \(model.riotId)")
             try await model.update(on: db)
           } else {
             model.releasedAt = instant.now.trimTime()
-            logger.info("Creating \(model.riotId)")
             try await model.create(on: db)
             createdChampionsIds.append(model.riotId)
           }
         }
-        logger.info("Transaction completing")
         return createdChampionsIds
       }
     }
