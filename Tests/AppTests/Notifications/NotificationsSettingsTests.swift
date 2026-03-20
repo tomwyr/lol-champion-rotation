@@ -26,7 +26,11 @@ extension AppTests {
           .GET, "/notifications/settings",
           headers: reqHeaders(accessToken: mobileToken)
         ) { res async throws in
-          #expect(res.status == .notFound)
+          #expect(res.status == .ok)
+          try expectBody(
+            res.body,
+            ["rotationChanged": false, "championsAvailable": false, "championReleased": false],
+          )
         }
       }
     }
@@ -43,7 +47,11 @@ extension AppTests {
           .GET, "/notifications/settings",
           headers: reqHeaders(accessToken: mobileToken)
         ) { res async throws in
-          #expect(res.status == .notFound)
+          #expect(res.status == .ok)
+          try expectBody(
+            res.body,
+            ["rotationChanged": false, "championsAvailable": false, "championReleased": false]
+          )
         }
       }
     }

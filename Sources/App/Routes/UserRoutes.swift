@@ -6,7 +6,10 @@ func userRoutes(_ app: Application, _ deps: Dependencies) {
   app.protected(with: mobileUserGuard).get("user") { req in
     let auth = try req.auth.require(MobileUserAuth.self)
     let notificationsService = deps.notificationsService(request: req)
-    let settings = try await notificationsService.getSettings(userId: auth.userId)
-    return MobileUser(notificationsStatus: .init(from: settings))
+    let notificationsStatus = try await notificationsService.getStatus(userId: auth.userId)
+    return MobileUser(
+      notificationsToken: notificationsStatus.token,
+      notificationsEnabled: notificationsStatus.enabled,
+    )
   }
 }

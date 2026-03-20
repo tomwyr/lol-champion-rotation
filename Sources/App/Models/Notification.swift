@@ -13,3 +13,8 @@ struct NotificationsSettings: Content {
     rotationChanged || championsAvailable || championReleased
   }
 }
+
+struct NotificationsConfigStatus {
+  let enabled: Bool
+  let token: String?
+}

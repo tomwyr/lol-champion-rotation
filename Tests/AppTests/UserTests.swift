@@ -33,7 +33,7 @@ extension AppTests {
       try await withApp { app in
         _ = try await app.testConfigureWith(
           dbNotificationsConfigs: [
-            .enabled(userId: "123", token: "abc")
+            .enabled(userId: "123", token: "")
           ]
         )
 
@@ -42,7 +42,10 @@ extension AppTests {
           headers: ["Authorization": "Bearer \(mobileToken)"]
         ) { res async throws in
           #expect(res.status == .ok)
-          try expectBody(res.body, ["notificationsStatus": "uninitialized"])
+          try expectBody(
+            res.body,
+            ["notificationsEnabled": false],
+          )
         }
       }
     }
@@ -60,7 +63,10 @@ extension AppTests {
           headers: ["Authorization": "Bearer \(mobileToken)"]
         ) { res async throws in
           #expect(res.status == .ok)
-          try expectBody(res.body, ["notificationsStatus": "disabled"])
+          try expectBody(
+            res.body,
+            ["notificationsToken": "abc", "notificationsEnabled": false],
+          )
         }
       }
     }
@@ -100,7 +106,10 @@ extension AppTests {
             headers: ["Authorization": "Bearer \(mobileToken)"]
           ) { res async throws in
             #expect(res.status == .ok)
-            try expectBody(res.body, ["notificationsStatus": "enabled"])
+            try expectBody(
+              res.body,
+              ["notificationsToken": "abc", "notificationsEnabled": true],
+            )
           }
         }
       }

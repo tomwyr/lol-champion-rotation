@@ -2,25 +2,25 @@ struct NotificationsService {
   let appDb: AppDatabase
   let pushNotificationsClient: PushNotificationsClient
 
+  func getStatus(userId: String) async throws -> NotificationsConfigStatus {
+    let config = try await getOrCreateConfig(userId)
+    let enabled = config.toNotificationsSettings().anyEnabled
+    let token: String? = if config.token.isEmpty { nil } else { config.token }
+    return .init(enabled: enabled, token: token)
+  }
+
   func updateToken(userId: String, input: NotificationsTokenInput) async throws {
     let config = try await getOrCreateConfig(userId)
     config.token = input.token
     try await appDb.updateNotificationsConfig(data: config)
   }
 
-  func hasSettings(userId: String) async throws -> Bool {
-    let data = try await appDb.getNotificationsConfig(userId: userId)
-    return data != nil
-  }
-
-  func getSettings(userId: String) async throws -> NotificationsSettings? {
-    guard let data = try await appDb.getNotificationsConfig(userId: userId) else {
-      return nil
-    }
+  func getSettings(userId: String) async throws -> NotificationsSettings {
+    let config = try await getOrCreateConfig(userId)
     return NotificationsSettings(
-      rotationChanged: data.rotationChanged,
-      championsAvailable: data.championsAvailable,
-      championReleased: data.championReleased,
+      rotationChanged: config.rotationChanged,
+      championsAvailable: config.championsAvailable,
+      championReleased: config.championReleased,
     )
   }
 

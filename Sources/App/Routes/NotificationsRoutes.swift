@@ -16,7 +16,6 @@ func notificationsRoutes(_ app: Application, _ deps: Dependencies) {
       let auth = try req.auth.require(MobileUserAuth.self)
       let notificationsService = deps.notificationsService(request: req)
       let settings = try await notificationsService.getSettings(userId: auth.userId)
-      guard let settings else { throw Abort(.notFound) }
       return settings
     }
 

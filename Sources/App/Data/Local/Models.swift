@@ -103,22 +103,6 @@ final class BeginnerChampionRotationModel: Model, @unchecked Sendable {
   }
 }
 
-extension ChampionModel {
-  convenience init(championData: ChampionData) {
-    self.init(
-      riotId: championData.id,
-      name: championData.name,
-      title: championData.title
-    )
-  }
-}
-
-extension Collection<ChampionData> {
-  func toModels() -> [ChampionModel] {
-    map { .init(championData: $0) }
-  }
-}
-
 final class PatchVersionModel: Model, @unchecked Sendable {
   static let schema = "patch-versions"
 
