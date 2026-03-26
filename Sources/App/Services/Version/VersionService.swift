@@ -3,6 +3,7 @@ import Foundation
 protocol VersionService {
   func latestVersion() async throws -> String
   func findVersion(olderThan: Date) async throws -> String
+  func findVersionsSafe(olderThan: [Date]) async throws -> [String?]
   func refreshVersion() async throws -> RefreshVersionResult
 }
 
@@ -27,6 +28,16 @@ struct DefaultVersionService<Version: RiotPatchVersion>: VersionService {
       throw PatchVersionError.latestVersionUnknown
     }
     return data.rawValue
+  }
+
+  func findVersionsSafe(olderThan: [Date]) async throws -> [String?] {
+    try await appDb.patchVersionsSafe(olderThan: olderThan).map { model in
+      if let value = model?.value, let version = try? Version(rawValue: value) {
+        version.rawValue
+      } else {
+        nil
+      }
+    }
   }
 
   func refreshVersion() async throws -> RefreshVersionResult {

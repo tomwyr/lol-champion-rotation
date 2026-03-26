@@ -61,10 +61,12 @@ func rotationsRoutes(_ app: Application, _ deps: Dependencies) {
       guard let nextRotationToken = req.query[String.self, at: "nextRotationToken"] else {
         throw Abort(.badRequest)
       }
+      let count = req.query[Int.self, at: "count"]
+      if let count, count < 0 { throw Abort(.badRequest) }
       let rotationService = deps.rotationService(request: req)
-      let rotation = try await rotationService.nextRotation(nextRotationToken: nextRotationToken)
-      guard let rotation else { throw Abort(.notFound) }
-      return rotation
+      return try await rotationService.nextRotations(
+        nextRotationToken: nextRotationToken, count: count,
+      )
     }
 
     rotations.get("search") { req in

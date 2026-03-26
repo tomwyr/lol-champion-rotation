@@ -6,6 +6,10 @@ protocol RotationDurationResolver {
   func getRotationDuration(
     _ rotation: RegularChampionRotationModel,
   ) async throws -> ChampionRotationDuration
+
+  func getRotationDurations(
+    _ rotations: [RegularChampionRotationModel],
+  ) async throws -> [ChampionRotationDuration]
 }
 
 extension RotationDurationResolver {
@@ -27,6 +31,35 @@ extension RotationDurationResolver {
     return ChampionRotationDuration(start: startDate, end: endDate)
   }
 
+  func getRotationDurations(
+    _ rotations: [RegularChampionRotationModel],
+  ) async throws -> [ChampionRotationDuration] {
+    let changeWeekday = try await getRotationChangeWeekday()
+
+    var result = [ChampionRotationDuration]()
+
+    for index in rotations.indices {
+      // Rotation is `next` chronologically but `previous` from the array point of view.
+      let (nextRotation, rotation) = (rotations[try: index - 1], rotations[index])
+
+      let startDate = rotation.observedAt
+
+      let endDate =
+        if let nextStart = try await getNextRotationDate(rotation, nextRotation) {
+          nextStart
+        } else if let expectedEnd = try getRotationExpectedEndDate(startDate, changeWeekday) {
+          expectedEnd
+        } else {
+          throw RotationDurationError.computedDateInvalid
+        }
+
+      let duration = ChampionRotationDuration(start: startDate, end: endDate)
+      result.append(duration)
+    }
+
+    return result
+  }
+
   func getRotationPredictionDuration(
     _ currentRotation: RegularChampionRotationModel,
   ) async throws -> ChampionRotationDuration {
@@ -40,13 +73,19 @@ extension RotationDurationResolver {
     return ChampionRotationDuration(start: startDate, end: endDate)
   }
 
-  private func getNextRotationDate(_ rotation: RegularChampionRotationModel) async throws -> Date? {
+  private func getNextRotationDate(
+    _ rotation: RegularChampionRotationModel,
+    _ nextRotation: RegularChampionRotationModel? = nil,
+  ) async throws -> Date? {
+    if let nextRotation {
+      return nextRotation.observedAt
+    }
+
     guard let rotationId = try? rotation.requireID().uuidString else {
       return nil
     }
     let nextRotation = try await appDb.findNextRegularRotation(after: rotationId)
     return nextRotation?.observedAt
-
   }
 
   private func getRotationExpectedEndDate(_ startDate: Date, _ changeWeekday: Int) throws -> Date? {

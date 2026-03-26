@@ -1,71 +1,91 @@
 import Foundation
 
 extension DefaultRotationService {
-  func nextRotation(nextRotationToken: String) async throws -> RegularChampionRotation? {
-    let localData = try await loadNextRotationLocalData(nextRotationToken)
-    guard let localData else { return nil }
-    let nextRotationTime = localData.rotation.observedAt
-    let patchVersion = try? await versionService.findVersion(olderThan: nextRotationTime)
-    return try await createNextRotation(patchVersion, localData)
+  func nextRotations(
+    nextRotationToken: String, count: Int,
+  ) async throws -> [RegularChampionRotation] {
+    let localData = try await loadNextRotationLocalData(nextRotationToken, count)
+    guard let localData else { return [] }
+
+    let rotationDates = localData.rotations.map(\.observedAt)
+    let patchVersions = try await versionService.findVersionsSafe(olderThan: rotationDates)
+    let durations = try await getRotationDurations(localData.rotations)
+
+    return try await createNextRotations(localData, patchVersions, durations)
   }
 
   private func loadNextRotationLocalData(
-    _ nextRotationToken: String,
+    _ nextRotationToken: String, _ count: Int,
   ) async throws -> RegularRotationLocalData? {
-    let nextRotationId: String
-    do {
-      nextRotationId = try idHasher.tokenToId(nextRotationToken)
-    } catch {
+    guard let nextRotationId = try? idHasher.tokenToId(nextRotationToken) else {
       return nil
     }
 
-    guard let rotation = try await appDb.findPreviousRegularRotation(before: nextRotationId) else {
+    let rotations = try await appDb.findPreviousRegularRotations(
+      before: nextRotationId, count: count,
+    )
+    guard !rotations.isEmpty, let lastRotation = rotations.last else {
       return nil
     }
+
     let champions = try await appDb.champions()
 
     let hasPreviousRegularRotation: Bool
-    if let rotationId = rotation.idString {
+    if let rotationId = lastRotation.idString {
       let previousRotation = try await appDb.findPreviousRegularRotation(before: rotationId)
       hasPreviousRegularRotation = previousRotation != nil
     } else {
       hasPreviousRegularRotation = false
     }
 
-    return (rotation, champions, hasPreviousRegularRotation)
+    return (rotations, champions, hasPreviousRegularRotation)
   }
 
-  private func createNextRotation(
-    _ patchVersion: String?,
+  private func createNextRotations(
     _ data: RegularRotationLocalData,
-  ) async throws -> RegularChampionRotation {
-    let id = data.rotation.slug
-    let duration = try await getRotationDuration(data.rotation)
-    let champions = try createChampions(
-      for: data.rotation.champions, models: data.champions
-    ).sorted { $0.name < $1.name }
+    _ patchVersions: [String?],
+    _ durations: [ChampionRotationDuration],
+  ) async throws -> [RegularChampionRotation] {
+    var result = [RegularChampionRotation]()
 
-    let nextRotationToken =
-      // Rotation is `previous` chronologically but `next` from the loading more data point of view.
-      if data.hasPreviousRegularRotation {
-        try getNextRotationToken(data.rotation)
-      } else {
-        nil as String?
-      }
+    let rotationPairs = data.rotations.indices.map { index in
+      (index, data.rotations[index], data.rotations[try: index + 1])
+    }
 
-    return RegularChampionRotation(
-      id: id,
-      patchVersion: patchVersion,
-      duration: duration,
-      champions: champions,
-      nextRotationToken: nextRotationToken,
-      current: false
-    )
+    for (index, current, previous) in rotationPairs {
+      let patchVersion = patchVersions[index]
+      let duration = durations[index]
+
+      let champions = try createChampions(
+        for: current.champions, models: data.champions
+      ).sorted { $0.name < $1.name }
+
+      let nextRotationToken =
+        // Rotation is `previous` chronologically but `next` from the loading more data point of view.
+        if previous != nil || data.hasPreviousRegularRotation {
+          try getNextRotationToken(current)
+        } else {
+          nil as String?
+        }
+
+      let rotation = RegularChampionRotation(
+        id: current.slug,
+        patchVersion: patchVersion,
+        duration: duration,
+        champions: champions,
+        nextRotationToken: nextRotationToken,
+        current: false,
+      )
+
+      result.append(rotation)
+    }
+
+    return result
   }
 }
 
 private typealias RegularRotationLocalData = (
-  rotation: RegularChampionRotationModel,
+  rotations: [RegularChampionRotationModel],
   champions: [ChampionModel],
-  hasPreviousRegularRotation: Bool
+  hasPreviousRegularRotation: Bool,
 )

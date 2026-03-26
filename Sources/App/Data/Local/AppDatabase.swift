@@ -112,9 +112,15 @@ extension AppDatabase {
     }
   }
 
-  func findPreviousRegularRotation(before id: String) async throws
-    -> RegularChampionRotationModel?
-  {
+  func findPreviousRegularRotation(
+    before id: String,
+  ) async throws -> RegularChampionRotationModel? {
+    try await findPreviousRegularRotations(before: id, count: 1).first
+  }
+
+  func findPreviousRegularRotations(
+    before id: String, count: Int,
+  ) async throws -> [RegularChampionRotationModel] {
     try await runner.run { db in
       let uuid = try UUID(unsafe: id)
       let nextRotation = try await RegularChampionRotationModel.query(on: db)
@@ -124,14 +130,15 @@ extension AppDatabase {
         .first()
 
       guard let nextDate = nextRotation?.observedAt else {
-        return nil
+        return []
       }
 
       return try await RegularChampionRotationModel.query(on: db)
         .filter(\.$active == true)
         .sort(\.$observedAt, .descending)
         .filter(\.$observedAt < nextDate)
-        .first()
+        .limit(count)
+        .all()
     }
   }
 
@@ -383,7 +390,22 @@ extension AppDatabase {
     try await runner.run { db in
       try await PatchVersionModel.query(on: db)
         .sort(\.$observedAt, .descending)
-        .filter(\.$observedAt < olderThan).first()
+        .filter(\.$observedAt < olderThan)
+        .first()
+    }
+  }
+
+  func patchVersionsSafe(olderThan: [Date]) async throws -> [PatchVersionModel?] {
+    try await runner.run { db in
+      var result = [PatchVersionModel?]()
+      for date in olderThan {
+        let version = try await PatchVersionModel.query(on: db)
+          .sort(\.$observedAt, .descending)
+          .filter(\.$observedAt < date)
+          .first()
+        result.append(version)
+      }
+      return result
     }
   }
 
