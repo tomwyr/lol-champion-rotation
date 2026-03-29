@@ -4,6 +4,7 @@ struct AppConfig {
   var databaseUrl: String
   var appAllowedOrigins: [String]
   var appManagementKey: String
+  var appWebKey: String
   var b2AppKeyId: String
   var b2AppKeySecret: String
   var riotApiKey: String
@@ -18,6 +19,7 @@ struct AppConfig {
       databaseUrl: read("DATABASE_URL"),
       appAllowedOrigins: read("APP_ALLOWED_ORIGINS").split(separator: ","),
       appManagementKey: read("APP_MANAGEMENT_KEY"),
+      appWebKey: read("APP_WEB_KEY"),
       b2AppKeyId: read("B2_APP_KEY_ID"),
       b2AppKeySecret: read("B2_APP_KEY_SECRET"),
       riotApiKey: read("RIOT_API_KEY"),

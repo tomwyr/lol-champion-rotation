@@ -8,8 +8,6 @@ struct Dependencies: Sendable {
   var httpClient: HttpClient
   var graphQLClient: GraphQLClient
   var fcm: Late<FcmDispatcher>
-  var mobileUserGuard: RequestAuthenticatorGuard
-  var optionalMobileUserGuard: RequestAuthenticatorGuard
   var rotationForecast: RotationForecast
   var instant: Instant
 
@@ -19,11 +17,21 @@ struct Dependencies: Sendable {
       httpClient: NetworkHttpClient(),
       graphQLClient: NetworkGraphQLClient(http: NetworkHttpClient()),
       fcm: { req in req.fcm },
-      mobileUserGuard: MobileUserGuard(),
-      optionalMobileUserGuard: OptionalMobileUserGuard(),
       rotationForecast: DefaultRotationForecast(),
       instant: .system,
     )
+  }
+
+  var mobileUserGuard: MobileUserGuard {
+    MobileUserGuard()
+  }
+
+  var webUserGuard: WebUserGuard {
+    WebUserGuard(webApiToken: appConfig.appWebKey)
+  }
+
+  var appUserGuard: AppUserGuard {
+    AppUserGuard(mobileGuard: mobileUserGuard, webGuard: webUserGuard)
   }
 
   func rotationService(request: Request) -> RotationService {

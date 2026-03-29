@@ -131,7 +131,7 @@ struct MockMobileUserGuard: RequestAuthenticatorGuard {
     self.token = token
   }
 
-  func authenticate(request: Request) throws -> Authenticatable? {
+  func authenticate(request: Request) throws -> MobileUserAuth? {
     let authorization = request.headers["Authorization"].first
     guard authorization == "Bearer \(token)" else {
       throw Abort(.unauthorized)
@@ -140,7 +140,7 @@ struct MockMobileUserGuard: RequestAuthenticatorGuard {
   }
 }
 
-struct MockOptionalMobileUserGuard: RequestAuthenticatorGuard {
+struct MockAppUserGuard: RequestAuthenticatorGuard {
   let userId: String
   let token: String
 
@@ -149,10 +149,10 @@ struct MockOptionalMobileUserGuard: RequestAuthenticatorGuard {
     self.token = token
   }
 
-  func authenticate(request: Request) throws -> Authenticatable? {
+  func authenticate(request: Request) throws -> AppUserAuth? {
     let authorization = request.headers["Authorization"].first
     return if authorization == "Bearer \(token)" {
-      MobileUserAuth(userId: userId)
+      .mobile(MobileUserAuth(userId: userId))
     } else {
       nil
     }

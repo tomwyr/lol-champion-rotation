@@ -15,6 +15,7 @@ typealias AppTestsMocks = (
 extension Application {
   func testConfigureWith(
     appManagementKey: String? = nil,
+    appWebKey: String? = nil,
     idHasherSeed: String? = nil,
     dbRegularRotations: [RegularChampionRotationModel] = [],
     dbBeginnerRotations: [BeginnerChampionRotationModel] = [],
@@ -71,6 +72,7 @@ extension Application {
       deps: .mock(
         appConfig: .empty(
           appManagementKey: appManagementKey ?? "",
+          appWebKey: appWebKey ?? "",
           idHasherSeed: idHasherSeed ?? "",
           linearAccessToken: linearAccessToken ?? "",
           linearTeamId: linearTeamId ?? "",

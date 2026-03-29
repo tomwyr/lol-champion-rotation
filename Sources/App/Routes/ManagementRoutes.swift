@@ -6,7 +6,7 @@ func managementRoutes(_ app: Application, _ deps: Dependencies) {
   )
 
   app.protected(with: managementGuard).get("data", "refresh") { req in
-    try req.auth.require(ManagerAuth.self)
+    try req.auth.require(ManagerUserAuth.self)
 
     let rotationService = deps.rotationService(request: req)
     let versionService = deps.versionService(request: req)

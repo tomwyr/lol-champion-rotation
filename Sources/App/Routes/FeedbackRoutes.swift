@@ -1,11 +1,10 @@
 import Vapor
 
 func feedbackRoutes(_ app: Application, _ deps: Dependencies) {
-  let anyUserGuard = AnyUserGuard()
   let mobileUserGuard = deps.mobileUserGuard
 
-  app.protected(with: anyUserGuard).grouped("feedbacks") { feedback in
-    feedback.protected(with: mobileUserGuard).post { req in
+  app.protected(with: mobileUserGuard).grouped("feedbacks") { feedback in
+    feedback.post { req in
       _ = try req.auth.require(MobileUserAuth.self)
       let input = try req.content.decode(UserFeedbackInput.self)
       let feedbackService = deps.feedbackService(request: req)

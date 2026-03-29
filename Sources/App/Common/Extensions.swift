@@ -66,11 +66,11 @@ extension Application {
     builder(grouped(path))
   }
 
-  func protected(with requestGuard: RequestAuthenticatorGuard) -> RoutesBuilder {
+  func protected(with requestGuard: any RequestAuthenticatorGuard) -> RoutesBuilder {
     grouped(requestGuard)
   }
 
-  func protected(with requestGuards: RequestAuthenticatorGuard...) -> RoutesBuilder {
+  func protected(with requestGuards: any RequestAuthenticatorGuard...) -> RoutesBuilder {
     grouped(requestGuards)
   }
 }
@@ -80,7 +80,7 @@ extension RoutesBuilder {
     builder(grouped(path))
   }
 
-  func protected(with requestGuard: RequestAuthenticatorGuard) -> RoutesBuilder {
+  func protected(with requestGuard: any RequestAuthenticatorGuard) -> RoutesBuilder {
     grouped(requestGuard)
   }
 }

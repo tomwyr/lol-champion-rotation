@@ -1,9 +1,23 @@
 import Crypto
 import Vapor
 
-struct ManagerAuth: Authenticatable {}
+enum AppUserAuth: Authenticatable {
+  case mobile(MobileUserAuth)
+  case web(WebUserAuth)
 
-struct AnyUserAuth: Authenticatable {}
+  var userId: String? {
+    switch self {
+    case .mobile(let mobile):
+      mobile.userId
+    case .web:
+      nil
+    }
+  }
+}
+
+struct ManagerUserAuth: Authenticatable {}
+
+struct WebUserAuth: Authenticatable {}
 
 struct MobileUserAuth: Authenticatable {
   let userId: String
