@@ -7,6 +7,7 @@ extension AppTests {
     @Test func noTokenParam() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
+          appWebKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -26,7 +27,8 @@ extension AppTests {
         )
 
         try await app.test(
-          .GET, "/rotations"
+          .GET, "/rotations",
+          headers: reqHeaders(accessToken: webApiKey),
         ) { res async throws in
           #expect(res.status == .badRequest)
         }
@@ -36,6 +38,7 @@ extension AppTests {
     @Test func noNextRotation() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
+          appWebKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -55,7 +58,8 @@ extension AppTests {
         )
 
         try await app.test(
-          .GET, "/rotations?nextRotationToken=\(nextRotationToken("1"))"
+          .GET, "/rotations?nextRotationToken=\(nextRotationToken("1"))",
+          headers: reqHeaders(accessToken: webApiKey),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(res.body, [])
@@ -66,6 +70,7 @@ extension AppTests {
     @Test func unknownPreviousRotation() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
+          appWebKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -85,7 +90,8 @@ extension AppTests {
         )
 
         try await app.test(
-          .GET, "/rotations?nextRotationToken=\(nextRotationToken("1"))"
+          .GET, "/rotations?nextRotationToken=\(nextRotationToken("1"))",
+          headers: reqHeaders(accessToken: webApiKey),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(res.body, [])
@@ -96,6 +102,7 @@ extension AppTests {
     @Test func rotationWithNoNextToken() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
+          appWebKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -127,7 +134,8 @@ extension AppTests {
         )
 
         try await app.test(
-          .GET, "/rotations?nextRotationToken=\(nextRotationToken("2"))"
+          .GET, "/rotations?nextRotationToken=\(nextRotationToken("2"))",
+          headers: reqHeaders(accessToken: webApiKey),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -163,6 +171,7 @@ extension AppTests {
     @Test func rotationWithNextToken() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
+          appWebKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -200,7 +209,8 @@ extension AppTests {
         )
 
         try await app.test(
-          .GET, "/rotations?nextRotationToken=\(nextRotationToken("3"))"
+          .GET, "/rotations?nextRotationToken=\(nextRotationToken("3"))",
+          headers: reqHeaders(accessToken: webApiKey),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -237,6 +247,7 @@ extension AppTests {
     @Test func inactiveRotation() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
+          appWebKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -275,7 +286,8 @@ extension AppTests {
         )
 
         try await app.test(
-          .GET, "/rotations?nextRotationToken=\(nextRotationToken("3"))"
+          .GET, "/rotations?nextRotationToken=\(nextRotationToken("3"))",
+          headers: reqHeaders(accessToken: webApiKey),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -311,6 +323,7 @@ extension AppTests {
     @Test func multipleRotationsWithNextToken() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
+          appWebKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -362,7 +375,8 @@ extension AppTests {
         )
 
         try await app.test(
-          .GET, "/rotations?nextRotationToken=\(nextRotationToken("5"))&count=3"
+          .GET, "/rotations?nextRotationToken=\(nextRotationToken("5"))&count=3",
+          headers: reqHeaders(accessToken: webApiKey),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -438,6 +452,7 @@ extension AppTests {
     @Test func multipleRotationsWithNoNextToken() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
+          appWebKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -489,7 +504,8 @@ extension AppTests {
         )
 
         try await app.test(
-          .GET, "/rotations?nextRotationToken=\(nextRotationToken("4"))&count=3"
+          .GET, "/rotations?nextRotationToken=\(nextRotationToken("4"))&count=3",
+          headers: reqHeaders(accessToken: webApiKey),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -564,6 +580,7 @@ extension AppTests {
     @Test func multipleRotationsExceedingAvailableCount() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
+          appWebKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -615,7 +632,8 @@ extension AppTests {
         )
 
         try await app.test(
-          .GET, "/rotations?nextRotationToken=\(nextRotationToken("4"))&count=100"
+          .GET, "/rotations?nextRotationToken=\(nextRotationToken("4"))&count=100",
+          headers: reqHeaders(accessToken: webApiKey),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -690,6 +708,7 @@ extension AppTests {
     @Test func multipleRotationsWithInvalidCount() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
+          appWebKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -741,7 +760,8 @@ extension AppTests {
         )
 
         try await app.test(
-          .GET, "/rotations?nextRotationToken=\(nextRotationToken("4"))&count=-1"
+          .GET, "/rotations?nextRotationToken=\(nextRotationToken("4"))&count=-1",
+          headers: reqHeaders(accessToken: webApiKey),
         ) { res async throws in
           #expect(res.status == .badRequest)
         }
@@ -751,6 +771,7 @@ extension AppTests {
     @Test func multipleRotationsWithZeroCount() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
+          appWebKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -802,7 +823,8 @@ extension AppTests {
         )
 
         try await app.test(
-          .GET, "/rotations?nextRotationToken=\(nextRotationToken("4"))&count=0"
+          .GET, "/rotations?nextRotationToken=\(nextRotationToken("4"))&count=0",
+          headers: reqHeaders(accessToken: webApiKey),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(res.body, [])

@@ -14,7 +14,7 @@ extension AppTests {
 
         try await app.test(
           .POST, "/rotations/s1w1/observe",
-          body: ["observing": true]
+          body: ["observing": true],
         ) { res async throws in
           #expect(res.status == .unauthorized)
         }
@@ -35,7 +35,7 @@ extension AppTests {
         try await app.test(
           .POST, "/rotations/s1w1/observe",
           headers: reqHeaders(accessToken: mobileToken),
-          body: ["observing": true]
+          body: ["observing": true],
         ) { res async throws in
           let watchlists = try await app.dbUserWatchlists(userId: mobileUserId)
           #expect(res.status == .ok)
@@ -58,7 +58,7 @@ extension AppTests {
         try await app.test(
           .POST, "/rotations/s1w1/observe",
           headers: reqHeaders(accessToken: mobileToken),
-          body: ["observing": true]
+          body: ["observing": true],
         ) { res async throws in
           let watchlists = try await app.dbUserWatchlists(userId: mobileUserId)
           #expect(res.status == .ok)
@@ -81,7 +81,7 @@ extension AppTests {
         try await app.test(
           .POST, "/rotations/s1w1/observe",
           headers: reqHeaders(accessToken: mobileToken),
-          body: ["observing": false]
+          body: ["observing": false],
         ) { res async throws in
           let watchlists = try await app.dbUserWatchlists(userId: mobileUserId)
           #expect(res.status == .ok)
@@ -104,7 +104,7 @@ extension AppTests {
         try await app.test(
           .POST, "/rotations/s1w1/observe",
           headers: reqHeaders(accessToken: mobileToken),
-          body: ["observing": false]
+          body: ["observing": false],
         ) { res async throws in
           let watchlists = try await app.dbUserWatchlists(userId: mobileUserId)
           #expect(res.status == .ok)
@@ -125,7 +125,7 @@ extension AppTests {
         try await app.test(
           .POST, "/rotations/s1w1/observe",
           headers: reqHeaders(accessToken: mobileToken),
-          body: ["observing": true]
+          body: ["observing": true],
         ) { res async throws in
           let watchlists = try await app.dbUserWatchlists(userId: mobileUserId)
           #expect(res.status == .ok)
@@ -148,7 +148,7 @@ extension AppTests {
         try await app.test(
           .POST, "/rotations/s1w2/observe",
           headers: reqHeaders(accessToken: mobileToken),
-          body: ["observing": true]
+          body: ["observing": true],
         ) { res async throws in
           #expect(res.status == .notFound)
         }
@@ -169,7 +169,7 @@ extension AppTests {
         try await app.test(
           .POST, "/rotations/s1w1/observe",
           headers: reqHeaders(accessToken: mobileToken),
-          body: ["observing": true]
+          body: ["observing": true],
         ) { res async throws in
           #expect(res.status == .notFound)
         }

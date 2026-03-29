@@ -61,7 +61,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/data/refresh",
-          headers: ["Authorization": "Bearer 123"]
+          headers: reqHeaders(accessToken: "123"),
         ) { res async throws in
           #expect(res.status == .ok)
           let tokens = mocks.fcm.rotationChangedMessages.map(\.token)
@@ -103,7 +103,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/data/refresh",
-          headers: ["Authorization": "Bearer 123"]
+          headers: reqHeaders(accessToken: "123"),
         ) { res async throws in
           #expect(res.status == .ok)
           #expect(mocks.fcm.rotationChangedMessages.count == 1)
@@ -183,7 +183,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/data/refresh",
-          headers: ["Authorization": "Bearer 123"]
+          headers: reqHeaders(accessToken: "123"),
         ) { res async throws in
           #expect(res.status == .ok)
           let tokens = mocks.fcm.championsAvailableMessages.compactMap(\.token).sorted()
@@ -249,7 +249,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/data/refresh",
-          headers: ["Authorization": "Bearer 123"]
+          headers: reqHeaders(accessToken: "123"),
         ) { res async throws in
           #expect(res.status == .ok)
           let notifications = mocks.fcm.championsAvailableMessages
@@ -324,7 +324,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/data/refresh",
-          headers: ["Authorization": "Bearer 123"]
+          headers: reqHeaders(accessToken: "123"),
         ) { res async throws in
           #expect(res.status == .ok)
           let tokens = mocks.fcm.championReleasedMessages.map(\.token)
@@ -369,7 +369,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/data/refresh",
-          headers: ["Authorization": "Bearer 123"]
+          headers: reqHeaders(accessToken: "123"),
         ) { res async throws in
           #expect(res.status == .ok)
           #expect(mocks.fcm.championReleasedMessages.count == 1)
@@ -415,7 +415,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/data/refresh",
-          headers: ["Authorization": "Bearer 123"]
+          headers: reqHeaders(accessToken: "123"),
         ) { res async throws in
           #expect(res.status == .ok)
           #expect(mocks.fcm.championReleasedMessages.count == 2)
@@ -490,7 +490,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/data/refresh",
-          headers: ["Authorization": "Bearer 123"]
+          headers: reqHeaders(accessToken: "123"),
         ) { res async throws in
           #expect(res.status == .ok)
           #expect(mocks.fcm.championReleasedMessages.isEmpty)

@@ -5,7 +5,7 @@ struct ManagementGuard: RequestAuthenticatorGuard {
 
   func authenticate(request: Request) throws -> ManagerUserAuth? {
     let token = request.headers.bearerAuthorization?.token
-    guard token == appManagementKey else {
+    guard let token, token == appManagementKey else {
       throw Abort(.unauthorized, reason: "Invalid auth token")
     }
     return ManagerUserAuth()
@@ -24,16 +24,19 @@ struct WebUserGuard: RequestAuthenticatorGuard {
 
   func authenticate(request: Request) async throws -> WebUserAuth? {
     let token = request.headers.bearerAuthorization?.token
-    guard token == webApiToken else {
+    guard let token, token == webApiToken else {
       throw Abort(.unauthorized, reason: "Invalid auth token")
     }
     return WebUserAuth()
   }
 }
 
+typealias AnyMobileUserGuard = any RequestAuthenticatorGuard<MobileUserAuth>
+typealias AnyWebUserGuard = any RequestAuthenticatorGuard<WebUserAuth>
+
 struct AppUserGuard: RequestAuthenticatorGuard {
-  let mobileGuard: MobileUserGuard
-  let webGuard: WebUserGuard
+  let mobileGuard: AnyMobileUserGuard
+  let webGuard: AnyWebUserGuard
 
   func authenticate(request: Request) async throws -> AppUserAuth? {
     if let mobileAuth = try? await mobileGuard.authenticate(request: request) {
@@ -46,7 +49,7 @@ struct AppUserGuard: RequestAuthenticatorGuard {
   }
 }
 
-protocol RequestAuthenticatorGuard: RequestAuthenticator {
+protocol RequestAuthenticatorGuard<AuthenticatableType>: RequestAuthenticator {
   associatedtype AuthenticatableType: Authenticatable
 
   func authenticate(request: Request) async throws -> AuthenticatableType?

@@ -7,6 +7,7 @@ extension AppTests {
     @Test func noQueryParam() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
+          appWebKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -26,7 +27,8 @@ extension AppTests {
         )
 
         try await app.test(
-          .GET, "/champions/search"
+          .GET, "/champions/search",
+          headers: reqHeaders(accessToken: webApiKey),
         ) { res async throws in
           #expect(res.status == .badRequest)
         }
@@ -36,6 +38,7 @@ extension AppTests {
     @Test func noMatchingChampions() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
+          appWebKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [],
           dbChampions: [
@@ -48,7 +51,8 @@ extension AppTests {
         )
 
         try await app.test(
-          .GET, "/champions/search?name=Lux"
+          .GET, "/champions/search?name=Lux",
+          headers: reqHeaders(accessToken: webApiKey),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -64,6 +68,7 @@ extension AppTests {
     @Test func championsWithExactMatch() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
+          appWebKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -83,7 +88,8 @@ extension AppTests {
         )
 
         try await app.test(
-          .GET, "/champions/search?name=Nocturne"
+          .GET, "/champions/search?name=Nocturne",
+          headers: reqHeaders(accessToken: webApiKey),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -108,6 +114,7 @@ extension AppTests {
     @Test func championsWithNonExactMatch() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
+          appWebKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -127,7 +134,8 @@ extension AppTests {
         )
 
         try await app.test(
-          .GET, "/champions/search?name=oCtuRn"
+          .GET, "/champions/search?name=oCtuRn",
+          headers: reqHeaders(accessToken: webApiKey),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -152,6 +160,7 @@ extension AppTests {
     @Test func championsWithMultipleMatches() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
+          appWebKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -172,7 +181,8 @@ extension AppTests {
         )
 
         try await app.test(
-          .GET, "/champions/search?name=En"
+          .GET, "/champions/search?name=En",
+          headers: reqHeaders(accessToken: webApiKey),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -205,6 +215,7 @@ extension AppTests {
     @Test func championsWithMatchesInMultipleRotations() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
+          appWebKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -246,7 +257,8 @@ extension AppTests {
         )
 
         try await app.test(
-          .GET, "/champions/search?name=En"
+          .GET, "/champions/search?name=En",
+          headers: reqHeaders(accessToken: webApiKey),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -279,6 +291,7 @@ extension AppTests {
     @Test func championWithMatchInNameOnly() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
+          appWebKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -298,7 +311,8 @@ extension AppTests {
         )
 
         try await app.test(
-          .GET, "/champions/search?name=willump"
+          .GET, "/champions/search?name=willump",
+          headers: reqHeaders(accessToken: webApiKey),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -323,6 +337,7 @@ extension AppTests {
     @Test func multipleRotationTypes() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
+          appWebKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -351,7 +366,8 @@ extension AppTests {
         )
 
         try await app.test(
-          .GET, "/champions/search?name=se"
+          .GET, "/champions/search?name=se",
+          headers: reqHeaders(accessToken: webApiKey),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -384,6 +400,7 @@ extension AppTests {
     @Test func championMatchesOrder() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
+          appWebKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [],
           dbBeginnerRotations: [],
@@ -398,7 +415,8 @@ extension AppTests {
         )
 
         try await app.test(
-          .GET, "/champions/search?name=se"
+          .GET, "/champions/search?name=se",
+          headers: reqHeaders(accessToken: webApiKey),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(

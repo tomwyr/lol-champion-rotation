@@ -8,6 +8,7 @@ struct Dependencies: Sendable {
   var httpClient: HttpClient
   var graphQLClient: GraphQLClient
   var fcm: Late<FcmDispatcher>
+  var mobileUserGuard: AnyMobileUserGuard
   var rotationForecast: RotationForecast
   var instant: Instant
 
@@ -17,13 +18,10 @@ struct Dependencies: Sendable {
       httpClient: NetworkHttpClient(),
       graphQLClient: NetworkGraphQLClient(http: NetworkHttpClient()),
       fcm: { req in req.fcm },
+      mobileUserGuard: MobileUserGuard(),
       rotationForecast: DefaultRotationForecast(),
       instant: .system,
     )
-  }
-
-  var mobileUserGuard: MobileUserGuard {
-    MobileUserGuard()
   }
 
   var webUserGuard: WebUserGuard {

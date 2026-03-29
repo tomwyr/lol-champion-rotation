@@ -24,7 +24,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/data/refresh",
-          headers: ["Authorization": "Bearer 123"]
+          headers: reqHeaders(accessToken: "123"),
         ) { res async throws in
           #expect(res.status == .unauthorized)
           try expectBodyError(res.body, "Invalid auth token")
@@ -43,7 +43,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/data/refresh",
-          headers: ["Authorization": "Bearer 123"]
+          headers: reqHeaders(accessToken: "123"),
         ) { res async throws in
           #expect(res.status == .ok)
         }
@@ -86,7 +86,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/data/refresh",
-          headers: ["Authorization": "Bearer 123"]
+          headers: reqHeaders(accessToken: "123"),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -140,7 +140,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/data/refresh",
-          headers: ["Authorization": "Bearer 123"]
+          headers: reqHeaders(accessToken: "123"),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -189,7 +189,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/data/refresh",
-          headers: ["Authorization": "Bearer 123"]
+          headers: reqHeaders(accessToken: "123"),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -237,7 +237,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/data/refresh",
-          headers: ["Authorization": "Bearer 123"]
+          headers: reqHeaders(accessToken: "123"),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -290,7 +290,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/data/refresh",
-          headers: ["Authorization": "Bearer 123"]
+          headers: reqHeaders(accessToken: "123"),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -318,7 +318,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/data/refresh",
-          headers: ["Authorization": "Bearer 123"]
+          headers: reqHeaders(accessToken: "123"),
         ) { res async throws in
           let latestChampionsUrl = requestUrls.riotChampions("15.23.5")
           #expect(mocks.httpClient.requestedUrls.contains(latestChampionsUrl))
@@ -336,7 +336,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/data/refresh",
-          headers: ["Authorization": "Bearer 123"]
+          headers: reqHeaders(accessToken: "123"),
         ) { res async throws in
           let latestChampionsUrl = requestUrls.riotChampions("15.23.5")
           #expect(mocks.httpClient.requestedUrls.contains(latestChampionsUrl))
@@ -355,7 +355,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/data/refresh",
-          headers: ["Authorization": "Bearer 123"]
+          headers: reqHeaders(accessToken: "123"),
         ) { res async throws in
           let versions = try await app.dbPatchVersions()
           #expect(versions == ["14.0.0", "15.23.5"])
@@ -379,7 +379,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/data/refresh",
-          headers: ["Authorization": "Bearer 123"]
+          headers: reqHeaders(accessToken: "123"),
         ) { res async throws in
           let versions = try await app.dbPatchVersions()
           #expect(versions == ["15.23.5"])
@@ -403,7 +403,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/data/refresh",
-          headers: ["Authorization": "Bearer 123"],
+          headers: reqHeaders(accessToken: "123"),
         ) { res async throws in
           let versions = try await app.dbPatchVersions()
           #expect(versions == ["15.23.5"])
@@ -433,7 +433,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/data/refresh",
-          headers: ["Authorization": "Bearer 123"],
+          headers: reqHeaders(accessToken: "123"),
         ) { res async throws in
           let champions = try await app.dbChampions()
           #expect(champions.count == 1)
@@ -460,7 +460,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/data/refresh",
-          headers: ["Authorization": "Bearer 123"],
+          headers: reqHeaders(accessToken: "123"),
         ) { res async throws in
           let rotations = try await app.dbRegularRotations()
           #expect(rotations.count == 1)
@@ -506,7 +506,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/data/refresh",
-          headers: ["Authorization": "Bearer 123"]
+          headers: reqHeaders(accessToken: "123"),
         ) { res async throws in
           #expect(res.status == .ok)
           #expect(mocks.rotationForecast.predictCalls == 1)
@@ -550,7 +550,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/data/refresh",
-          headers: ["Authorization": "Bearer 123"]
+          headers: reqHeaders(accessToken: "123"),
         ) { res async throws in
           #expect(res.status == .ok)
           #expect(mocks.rotationForecast.predictCalls == 0)
@@ -608,7 +608,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/data/refresh",
-          headers: ["Authorization": "Bearer 123"]
+          headers: reqHeaders(accessToken: "123"),
         ) { res async throws in
           #expect(res.status == .ok)
           let slugs = try await app.dbRotationSlugs()

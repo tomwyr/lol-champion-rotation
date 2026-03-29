@@ -8,6 +8,7 @@ extension AppTests {
     @Test func simpleResult() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
+          appWebKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -27,7 +28,8 @@ extension AppTests {
         )
 
         try await app.test(
-          .GET, "/rotations/current"
+          .GET, "/rotations/current",
+          headers: reqHeaders(accessToken: webApiKey),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -59,6 +61,7 @@ extension AppTests {
     @Test func championsAreSortedById() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
+          appWebKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -80,7 +83,8 @@ extension AppTests {
         )
 
         try await app.test(
-          .GET, "/rotations/current"
+          .GET, "/rotations/current",
+          headers: reqHeaders(accessToken: webApiKey),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -98,6 +102,7 @@ extension AppTests {
     @Test func inactiveRotation() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
+          appWebKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -124,7 +129,8 @@ extension AppTests {
         )
 
         try await app.test(
-          .GET, "/rotations/current"
+          .GET, "/rotations/current",
+          headers: reqHeaders(accessToken: webApiKey),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -156,7 +162,8 @@ extension AppTests {
     @Test func twoRotationsInSingleWeek() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
-          appManagementKey: "123",
+          appWebKey: webApiKey,
+          idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
               id: uuid("1"),
@@ -199,7 +206,8 @@ extension AppTests {
         )
 
         try await app.test(
-          .GET, "/rotations/current"
+          .GET, "/rotations/current",
+          headers: reqHeaders(accessToken: webApiKey),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(

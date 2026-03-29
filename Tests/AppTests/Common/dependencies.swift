@@ -9,6 +9,7 @@ extension Dependencies {
     httpClient: HttpClient = MockHttpClient(),
     graphQLClient: GraphQLClient = MockGraphQLClient(),
     fcm: FcmDispatcher = MockFcmDispatcher(),
+    mobileUserGuard: AnyMobileUserGuard = MockMobileUserGuard(),
     rotationForecast: RotationForecast = SpyRotationForecast(),
     instant: Instant = MockInstant(),
   ) -> Dependencies {
@@ -17,6 +18,7 @@ extension Dependencies {
       httpClient: httpClient,
       graphQLClient: graphQLClient,
       fcm: { _ in fcm },
+      mobileUserGuard: mobileUserGuard,
       rotationForecast: rotationForecast,
       instant: instant,
     )

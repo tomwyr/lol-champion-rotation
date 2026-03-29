@@ -7,6 +7,7 @@ extension AppTests {
     @Test func deterministicPrediction() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
+          appWebKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -88,7 +89,8 @@ extension AppTests {
         )
 
         try await app.test(
-          .GET, "/rotations/predict"
+          .GET, "/rotations/predict",
+          headers: reqHeaders(accessToken: webApiKey),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -180,6 +182,7 @@ extension AppTests {
     @Test func inactiveRotation() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
+          appWebKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -263,7 +266,8 @@ extension AppTests {
         )
 
         try await app.test(
-          .GET, "/rotations/predict"
+          .GET, "/rotations/predict",
+          headers: reqHeaders(accessToken: webApiKey),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -356,6 +360,7 @@ extension AppTests {
     @Test func generatedPredictionSaved() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
+          appWebKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -437,7 +442,8 @@ extension AppTests {
         )
 
         try await app.test(
-          .GET, "/rotations/predict"
+          .GET, "/rotations/predict",
+          headers: reqHeaders(accessToken: webApiKey),
         ) { res async throws in
           #expect(res.status == .ok)
           let predictions = try await app.dbRotationPredictions()
@@ -457,6 +463,7 @@ extension AppTests {
     @Test func existingPrediction() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
+          appWebKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -496,7 +503,8 @@ extension AppTests {
         )
 
         try await app.test(
-          .GET, "/rotations/predict"
+          .GET, "/rotations/predict",
+          headers: reqHeaders(accessToken: webApiKey),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -553,6 +561,7 @@ extension AppTests {
     @Test func forecastCallWhenNoPredictionExists() async throws {
       try await withApp { app in
         let mocks = try await app.testConfigureWith(
+          appWebKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -586,7 +595,8 @@ extension AppTests {
         )
 
         try await app.test(
-          .GET, "/rotations/predict"
+          .GET, "/rotations/predict",
+          headers: reqHeaders(accessToken: webApiKey),
         ) { res async throws in
           #expect(res.status == .ok)
           #expect(mocks.rotationForecast.predictCalls == 1)
@@ -597,6 +607,7 @@ extension AppTests {
     @Test func noForecastCallWhenPredictionExists() async throws {
       try await withApp { app in
         let mocks = try await app.testConfigureWith(
+          appWebKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -637,7 +648,8 @@ extension AppTests {
         )
 
         try await app.test(
-          .GET, "/rotations/predict"
+          .GET, "/rotations/predict",
+          headers: reqHeaders(accessToken: webApiKey),
         ) { res async throws in
           #expect(res.status == .ok)
           #expect(mocks.rotationForecast.predictCalls == 0)

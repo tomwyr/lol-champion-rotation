@@ -11,7 +11,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/notifications/settings",
-          headers: reqHeaders()
+          headers: reqHeaders(),
         ) { res async throws in
           #expect(res.status == .unauthorized)
         }
@@ -24,7 +24,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/notifications/settings",
-          headers: reqHeaders(accessToken: mobileToken)
+          headers: reqHeaders(accessToken: mobileToken),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -45,7 +45,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/notifications/settings",
-          headers: reqHeaders(accessToken: mobileToken)
+          headers: reqHeaders(accessToken: mobileToken),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -66,7 +66,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/notifications/settings",
-          headers: reqHeaders(accessToken: mobileToken)
+          headers: reqHeaders(accessToken: mobileToken),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -86,7 +86,7 @@ extension AppTests {
         try await app.test(
           .PUT, "/notifications/settings",
           headers: reqHeaders(),
-          body: ["rotationChanged": true, "championsAvailable": true, "championReleased": true]
+          body: ["rotationChanged": true, "championsAvailable": true, "championReleased": true],
         ) { res async throws in
           #expect(res.status == .unauthorized)
         }
@@ -100,7 +100,7 @@ extension AppTests {
         try await app.test(
           .PUT, "/notifications/settings",
           headers: reqHeaders(accessToken: mobileToken),
-          body: ["rotationChanged": true, "championsAvailable": true, "championReleased": true]
+          body: ["rotationChanged": true, "championsAvailable": true, "championReleased": true],
         ) { res async throws in
           #expect(res.status == .noContent)
         }
@@ -118,7 +118,7 @@ extension AppTests {
         try await app.test(
           .PUT, "/notifications/settings",
           headers: reqHeaders(accessToken: mobileToken),
-          body: ["rotationChanged": true, "championsAvailable": true, "championReleased": true]
+          body: ["rotationChanged": true, "championsAvailable": true, "championReleased": true],
         ) { res async throws in
           let addedConfig = NotificationsConfigModel.enabled(
             userId: mobileUserId, token: "",
@@ -143,7 +143,7 @@ extension AppTests {
         try await app.test(
           .PUT, "/notifications/settings",
           headers: reqHeaders(accessToken: mobileToken),
-          body: ["rotationChanged": true, "championsAvailable": true, "championReleased": true]
+          body: ["rotationChanged": true, "championsAvailable": true, "championReleased": true],
         ) { res async throws in
           let updatedConfig = NotificationsConfigModel(
             userId: mobileUserId, token: "abc",
