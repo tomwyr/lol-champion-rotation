@@ -25,7 +25,7 @@ struct Dependencies: Sendable {
   }
 
   var webUserGuard: WebUserGuard {
-    WebUserGuard(webApiToken: appConfig.appWebKey)
+    WebUserGuard(webApiKey: appConfig.appWebApiKey)
   }
 
   var appUserGuard: AppUserGuard {

@@ -31,7 +31,7 @@ extension AppTests {
 
         try await app.test(
           .POST, "/champions/Nocturne/observe",
-          headers: reqHeaders(accessToken: mobileToken),
+          headers: reqHeaders(accessToken: mobileAccessToken),
           body: ["observing": true],
         ) { res async throws in
           let watchlists = try await app.dbUserWatchlists(userId: mobileUserId)
@@ -54,7 +54,7 @@ extension AppTests {
 
         try await app.test(
           .POST, "/champions/Nocturne/observe",
-          headers: reqHeaders(accessToken: mobileToken),
+          headers: reqHeaders(accessToken: mobileAccessToken),
           body: ["observing": true],
         ) { res async throws in
           let watchlists = try await app.dbUserWatchlists(userId: mobileUserId)
@@ -77,7 +77,7 @@ extension AppTests {
 
         try await app.test(
           .POST, "/champions/Nocturne/observe",
-          headers: reqHeaders(accessToken: mobileToken),
+          headers: reqHeaders(accessToken: mobileAccessToken),
           body: ["observing": false],
         ) { res async throws in
           let watchlists = try await app.dbUserWatchlists(userId: mobileUserId)
@@ -101,7 +101,7 @@ extension AppTests {
 
         try await app.test(
           .POST, "/champions/Nocturne/observe",
-          headers: reqHeaders(accessToken: mobileToken),
+          headers: reqHeaders(accessToken: mobileAccessToken),
           body: ["observing": false],
         ) { res async throws in
           let watchlists = try await app.dbUserWatchlists(userId: mobileUserId)
@@ -122,7 +122,7 @@ extension AppTests {
 
         try await app.test(
           .POST, "/champions/Nocturne/observe",
-          headers: reqHeaders(accessToken: mobileToken),
+          headers: reqHeaders(accessToken: mobileAccessToken),
           body: ["observing": true],
         ) { res async throws in
           let watchlists = try await app.dbUserWatchlists(userId: mobileUserId)
@@ -145,7 +145,7 @@ extension AppTests {
 
         try await app.test(
           .POST, "/champions/nocturne/observe",
-          headers: reqHeaders(accessToken: mobileToken),
+          headers: reqHeaders(accessToken: mobileAccessToken),
           body: ["observing": true],
         ) { res async throws in
           let watchlists = try await app.dbUserWatchlists(userId: mobileUserId)
@@ -168,7 +168,7 @@ extension AppTests {
 
         try await app.test(
           .POST, "/champions/nocturne/observe",
-          headers: reqHeaders(accessToken: mobileToken),
+          headers: reqHeaders(accessToken: mobileAccessToken),
           body: ["observing": false],
         ) { res async throws in
           let watchlists = try await app.dbUserWatchlists(userId: mobileUserId)
@@ -191,7 +191,7 @@ extension AppTests {
 
         try await app.test(
           .POST, "/champions/Nocturne/observe",
-          headers: reqHeaders(accessToken: mobileToken),
+          headers: reqHeaders(accessToken: mobileAccessToken),
           body: ["observing": true],
         ) { res async throws in
           #expect(res.status == .notFound)

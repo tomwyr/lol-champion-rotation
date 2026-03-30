@@ -8,7 +8,7 @@ extension AppTests {
     func deterministicPrediction(accessToken: String) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
-          appWebKey: webApiKey,
+          webApiKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -184,7 +184,7 @@ extension AppTests {
     func inactiveRotation(accessToken: String) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
-          appWebKey: webApiKey,
+          webApiKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -363,7 +363,7 @@ extension AppTests {
     func generatedPredictionSaved(accessToken: String) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
-          appWebKey: webApiKey,
+          webApiKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -467,7 +467,7 @@ extension AppTests {
     func existingPrediction(accessToken: String) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
-          appWebKey: webApiKey,
+          webApiKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -566,7 +566,7 @@ extension AppTests {
     func forecastCallWhenNoPredictionExists(accessToken: String) async throws {
       try await withApp { app in
         let mocks = try await app.testConfigureWith(
-          appWebKey: webApiKey,
+          webApiKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -613,7 +613,7 @@ extension AppTests {
     func noForecastCallWhenPredictionExists(accessToken: String) async throws {
       try await withApp { app in
         let mocks = try await app.testConfigureWith(
-          appWebKey: webApiKey,
+          webApiKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(

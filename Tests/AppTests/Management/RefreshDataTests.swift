@@ -7,7 +7,7 @@ extension AppTests {
   @Suite(.serialized) struct RefreshDataTests {
     @Test func noToken() async throws {
       try await withApp { app in
-        _ = try await app.testConfigureWith(appManagementKey: "123")
+        _ = try await app.testConfigureWith(managementApiKey: "123")
 
         try await app.test(
           .GET, "/data/refresh"
@@ -20,7 +20,7 @@ extension AppTests {
 
     @Test func invalidToken() async throws {
       try await withApp { app in
-        _ = try await app.testConfigureWith(appManagementKey: "abc")
+        _ = try await app.testConfigureWith(managementApiKey: "abc")
 
         try await app.test(
           .GET, "/data/refresh",
@@ -35,7 +35,7 @@ extension AppTests {
     @Test func validToken() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
-          appManagementKey: "123",
+          managementApiKey: "123",
           dbPatchVersions: [.init(value: "1")],
           dbChampionRotationConfigs: [.init(rotationChangeWeekday: 4)],
           riotPatchVersions: ["1"]
@@ -53,7 +53,7 @@ extension AppTests {
     @Test func rotationChampionsChanged() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
-          appManagementKey: "123",
+          managementApiKey: "123",
           dbRegularRotations: [
             .init(
               observedAt: Date.now,
@@ -103,7 +103,7 @@ extension AppTests {
     @Test func rotationChampionsPartiallyChanged() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
-          appManagementKey: "123",
+          managementApiKey: "123",
           dbRegularRotations: [
             .init(
               observedAt: Date.now,
@@ -157,7 +157,7 @@ extension AppTests {
     @Test func rotationMaxLevelChanged() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
-          appManagementKey: "123",
+          managementApiKey: "123",
           dbRegularRotations: [
             .init(
               observedAt: Date.now,
@@ -206,7 +206,7 @@ extension AppTests {
     @Test func rotationDidNotChange() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
-          appManagementKey: "123",
+          managementApiKey: "123",
           dbRegularRotations: [
             .init(
               observedAt: Date.now,
@@ -254,7 +254,7 @@ extension AppTests {
     @Test func championsDidNotChange() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
-          appManagementKey: "123",
+          managementApiKey: "123",
           dbRegularRotations: [
             .init(
               observedAt: Date.now,
@@ -307,7 +307,7 @@ extension AppTests {
     @Test func multipleLocalVersions() async throws {
       try await withApp { app in
         let mocks = try await app.testConfigureWith(
-          appManagementKey: "123",
+          managementApiKey: "123",
           dbPatchVersions: [
             .init(value: "15.23.5"),
             .init(value: "15.23.0"),
@@ -329,7 +329,7 @@ extension AppTests {
     @Test func multipleRiotVersions() async throws {
       try await withApp { app in
         let mocks = try await app.testConfigureWith(
-          appManagementKey: "123",
+          managementApiKey: "123",
           dbPatchVersions: [.init(value: "1")],
           riotPatchVersions: ["15.23.5", "15.23.0", "15.22.8"]
         )
@@ -347,7 +347,7 @@ extension AppTests {
     @Test func differentVersions() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
-          appManagementKey: "123",
+          managementApiKey: "123",
           dbPatchVersions: [.init(value: "14.0.0")],
           dbChampionRotationConfigs: [.init(rotationChangeWeekday: 4)],
           riotPatchVersions: ["15.23.5"]
@@ -371,7 +371,7 @@ extension AppTests {
     @Test func identicalVersions() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
-          appManagementKey: "123",
+          managementApiKey: "123",
           dbPatchVersions: [.init(value: "15.23.5")],
           dbChampionRotationConfigs: [.init(rotationChangeWeekday: 4)],
           riotPatchVersions: ["15.23.5"]
@@ -395,7 +395,7 @@ extension AppTests {
     @Test func noLocalVersion() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
-          appManagementKey: "123",
+          managementApiKey: "123",
           dbPatchVersions: [],
           dbChampionRotationConfigs: [.init(rotationChangeWeekday: 4)],
           riotPatchVersions: ["15.23.5"]
@@ -419,7 +419,7 @@ extension AppTests {
     @Test func newChampionSaved() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
-          appManagementKey: "123",
+          managementApiKey: "123",
           riotPatchVersions: ["15.1.1"],
           riotChampionRotationsData: .init(
             freeChampionIds: [1],
@@ -446,7 +446,7 @@ extension AppTests {
     @Test func newRotationSaved() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
-          appManagementKey: "123",
+          managementApiKey: "123",
           riotPatchVersions: ["15.1.1"],
           riotChampionRotationsData: .init(
             freeChampionIds: [1],
@@ -473,7 +473,7 @@ extension AppTests {
     @Test func predictionGeneratedWhenRotationChanged() async throws {
       try await withApp { app in
         let mocks = try await app.testConfigureWith(
-          appManagementKey: "123",
+          managementApiKey: "123",
           dbRegularRotations: [
             .init(
               observedAt: Date.now,
@@ -519,7 +519,7 @@ extension AppTests {
     @Test func predictionNotGeneratedWhenRotationNotChanged() async throws {
       try await withApp { app in
         let mocks = try await app.testConfigureWith(
-          appManagementKey: "123",
+          managementApiKey: "123",
           dbRegularRotations: [
             .init(
               observedAt: Date.now,
@@ -563,7 +563,7 @@ extension AppTests {
     @Test func uniqueSlugsForManyRotationsInWeek() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
-          appManagementKey: "123",
+          managementApiKey: "123",
           dbRegularRotations: [
             .init(
               id: uuid("1"),

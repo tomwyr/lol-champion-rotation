@@ -9,7 +9,7 @@ extension AppTests {
     @Test func rotationChangedRecipients() async throws {
       try await withApp { app in
         let mocks = try await app.testConfigureWith(
-          appManagementKey: "123",
+          managementApiKey: "123",
           dbRegularRotations: [
             .init(
               observedAt: Date.now,
@@ -73,7 +73,7 @@ extension AppTests {
     @Test func rotationChangedContent() async throws {
       try await withApp { app in
         let mocks = try await app.testConfigureWith(
-          appManagementKey: "123",
+          managementApiKey: "123",
           dbRegularRotations: [
             .init(
               observedAt: Date.now,
@@ -117,7 +117,7 @@ extension AppTests {
     @Test func championsAvailableRecipients() async throws {
       try await withApp { app in
         let mocks = try await app.testConfigureWith(
-          appManagementKey: "123",
+          managementApiKey: "123",
           dbRegularRotations: [
             .init(
               observedAt: Date.now,
@@ -195,7 +195,7 @@ extension AppTests {
     @Test func championsAvailableContent() async throws {
       try await withApp { app in
         let mocks = try await app.testConfigureWith(
-          appManagementKey: "123",
+          managementApiKey: "123",
           dbRegularRotations: [
             .init(
               observedAt: Date.now,
@@ -271,7 +271,7 @@ extension AppTests {
     @Test func championReleasedRecipients() async throws {
       try await withApp { app in
         let mocks = try await app.testConfigureWith(
-          appManagementKey: "123",
+          managementApiKey: "123",
           dbRegularRotations: [
             .init(
               observedAt: Date.now,
@@ -336,7 +336,7 @@ extension AppTests {
     @Test func championReleasedContent() async throws {
       try await withApp { app in
         let mocks = try await app.testConfigureWith(
-          appManagementKey: "123",
+          managementApiKey: "123",
           dbRegularRotations: [
             .init(
               observedAt: Date.now,
@@ -385,7 +385,7 @@ extension AppTests {
     @Test func championReleasedContentWithMultipleChampions() async throws {
       try await withApp { app in
         let mocks = try await app.testConfigureWith(
-          appManagementKey: "123",
+          managementApiKey: "123",
           dbRegularRotations: [
             .init(
               observedAt: Date.now,
@@ -438,7 +438,7 @@ extension AppTests {
     @Test func championReleasedSkippedForAmbiguousChampion() async throws {
       try await withApp { app in
         let mocks = try await app.testConfigureWith(
-          appManagementKey: "123",
+          managementApiKey: "123",
           dbRegularRotations: [
             .init(
               observedAt: Date.now,

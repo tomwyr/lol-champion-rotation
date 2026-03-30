@@ -8,7 +8,7 @@ extension AppTests {
     func noQueryParam(accessToken: String) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
-          appWebKey: webApiKey,
+          webApiKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -40,7 +40,7 @@ extension AppTests {
     func noMatchingRotations(accessToken: String) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
-          appWebKey: webApiKey,
+          webApiKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -78,7 +78,7 @@ extension AppTests {
     func rotationWithExactMatch(accessToken: String) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
-          appWebKey: webApiKey,
+          webApiKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -132,7 +132,7 @@ extension AppTests {
     func rotationWithNonExactMatch(accessToken: String) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
-          appWebKey: webApiKey,
+          webApiKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -186,7 +186,7 @@ extension AppTests {
     func rotationWithMultipleMatches(accessToken: String) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
-          appWebKey: webApiKey,
+          webApiKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -246,7 +246,7 @@ extension AppTests {
     func rotationWithMatchesInMultipleRotations(accessToken: String) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
-          appWebKey: webApiKey,
+          webApiKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -333,7 +333,7 @@ extension AppTests {
     func rotationWithMatchInNameOnly(accessToken: String) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
-          appWebKey: webApiKey,
+          webApiKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -387,7 +387,7 @@ extension AppTests {
     func rotationsOrderedByDate(accessToken: String) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
-          appWebKey: webApiKey,
+          webApiKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -479,7 +479,7 @@ extension AppTests {
     func beginnerRotation(accessToken: String) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
-          appWebKey: webApiKey,
+          webApiKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbBeginnerRotations: [
             .init(
@@ -534,7 +534,7 @@ extension AppTests {
     func multipleRotationTypes(accessToken: String) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
-          appWebKey: webApiKey,
+          webApiKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -611,7 +611,7 @@ extension AppTests {
     func inactiveRotation(accessToken: String) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
-          appWebKey: webApiKey,
+          webApiKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(

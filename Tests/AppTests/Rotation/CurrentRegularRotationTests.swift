@@ -9,7 +9,7 @@ extension AppTests {
     func simpleResult(accessToken: String) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
-          appWebKey: webApiKey,
+          webApiKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -63,7 +63,7 @@ extension AppTests {
     func championsAreSortedById(accessToken: String) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
-          appWebKey: webApiKey,
+          webApiKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -105,7 +105,7 @@ extension AppTests {
     func inactiveRotation(accessToken: String) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
-          appWebKey: webApiKey,
+          webApiKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -166,7 +166,7 @@ extension AppTests {
     func twoRotationsInSingleWeek(accessToken: String) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
-          appWebKey: webApiKey,
+          webApiKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(

@@ -24,7 +24,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/notifications/settings",
-          headers: reqHeaders(accessToken: mobileToken),
+          headers: reqHeaders(accessToken: mobileAccessToken),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -45,7 +45,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/notifications/settings",
-          headers: reqHeaders(accessToken: mobileToken),
+          headers: reqHeaders(accessToken: mobileAccessToken),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -66,7 +66,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/notifications/settings",
-          headers: reqHeaders(accessToken: mobileToken),
+          headers: reqHeaders(accessToken: mobileAccessToken),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -99,7 +99,7 @@ extension AppTests {
 
         try await app.test(
           .PUT, "/notifications/settings",
-          headers: reqHeaders(accessToken: mobileToken),
+          headers: reqHeaders(accessToken: mobileAccessToken),
           body: ["rotationChanged": true, "championsAvailable": true, "championReleased": true],
         ) { res async throws in
           #expect(res.status == .noContent)
@@ -117,7 +117,7 @@ extension AppTests {
 
         try await app.test(
           .PUT, "/notifications/settings",
-          headers: reqHeaders(accessToken: mobileToken),
+          headers: reqHeaders(accessToken: mobileAccessToken),
           body: ["rotationChanged": true, "championsAvailable": true, "championReleased": true],
         ) { res async throws in
           let addedConfig = NotificationsConfigModel.enabled(
@@ -142,7 +142,7 @@ extension AppTests {
 
         try await app.test(
           .PUT, "/notifications/settings",
-          headers: reqHeaders(accessToken: mobileToken),
+          headers: reqHeaders(accessToken: mobileAccessToken),
           body: ["rotationChanged": true, "championsAvailable": true, "championReleased": true],
         ) { res async throws in
           let updatedConfig = NotificationsConfigModel(

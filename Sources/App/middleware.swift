@@ -1,11 +1,11 @@
 import Vapor
 
 struct ManagementGuard: RequestAuthenticatorGuard {
-  let appManagementKey: String
+  let managementApiKey: String
 
   func authenticate(request: Request) throws -> ManagerUserAuth? {
     let token = request.headers.bearerAuthorization?.token
-    guard let token, token == appManagementKey else {
+    guard let token, token == managementApiKey else {
       throw Abort(.unauthorized, reason: "Invalid auth token")
     }
     return ManagerUserAuth()
@@ -20,11 +20,11 @@ struct MobileUserGuard: RequestAuthenticatorGuard {
 }
 
 struct WebUserGuard: RequestAuthenticatorGuard {
-  let webApiToken: String
+  let webApiKey: String
 
   func authenticate(request: Request) async throws -> WebUserAuth? {
     let token = request.headers.bearerAuthorization?.token
-    guard let token, token == webApiToken else {
+    guard let token, token == webApiKey else {
       throw Abort(.unauthorized, reason: "Invalid auth token")
     }
     return WebUserAuth()

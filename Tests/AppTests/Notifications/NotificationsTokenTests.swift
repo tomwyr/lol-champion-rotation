@@ -24,7 +24,7 @@ extension AppTests {
 
         try await app.test(
           .PUT, "/notifications/token",
-          headers: reqHeaders(accessToken: mobileToken),
+          headers: reqHeaders(accessToken: mobileAccessToken),
           body: ["token": "abc"],
         ) { res async throws in
           #expect(res.status == .noContent)
@@ -42,7 +42,7 @@ extension AppTests {
 
         try await app.test(
           .PUT, "/notifications/token",
-          headers: reqHeaders(accessToken: mobileToken),
+          headers: reqHeaders(accessToken: mobileAccessToken),
           body: ["token": "abc"],
         ) { res async throws in
           let addedConfig = NotificationsConfigModel.disabled(
@@ -66,7 +66,7 @@ extension AppTests {
 
         try await app.test(
           .PUT, "/notifications/token",
-          headers: reqHeaders(accessToken: mobileToken),
+          headers: reqHeaders(accessToken: mobileAccessToken),
           body: ["token": "abc"],
         ) { res async throws in
           let updatedConfig = NotificationsConfigModel.enabled(

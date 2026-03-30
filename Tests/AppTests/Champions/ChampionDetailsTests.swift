@@ -9,7 +9,7 @@ extension AppTests {
     func unknownChampion(accessToken: String) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
-          appWebKey: webApiKey,
+          webApiKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbChampions: [
             .init(
@@ -30,7 +30,7 @@ extension AppTests {
     }
 
     @Test func knownChampionMobile() async throws {
-      try await knownChampionMobile(accessToken: mobileToken) { res async throws in
+      try await knownChampionMobile(accessToken: mobileAccessToken) { res async throws in
         #expect(res.status == .ok)
         try expectBody(
           res.body,
@@ -108,7 +108,7 @@ extension AppTests {
     ) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
-          appWebKey: webApiKey,
+          webApiKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbChampions: [
             .init(
@@ -128,7 +128,7 @@ extension AppTests {
     }
 
     @Test func knownChampionCaseInsensitiveMobile() async throws {
-      try await knownChampionCaseInsensitive(accessToken: mobileToken) { res async throws in
+      try await knownChampionCaseInsensitive(accessToken: mobileAccessToken) { res async throws in
         #expect(res.status == .ok)
         try expectBody(
           res.body,
@@ -206,7 +206,7 @@ extension AppTests {
     ) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
-          appWebKey: webApiKey,
+          webApiKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbChampions: [
             .init(
@@ -226,7 +226,7 @@ extension AppTests {
     }
 
     @Test func championWithMissingReleaseDateMobile() async throws {
-      try await championWithMissingReleaseDate(accessToken: mobileToken) { res async throws in
+      try await championWithMissingReleaseDate(accessToken: mobileAccessToken) { res async throws in
         #expect(res.status == .ok)
         try expectBody(
           res.body,
@@ -290,7 +290,7 @@ extension AppTests {
     ) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
-          appWebKey: webApiKey,
+          webApiKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbChampions: [
             .init(
@@ -310,7 +310,8 @@ extension AppTests {
     }
 
     @Test func championInCurrentRotationMobile() async throws {
-      try await championInCurrentRotationMobile(accessToken: mobileToken) { res async throws in
+      try await championInCurrentRotationMobile(accessToken: mobileAccessToken) {
+        res async throws in
         #expect(res.status == .ok)
         try expectBody(
           res.body,
@@ -410,7 +411,7 @@ extension AppTests {
     ) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
-          appWebKey: webApiKey,
+          webApiKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -439,7 +440,7 @@ extension AppTests {
     }
 
     @Test func championInPreviousRotationMobile() async throws {
-      try await championInPreviousRotation(accessToken: mobileToken) { res async throws in
+      try await championInPreviousRotation(accessToken: mobileAccessToken) { res async throws in
         #expect(res.status == .ok)
         try expectBody(
           res.body,
@@ -519,7 +520,7 @@ extension AppTests {
     ) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
-          appWebKey: webApiKey,
+          webApiKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbBeginnerRotations: [
             .init(
@@ -546,7 +547,7 @@ extension AppTests {
     }
 
     @Test func overviewWithPositiveStreakMobile() async throws {
-      try await overviewWithPositiveStreak(accessToken: mobileToken) { res async throws in
+      try await overviewWithPositiveStreak(accessToken: mobileAccessToken) { res async throws in
         #expect(res.status == .ok)
         try expectBody(
           res.body,
@@ -716,7 +717,7 @@ extension AppTests {
     ) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
-          appWebKey: webApiKey,
+          webApiKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -771,7 +772,7 @@ extension AppTests {
     }
 
     @Test func overviewWithNegativeStreakMobile() async throws {
-      try await overviewWithNegativeStreak(accessToken: mobileToken) { res async throws in
+      try await overviewWithNegativeStreak(accessToken: mobileAccessToken) { res async throws in
         #expect(res.status == .ok)
         try expectBody(
           res.body,
@@ -893,7 +894,7 @@ extension AppTests {
     ) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
-          appWebKey: webApiKey,
+          webApiKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -948,7 +949,8 @@ extension AppTests {
     }
 
     @Test func championReleasedBetweenRotationMobile() async throws {
-      try await championReleasedBetweenRotation(accessToken: mobileToken) { res async throws in
+      try await championReleasedBetweenRotation(accessToken: mobileAccessToken) {
+        res async throws in
         #expect(res.status == .ok)
         try expectBody(
           res.body,
@@ -1062,7 +1064,7 @@ extension AppTests {
     ) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
-          appWebKey: webApiKey,
+          webApiKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -1117,7 +1119,7 @@ extension AppTests {
     }
 
     @Test func championReleasedBetweenRotationWithNegativeStreakMobile() async throws {
-      try await championReleasedBetweenRotationWithNegativeStreak(accessToken: mobileToken) {
+      try await championReleasedBetweenRotationWithNegativeStreak(accessToken: mobileAccessToken) {
         res async throws in
         #expect(res.status == .ok)
         try expectBody(
@@ -1205,7 +1207,7 @@ extension AppTests {
     ) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
-          appWebKey: webApiKey,
+          webApiKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -1259,7 +1261,7 @@ extension AppTests {
     }
 
     @Test func championWithHighRelativeScoreMobile() async throws {
-      try await championWithHighRelativeScore(accessToken: mobileToken) { res async throws in
+      try await championWithHighRelativeScore(accessToken: mobileAccessToken) { res async throws in
         #expect(res.status == .ok)
         try expectBody(
           res.body,
@@ -1393,7 +1395,7 @@ extension AppTests {
     ) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
-          appWebKey: webApiKey,
+          webApiKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -1456,7 +1458,7 @@ extension AppTests {
     @Test func userObservingChampion() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
-          appWebKey: webApiKey,
+          webApiKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbChampions: [
             .init(
@@ -1472,7 +1474,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/champions/Nocturne",
-          headers: reqHeaders(accessToken: mobileToken)
+          headers: reqHeaders(accessToken: mobileAccessToken)
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -1513,7 +1515,7 @@ extension AppTests {
     @Test func userNotObservingChampion() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
-          appWebKey: webApiKey,
+          webApiKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbChampions: [
             .init(
@@ -1529,7 +1531,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/champions/Nocturne",
-          headers: reqHeaders(accessToken: mobileToken)
+          headers: reqHeaders(accessToken: mobileAccessToken)
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -1568,7 +1570,7 @@ extension AppTests {
     }
 
     @Test func inactiveRotationMobile() async throws {
-      try await inactiveRotation(accessToken: mobileToken) { res async throws in
+      try await inactiveRotation(accessToken: mobileAccessToken) { res async throws in
         #expect(res.status == .ok)
         try expectBody(
           res.body,
@@ -1710,7 +1712,7 @@ extension AppTests {
     ) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
-          appWebKey: webApiKey,
+          webApiKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(

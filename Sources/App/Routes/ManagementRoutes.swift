@@ -2,7 +2,7 @@ import Vapor
 
 func managementRoutes(_ app: Application, _ deps: Dependencies) {
   let managementGuard = ManagementGuard(
-    appManagementKey: deps.appConfig.appManagementKey
+    managementApiKey: deps.appConfig.appManagementApiKey
   )
 
   app.protected(with: managementGuard).get("data", "refresh") { req in

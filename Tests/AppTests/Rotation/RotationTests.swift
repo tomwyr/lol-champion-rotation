@@ -9,7 +9,7 @@ extension AppTests {
     func noIdParam(accessToken: String) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
-          appWebKey: webApiKey,
+          webApiKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -41,7 +41,7 @@ extension AppTests {
     func unknownRotation(accessToken: String) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
-          appWebKey: webApiKey,
+          webApiKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -70,7 +70,7 @@ extension AppTests {
     }
 
     @Test func currentRotationMobile() async throws {
-      try await currentRotation(accessToken: mobileToken) { res async throws in
+      try await currentRotation(accessToken: mobileAccessToken) { res async throws in
         #expect(res.status == .ok)
         try expectBody(
           res.body,
@@ -134,7 +134,7 @@ extension AppTests {
     ) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
-          appWebKey: webApiKey,
+          webApiKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -163,7 +163,7 @@ extension AppTests {
     }
 
     @Test func nonCurrentRotationMobile() async throws {
-      try await nonCurrentRotation(accessToken: mobileToken) { res async throws in
+      try await nonCurrentRotation(accessToken: mobileAccessToken) { res async throws in
         #expect(res.status == .ok)
         try expectBody(
           res.body,
@@ -227,7 +227,7 @@ extension AppTests {
     ) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
-          appWebKey: webApiKey,
+          webApiKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -264,7 +264,7 @@ extension AppTests {
     @Test func userObservingRotation() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
-          appWebKey: webApiKey,
+          webApiKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -289,7 +289,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/rotations/s1w1",
-          headers: reqHeaders(accessToken: mobileToken),
+          headers: reqHeaders(accessToken: mobileAccessToken),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -323,7 +323,7 @@ extension AppTests {
     @Test func userNotObservingRotation() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
-          appWebKey: webApiKey,
+          webApiKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -348,7 +348,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/rotations/s1w1",
-          headers: reqHeaders(accessToken: mobileToken),
+          headers: reqHeaders(accessToken: mobileAccessToken),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -382,7 +382,7 @@ extension AppTests {
     @Test func inactiveRotation() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
-          appWebKey: webApiKey,
+          webApiKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -404,7 +404,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/rotations/s1w1",
-          headers: reqHeaders(accessToken: mobileToken),
+          headers: reqHeaders(accessToken: mobileAccessToken),
         ) { res async throws in
           #expect(res.status == .notFound)
         }

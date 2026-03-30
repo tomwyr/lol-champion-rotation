@@ -56,7 +56,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/champions/observed",
-          headers: reqHeaders(accessToken: mobileToken),
+          headers: reqHeaders(accessToken: mobileAccessToken),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -103,7 +103,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/champions/observed",
-          headers: reqHeaders(accessToken: mobileToken),
+          headers: reqHeaders(accessToken: mobileAccessToken),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
