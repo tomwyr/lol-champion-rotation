@@ -1,9 +1,12 @@
 import FCM
+import Vapor
 
 struct PushNotificationsClient {
   let fcm: FcmDispatcher
+  let logger: Logger
 
   func send(_ notification: PushNotification) async throws -> SendNotificationResult {
+    logger.sendingNotification(notification)
     let results = try await notification.tokens.async.map { token in
       let status = await sendWithFcm(notification, token)
       return (token: token, status: status)
@@ -11,11 +14,14 @@ struct PushNotificationsClient {
 
     let staleTokens = results.filter { result in result.status == .staleToken }.map(\.token)
 
+    logger.sendingComplete(staleTokens)
     return SendNotificationResult(staleTokens: staleTokens)
   }
 
-  private func sendWithFcm(_ notification: PushNotification, _ token: String) async -> FcmSendStatus
-  {
+  private func sendWithFcm(
+    _ notification: PushNotification,
+    _ token: String,
+  ) async -> FcmSendStatus {
     do {
       let message = FCMMessage(
         token: token,
@@ -62,3 +68,18 @@ protocol FcmDispatcher: Sendable {
 }
 
 extension FCM: FcmDispatcher {}
+
+extension Logger {
+  fileprivate func sendingNotification(_ notification: PushNotification) {
+    info(
+      "Sending (\(notification.title)) notifications to user devices (\(notification.tokens.count))"
+    )
+  }
+
+  fileprivate func sendingComplete(_ staleTokens: [String]) {
+    if !staleTokens.isEmpty {
+      info("\(staleTokens.count) stale tokens detected")
+    }
+    info("Notifications sent successfully")
+  }
+}

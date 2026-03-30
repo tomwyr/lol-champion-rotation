@@ -96,7 +96,7 @@ struct Dependencies: Sendable {
   }
 
   func pushNotificationsClient(request: Request) -> PushNotificationsClient {
-    PushNotificationsClient(fcm: fcm(request))
+    PushNotificationsClient(fcm: fcm(request), logger: request.logger)
   }
 
   func appDb(request: Request) -> AppDatabase {
