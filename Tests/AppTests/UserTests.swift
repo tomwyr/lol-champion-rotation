@@ -22,7 +22,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/user",
-          headers: ["Authorization": "Bearer \(mobileToken)"]
+          headers: reqHeaders(accessToken: mobileToken),
         ) { res async throws in
           #expect(res.status == .ok)
         }
@@ -39,7 +39,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/user",
-          headers: ["Authorization": "Bearer \(mobileToken)"]
+          headers: reqHeaders(accessToken: mobileToken),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -60,7 +60,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/user",
-          headers: ["Authorization": "Bearer \(mobileToken)"]
+          headers: reqHeaders(accessToken: mobileToken),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -103,7 +103,7 @@ extension AppTests {
 
           try await app.test(
             .GET, "/user",
-            headers: ["Authorization": "Bearer \(mobileToken)"]
+            headers: reqHeaders(accessToken: mobileToken),
           ) { res async throws in
             #expect(res.status == .ok)
             try expectBody(
