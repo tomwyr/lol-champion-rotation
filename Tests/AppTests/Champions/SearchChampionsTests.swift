@@ -4,7 +4,8 @@ import Testing
 
 extension AppTests {
   @Suite(.serialized) struct SearchChampionsTests {
-    @Test func noQueryParam() async throws {
+    @Test(.serialized, arguments: appAccessTokens)
+    func noQueryParam(accessToken: String) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
           appWebKey: webApiKey,
@@ -28,14 +29,15 @@ extension AppTests {
 
         try await app.test(
           .GET, "/champions/search",
-          headers: reqHeaders(accessToken: webApiKey),
+          headers: reqHeaders(accessToken: accessToken),
         ) { res async throws in
           #expect(res.status == .badRequest)
         }
       }
     }
 
-    @Test func noMatchingChampions() async throws {
+    @Test(.serialized, arguments: appAccessTokens)
+    func noMatchingChampions(accessToken: String) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
           appWebKey: webApiKey,
@@ -52,7 +54,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/champions/search?name=Lux",
-          headers: reqHeaders(accessToken: webApiKey),
+          headers: reqHeaders(accessToken: accessToken),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -65,7 +67,8 @@ extension AppTests {
       }
     }
 
-    @Test func championsWithExactMatch() async throws {
+    @Test(.serialized, arguments: appAccessTokens)
+    func championsWithExactMatch(accessToken: String) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
           appWebKey: webApiKey,
@@ -89,7 +92,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/champions/search?name=Nocturne",
-          headers: reqHeaders(accessToken: webApiKey),
+          headers: reqHeaders(accessToken: accessToken),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -111,7 +114,8 @@ extension AppTests {
       }
     }
 
-    @Test func championsWithNonExactMatch() async throws {
+    @Test(.serialized, arguments: appAccessTokens)
+    func championsWithNonExactMatch(accessToken: String) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
           appWebKey: webApiKey,
@@ -135,7 +139,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/champions/search?name=oCtuRn",
-          headers: reqHeaders(accessToken: webApiKey),
+          headers: reqHeaders(accessToken: accessToken),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -157,7 +161,8 @@ extension AppTests {
       }
     }
 
-    @Test func championsWithMultipleMatches() async throws {
+    @Test(.serialized, arguments: appAccessTokens)
+    func championsWithMultipleMatches(accessToken: String) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
           appWebKey: webApiKey,
@@ -182,7 +187,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/champions/search?name=En",
-          headers: reqHeaders(accessToken: webApiKey),
+          headers: reqHeaders(accessToken: accessToken),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -212,7 +217,8 @@ extension AppTests {
       }
     }
 
-    @Test func championsWithMatchesInMultipleRotations() async throws {
+    @Test(.serialized, arguments: appAccessTokens)
+    func championsWithMatchesInMultipleRotations(accessToken: String) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
           appWebKey: webApiKey,
@@ -258,7 +264,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/champions/search?name=En",
-          headers: reqHeaders(accessToken: webApiKey),
+          headers: reqHeaders(accessToken: accessToken),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -288,7 +294,8 @@ extension AppTests {
       }
     }
 
-    @Test func championWithMatchInNameOnly() async throws {
+    @Test(.serialized, arguments: appAccessTokens)
+    func championWithMatchInNameOnly(accessToken: String) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
           appWebKey: webApiKey,
@@ -312,7 +319,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/champions/search?name=willump",
-          headers: reqHeaders(accessToken: webApiKey),
+          headers: reqHeaders(accessToken: accessToken),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -334,7 +341,8 @@ extension AppTests {
       }
     }
 
-    @Test func multipleRotationTypes() async throws {
+    @Test(.serialized, arguments: appAccessTokens)
+    func multipleRotationTypes(accessToken: String) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
           appWebKey: webApiKey,
@@ -367,7 +375,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/champions/search?name=se",
-          headers: reqHeaders(accessToken: webApiKey),
+          headers: reqHeaders(accessToken: accessToken),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -397,7 +405,8 @@ extension AppTests {
       }
     }
 
-    @Test func championMatchesOrder() async throws {
+    @Test(.serialized, arguments: appAccessTokens)
+    func championMatchesOrder(accessToken: String) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
           appWebKey: webApiKey,
@@ -416,7 +425,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/champions/search?name=se",
-          headers: reqHeaders(accessToken: webApiKey),
+          headers: reqHeaders(accessToken: accessToken),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(

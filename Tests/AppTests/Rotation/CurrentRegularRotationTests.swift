@@ -5,7 +5,8 @@ import Testing
 
 extension AppTests {
   @Suite(.serialized) struct CurrentRegularRotationTests {
-    @Test func simpleResult() async throws {
+    @Test(.serialized, arguments: appAccessTokens)
+    func simpleResult(accessToken: String) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
           appWebKey: webApiKey,
@@ -29,7 +30,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/rotations/current",
-          headers: reqHeaders(accessToken: webApiKey),
+          headers: reqHeaders(accessToken: accessToken),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -58,7 +59,8 @@ extension AppTests {
       }
     }
 
-    @Test func championsAreSortedById() async throws {
+    @Test(.serialized, arguments: appAccessTokens)
+    func championsAreSortedById(accessToken: String) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
           appWebKey: webApiKey,
@@ -84,7 +86,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/rotations/current",
-          headers: reqHeaders(accessToken: webApiKey),
+          headers: reqHeaders(accessToken: accessToken),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -99,7 +101,8 @@ extension AppTests {
       }
     }
 
-    @Test func inactiveRotation() async throws {
+    @Test(.serialized, arguments: appAccessTokens)
+    func inactiveRotation(accessToken: String) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
           appWebKey: webApiKey,
@@ -130,7 +133,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/rotations/current",
-          headers: reqHeaders(accessToken: webApiKey),
+          headers: reqHeaders(accessToken: accessToken),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -159,7 +162,8 @@ extension AppTests {
       }
     }
 
-    @Test func twoRotationsInSingleWeek() async throws {
+    @Test(.serialized, arguments: appAccessTokens)
+    func twoRotationsInSingleWeek(accessToken: String) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
           appWebKey: webApiKey,
@@ -207,7 +211,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/rotations/current",
-          headers: reqHeaders(accessToken: webApiKey),
+          headers: reqHeaders(accessToken: accessToken),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(

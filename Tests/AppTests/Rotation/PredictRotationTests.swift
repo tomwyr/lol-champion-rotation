@@ -4,7 +4,8 @@ import Testing
 
 extension AppTests {
   @Suite(.serialized) struct PredictRotationTests {
-    @Test func deterministicPrediction() async throws {
+    @Test(.serialized, arguments: appAccessTokens)
+    func deterministicPrediction(accessToken: String) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
           appWebKey: webApiKey,
@@ -90,7 +91,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/rotations/predict",
-          headers: reqHeaders(accessToken: webApiKey),
+          headers: reqHeaders(accessToken: accessToken),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -179,7 +180,8 @@ extension AppTests {
         }
       }
     }
-    @Test func inactiveRotation() async throws {
+    @Test(.serialized, arguments: appAccessTokens)
+    func inactiveRotation(accessToken: String) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
           appWebKey: webApiKey,
@@ -267,7 +269,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/rotations/predict",
-          headers: reqHeaders(accessToken: webApiKey),
+          headers: reqHeaders(accessToken: accessToken),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -357,7 +359,8 @@ extension AppTests {
       }
     }
 
-    @Test func generatedPredictionSaved() async throws {
+    @Test(.serialized, arguments: appAccessTokens)
+    func generatedPredictionSaved(accessToken: String) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
           appWebKey: webApiKey,
@@ -443,7 +446,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/rotations/predict",
-          headers: reqHeaders(accessToken: webApiKey),
+          headers: reqHeaders(accessToken: accessToken),
         ) { res async throws in
           #expect(res.status == .ok)
           let predictions = try await app.dbRotationPredictions()
@@ -460,7 +463,8 @@ extension AppTests {
       }
     }
 
-    @Test func existingPrediction() async throws {
+    @Test(.serialized, arguments: appAccessTokens)
+    func existingPrediction(accessToken: String) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
           appWebKey: webApiKey,
@@ -504,7 +508,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/rotations/predict",
-          headers: reqHeaders(accessToken: webApiKey),
+          headers: reqHeaders(accessToken: accessToken),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -558,7 +562,8 @@ extension AppTests {
       }
     }
 
-    @Test func forecastCallWhenNoPredictionExists() async throws {
+    @Test(.serialized, arguments: appAccessTokens)
+    func forecastCallWhenNoPredictionExists(accessToken: String) async throws {
       try await withApp { app in
         let mocks = try await app.testConfigureWith(
           appWebKey: webApiKey,
@@ -596,7 +601,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/rotations/predict",
-          headers: reqHeaders(accessToken: webApiKey),
+          headers: reqHeaders(accessToken: accessToken),
         ) { res async throws in
           #expect(res.status == .ok)
           #expect(mocks.rotationForecast.predictCalls == 1)
@@ -604,7 +609,8 @@ extension AppTests {
       }
     }
 
-    @Test func noForecastCallWhenPredictionExists() async throws {
+    @Test(.serialized, arguments: appAccessTokens)
+    func noForecastCallWhenPredictionExists(accessToken: String) async throws {
       try await withApp { app in
         let mocks = try await app.testConfigureWith(
           appWebKey: webApiKey,
@@ -649,7 +655,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/rotations/predict",
-          headers: reqHeaders(accessToken: webApiKey),
+          headers: reqHeaders(accessToken: accessToken),
         ) { res async throws in
           #expect(res.status == .ok)
           #expect(mocks.rotationForecast.predictCalls == 0)

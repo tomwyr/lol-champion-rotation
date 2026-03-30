@@ -1,10 +1,12 @@
 import Testing
+import VaporTestUtils
 
 @testable import App
 
 extension AppTests {
   @Suite(.serialized) struct RotationTests {
-    @Test func noIdParam() async throws {
+    @Test(.serialized, arguments: appAccessTokens)
+    func noIdParam(accessToken: String) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
           appWebKey: webApiKey,
@@ -28,14 +30,15 @@ extension AppTests {
 
         try await app.test(
           .GET, "/rotations",
-          headers: reqHeaders(accessToken: webApiKey),
+          headers: reqHeaders(accessToken: accessToken),
         ) { res async throws in
           #expect(res.status == .badRequest)
         }
       }
     }
 
-    @Test func unknownRotation() async throws {
+    @Test(.serialized, arguments: appAccessTokens)
+    func unknownRotation(accessToken: String) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
           appWebKey: webApiKey,
@@ -59,14 +62,76 @@ extension AppTests {
 
         try await app.test(
           .GET, "/rotations/s1w2",
-          headers: reqHeaders(accessToken: webApiKey),
+          headers: reqHeaders(accessToken: accessToken),
         ) { res async throws in
           #expect(res.status == .notFound)
         }
       }
     }
 
-    @Test func currentRotation() async throws {
+    @Test func currentRotationMobile() async throws {
+      try await currentRotation(accessToken: mobileToken) { res async throws in
+        #expect(res.status == .ok)
+        try expectBody(
+          res.body,
+          [
+            "id": "s1w1",
+            "duration": [
+              "start": "2024-11-14T12:00:00Z",
+              "end": "2024-11-21T12:00:00Z",
+            ],
+            "champions": [
+              [
+                "id": "garen",
+                "name": "Garen",
+                "imageUrl": imageUrl("Garen"),
+              ],
+              [
+                "id": "sett",
+                "name": "Sett",
+                "imageUrl": imageUrl("Sett"),
+              ],
+            ],
+            "current": true,
+            "observing": false,
+          ]
+        )
+      }
+    }
+
+    @Test func currentRotationWeb() async throws {
+      try await currentRotation(accessToken: webApiKey) { res async throws in
+        #expect(res.status == .ok)
+        try expectBody(
+          res.body,
+          [
+            "id": "s1w1",
+            "duration": [
+              "start": "2024-11-14T12:00:00Z",
+              "end": "2024-11-21T12:00:00Z",
+            ],
+            "champions": [
+              [
+                "id": "garen",
+                "name": "Garen",
+                "imageUrl": imageUrl("Garen"),
+              ],
+              [
+                "id": "sett",
+                "name": "Sett",
+                "imageUrl": imageUrl("Sett"),
+              ],
+            ],
+            "current": true,
+          ]
+        )
+      }
+    }
+
+    func currentRotation(
+      accessToken: String,
+      afterResponse: (TestingHTTPResponse) async throws -> Void,
+    ) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
           appWebKey: webApiKey,
@@ -91,37 +156,75 @@ extension AppTests {
 
         try await app.test(
           .GET, "/rotations/s1w1",
-          headers: reqHeaders(accessToken: webApiKey),
-        ) { res async throws in
-          #expect(res.status == .ok)
-          try expectBody(
-            res.body,
-            [
-              "id": "s1w1",
-              "duration": [
-                "start": "2024-11-14T12:00:00Z",
-                "end": "2024-11-21T12:00:00Z",
-              ],
-              "champions": [
-                [
-                  "id": "garen",
-                  "name": "Garen",
-                  "imageUrl": imageUrl("Garen"),
-                ],
-                [
-                  "id": "sett",
-                  "name": "Sett",
-                  "imageUrl": imageUrl("Sett"),
-                ],
-              ],
-              "current": true,
-            ]
-          )
-        }
+          headers: reqHeaders(accessToken: accessToken),
+          afterResponse: afterResponse,
+        )
       }
     }
 
-    @Test func nonCurrentRotation() async throws {
+    @Test func nonCurrentRotationMobile() async throws {
+      try await nonCurrentRotation(accessToken: mobileToken) { res async throws in
+        #expect(res.status == .ok)
+        try expectBody(
+          res.body,
+          [
+            "id": "s1w1",
+            "duration": [
+              "start": "2024-11-14T12:00:00Z",
+              "end": "2024-11-21T12:00:00Z",
+            ],
+            "champions": [
+              [
+                "id": "garen",
+                "name": "Garen",
+                "imageUrl": imageUrl("Garen"),
+              ],
+              [
+                "id": "sett",
+                "name": "Sett",
+                "imageUrl": imageUrl("Sett"),
+              ],
+            ],
+            "current": false,
+            "observing": false,
+          ]
+        )
+      }
+    }
+
+    @Test func nonCurrentRotationWeb() async throws {
+      try await nonCurrentRotation(accessToken: webApiKey) { res async throws in
+        #expect(res.status == .ok)
+        try expectBody(
+          res.body,
+          [
+            "id": "s1w1",
+            "duration": [
+              "start": "2024-11-14T12:00:00Z",
+              "end": "2024-11-21T12:00:00Z",
+            ],
+            "champions": [
+              [
+                "id": "garen",
+                "name": "Garen",
+                "imageUrl": imageUrl("Garen"),
+              ],
+              [
+                "id": "sett",
+                "name": "Sett",
+                "imageUrl": imageUrl("Sett"),
+              ],
+            ],
+            "current": false,
+          ]
+        )
+      }
+    }
+
+    func nonCurrentRotation(
+      accessToken: String,
+      afterResponse: (TestingHTTPResponse) async throws -> Void,
+    ) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
           appWebKey: webApiKey,
@@ -152,33 +255,9 @@ extension AppTests {
 
         try await app.test(
           .GET, "/rotations/s1w1",
-          headers: reqHeaders(accessToken: webApiKey),
-        ) { res async throws in
-          #expect(res.status == .ok)
-          try expectBody(
-            res.body,
-            [
-              "id": "s1w1",
-              "duration": [
-                "start": "2024-11-14T12:00:00Z",
-                "end": "2024-11-21T12:00:00Z",
-              ],
-              "champions": [
-                [
-                  "id": "garen",
-                  "name": "Garen",
-                  "imageUrl": imageUrl("Garen"),
-                ],
-                [
-                  "id": "sett",
-                  "name": "Sett",
-                  "imageUrl": imageUrl("Sett"),
-                ],
-              ],
-              "current": false,
-            ]
-          )
-        }
+          headers: reqHeaders(accessToken: accessToken),
+          afterResponse: afterResponse,
+        )
       }
     }
 

@@ -11,6 +11,8 @@ let mobileToken =
 
 let webApiKey = "ECWtDSli8HXTOCXNL5PX8m3c09uwbvKx"
 
+let appAccessTokens = [webApiKey, mobileToken]
+
 let rotationChangedType = "rotationChanged"
 let championsAvailableType = "championsAvailable"
 let championReleasedType = "championReleased"

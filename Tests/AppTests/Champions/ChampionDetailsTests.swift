@@ -1,10 +1,12 @@
 import Testing
+import VaporTestUtils
 
 @testable import App
 
 extension AppTests {
   @Suite(.serialized) struct ChampionDetailsTests {
-    @Test func unknownChampion() async throws {
+    @Test(.serialized, arguments: appAccessTokens)
+    func unknownChampion(accessToken: String) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
           appWebKey: webApiKey,
@@ -20,14 +22,90 @@ extension AppTests {
 
         try await app.test(
           .GET, "/champions/Garen",
-          headers: reqHeaders(accessToken: webApiKey),
+          headers: reqHeaders(accessToken: accessToken),
         ) { res async throws in
           #expect(res.status == .notFound)
         }
       }
     }
 
-    @Test func knownChampion() async throws {
+    @Test func knownChampionMobile() async throws {
+      try await knownChampionMobile(accessToken: mobileToken) { res async throws in
+        #expect(res.status == .ok)
+        try expectBody(
+          res.body,
+          [
+            "id": "nocturne",
+            "imageUrl": imageUrl("Nocturne"),
+            "name": "Nocturne",
+            "title": "the Eternal Nightmare",
+            "observing": false,
+            "availability": [
+              [
+                "rotationType": "regular",
+                "current": false,
+              ],
+              [
+                "rotationType": "beginner",
+                "current": false,
+              ],
+            ],
+            "overview": [
+              "occurrences": 0,
+              "popularity": 1,
+              "currentStreak": 0,
+            ],
+            "history": [
+              [
+                "type": "release",
+                "releasedAt": "2024-01-01T00:00:00Z",
+              ]
+            ],
+          ]
+        )
+      }
+    }
+
+    @Test func knownChampionWeb() async throws {
+      try await knownChampionMobile(accessToken: webApiKey) { res async throws in
+        #expect(res.status == .ok)
+        try expectBody(
+          res.body,
+          [
+            "id": "nocturne",
+            "imageUrl": imageUrl("Nocturne"),
+            "name": "Nocturne",
+            "title": "the Eternal Nightmare",
+            "availability": [
+              [
+                "rotationType": "regular",
+                "current": false,
+              ],
+              [
+                "rotationType": "beginner",
+                "current": false,
+              ],
+            ],
+            "overview": [
+              "occurrences": 0,
+              "popularity": 1,
+              "currentStreak": 0,
+            ],
+            "history": [
+              [
+                "type": "release",
+                "releasedAt": "2024-01-01T00:00:00Z",
+              ]
+            ],
+          ]
+        )
+      }
+    }
+
+    func knownChampionMobile(
+      accessToken: String,
+      afterResponse: (TestingHTTPResponse) async throws -> Void,
+    ) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
           appWebKey: webApiKey,
@@ -43,44 +121,89 @@ extension AppTests {
 
         try await app.test(
           .GET, "/champions/Nocturne",
-          headers: reqHeaders(accessToken: webApiKey),
-        ) { res async throws in
-          #expect(res.status == .ok)
-          try expectBody(
-            res.body,
-            [
-              "id": "nocturne",
-              "imageUrl": imageUrl("Nocturne"),
-              "name": "Nocturne",
-              "title": "the Eternal Nightmare",
-              "availability": [
-                [
-                  "rotationType": "regular",
-                  "current": false,
-                ],
-                [
-                  "rotationType": "beginner",
-                  "current": false,
-                ],
-              ],
-              "overview": [
-                "occurrences": 0,
-                "popularity": 1,
-                "currentStreak": 0,
-              ],
-              "history": [
-                [
-                  "type": "release",
-                  "releasedAt": "2024-01-01T00:00:00Z",
-                ]
-              ],
-            ]
-          )
-        }
+          headers: reqHeaders(accessToken: accessToken),
+          afterResponse: afterResponse,
+        )
       }
     }
 
-    @Test func knownChampionCaseInsensitive() async throws {
+    @Test func knownChampionCaseInsensitiveMobile() async throws {
+      try await knownChampionCaseInsensitive(accessToken: mobileToken) { res async throws in
+        #expect(res.status == .ok)
+        try expectBody(
+          res.body,
+          [
+            "id": "nocturne",
+            "imageUrl": imageUrl("Nocturne"),
+            "name": "Nocturne",
+            "title": "the Eternal Nightmare",
+            "observing": false,
+            "availability": [
+              [
+                "rotationType": "regular",
+                "current": false,
+              ],
+              [
+                "rotationType": "beginner",
+                "current": false,
+              ],
+            ],
+            "overview": [
+              "occurrences": 0,
+              "popularity": 1,
+              "currentStreak": 0,
+            ],
+            "history": [
+              [
+                "type": "release",
+                "releasedAt": "2024-01-01T00:00:00Z",
+              ]
+            ],
+          ]
+        )
+      }
+    }
+
+    @Test func knownChampionCaseInsensitiveWeb() async throws {
+      try await knownChampionCaseInsensitive(accessToken: webApiKey) { res async throws in
+        #expect(res.status == .ok)
+        try expectBody(
+          res.body,
+          [
+            "id": "nocturne",
+            "imageUrl": imageUrl("Nocturne"),
+            "name": "Nocturne",
+            "title": "the Eternal Nightmare",
+            "availability": [
+              [
+                "rotationType": "regular",
+                "current": false,
+              ],
+              [
+                "rotationType": "beginner",
+                "current": false,
+              ],
+            ],
+            "overview": [
+              "occurrences": 0,
+              "popularity": 1,
+              "currentStreak": 0,
+            ],
+            "history": [
+              [
+                "type": "release",
+                "releasedAt": "2024-01-01T00:00:00Z",
+              ]
+            ],
+          ]
+        )
+      }
+    }
+
+    func knownChampionCaseInsensitive(
+      accessToken: String,
+      afterResponse: (TestingHTTPResponse) async throws -> Void,
+    ) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
           appWebKey: webApiKey,
@@ -96,44 +219,75 @@ extension AppTests {
 
         try await app.test(
           .GET, "/champions/nocturne",
-          headers: reqHeaders(accessToken: webApiKey),
-        ) { res async throws in
-          #expect(res.status == .ok)
-          try expectBody(
-            res.body,
-            [
-              "id": "nocturne",
-              "imageUrl": imageUrl("Nocturne"),
-              "name": "Nocturne",
-              "title": "the Eternal Nightmare",
-              "availability": [
-                [
-                  "rotationType": "regular",
-                  "current": false,
-                ],
-                [
-                  "rotationType": "beginner",
-                  "current": false,
-                ],
-              ],
-              "overview": [
-                "occurrences": 0,
-                "popularity": 1,
-                "currentStreak": 0,
-              ],
-              "history": [
-                [
-                  "type": "release",
-                  "releasedAt": "2024-01-01T00:00:00Z",
-                ]
-              ],
-            ]
-          )
-        }
+          headers: reqHeaders(accessToken: accessToken),
+          afterResponse: afterResponse,
+        )
       }
     }
 
-    @Test func championWithMissingReleaseDate() async throws {
+    @Test func championWithMissingReleaseDateMobile() async throws {
+      try await championWithMissingReleaseDate(accessToken: mobileToken) { res async throws in
+        #expect(res.status == .ok)
+        try expectBody(
+          res.body,
+          [
+            "id": "nocturne",
+            "imageUrl": imageUrl("Nocturne"),
+            "name": "Nocturne",
+            "title": "the Eternal Nightmare",
+            "observing": false,
+            "availability": [
+              [
+                "rotationType": "regular",
+                "current": false,
+              ],
+              [
+                "rotationType": "beginner",
+                "current": false,
+              ],
+            ],
+            "overview": [
+              "occurrences": 0
+            ],
+            "history": [],
+          ],
+        )
+      }
+    }
+
+    @Test func championWithMissingReleaseDateWeb() async throws {
+      try await championWithMissingReleaseDate(accessToken: webApiKey) { res async throws in
+        #expect(res.status == .ok)
+        try expectBody(
+          res.body,
+          [
+            "id": "nocturne",
+            "imageUrl": imageUrl("Nocturne"),
+            "name": "Nocturne",
+            "title": "the Eternal Nightmare",
+            "availability": [
+              [
+                "rotationType": "regular",
+                "current": false,
+              ],
+              [
+                "rotationType": "beginner",
+                "current": false,
+              ],
+            ],
+            "overview": [
+              "occurrences": 0
+            ],
+            "history": [],
+          ],
+        )
+      }
+    }
+
+    func championWithMissingReleaseDate(
+      accessToken: String,
+      afterResponse: (TestingHTTPResponse) async throws -> Void,
+    ) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
           appWebKey: webApiKey,
@@ -149,37 +303,111 @@ extension AppTests {
 
         try await app.test(
           .GET, "/champions/Nocturne",
-          headers: reqHeaders(accessToken: webApiKey),
-        ) { res async throws in
-          #expect(res.status == .ok)
-          try expectBody(
-            res.body,
-            [
-              "id": "nocturne",
-              "imageUrl": imageUrl("Nocturne"),
-              "name": "Nocturne",
-              "title": "the Eternal Nightmare",
-              "availability": [
-                [
-                  "rotationType": "regular",
-                  "current": false,
-                ],
-                [
-                  "rotationType": "beginner",
-                  "current": false,
-                ],
-              ],
-              "overview": [
-                "occurrences": 0
-              ],
-              "history": [],
-            ],
-          )
-        }
+          headers: reqHeaders(accessToken: accessToken),
+          afterResponse: afterResponse,
+        )
       }
     }
 
-    @Test func championInCurrentRotation() async throws {
+    @Test func championInCurrentRotationMobile() async throws {
+      try await championInCurrentRotationMobile(accessToken: mobileToken) { res async throws in
+        #expect(res.status == .ok)
+        try expectBody(
+          res.body,
+          [
+            "id": "nocturne",
+            "imageUrl": imageUrl("Nocturne"),
+            "name": "Nocturne",
+            "title": "the Eternal Nightmare",
+            "observing": false,
+            "availability": [
+              [
+                "rotationType": "regular",
+                "current": true,
+                "lastAvailable": "2024-11-14T12:00:00Z",
+              ],
+              [
+                "rotationType": "beginner",
+                "current": false,
+              ],
+            ],
+            "overview": [
+              "occurrences": 1,
+              "popularity": 1,
+              "currentStreak": 1,
+            ],
+            "history": [
+              [
+                "type": "rotation",
+                "id": "s1w1",
+                "duration": [
+                  "start": "2024-11-14T12:00:00Z",
+                  "end": "2024-11-21T12:00:00Z",
+                ],
+                "current": true,
+                "championImageUrls": [imageUrl("Nocturne")],
+              ],
+              [
+                "type": "release",
+                "releasedAt": "2024-01-01T00:00:00Z",
+              ],
+            ],
+          ]
+        )
+      }
+    }
+
+    @Test func championInCurrentRotationWeb() async throws {
+      try await championInCurrentRotationMobile(accessToken: webApiKey) { res async throws in
+        #expect(res.status == .ok)
+        try expectBody(
+          res.body,
+          [
+            "id": "nocturne",
+            "imageUrl": imageUrl("Nocturne"),
+            "name": "Nocturne",
+            "title": "the Eternal Nightmare",
+            "availability": [
+              [
+                "rotationType": "regular",
+                "current": true,
+                "lastAvailable": "2024-11-14T12:00:00Z",
+              ],
+              [
+                "rotationType": "beginner",
+                "current": false,
+              ],
+            ],
+            "overview": [
+              "occurrences": 1,
+              "popularity": 1,
+              "currentStreak": 1,
+            ],
+            "history": [
+              [
+                "type": "rotation",
+                "id": "s1w1",
+                "duration": [
+                  "start": "2024-11-14T12:00:00Z",
+                  "end": "2024-11-21T12:00:00Z",
+                ],
+                "current": true,
+                "championImageUrls": [imageUrl("Nocturne")],
+              ],
+              [
+                "type": "release",
+                "releasedAt": "2024-01-01T00:00:00Z",
+              ],
+            ],
+          ]
+        )
+      }
+    }
+
+    func championInCurrentRotationMobile(
+      accessToken: String,
+      afterResponse: (TestingHTTPResponse) async throws -> Void,
+    ) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
           appWebKey: webApiKey,
@@ -204,55 +432,91 @@ extension AppTests {
 
         try await app.test(
           .GET, "/champions/Nocturne",
-          headers: reqHeaders(accessToken: webApiKey),
-        ) { res async throws in
-          #expect(res.status == .ok)
-          try expectBody(
-            res.body,
-            [
-              "id": "nocturne",
-              "imageUrl": imageUrl("Nocturne"),
-              "name": "Nocturne",
-              "title": "the Eternal Nightmare",
-              "availability": [
-                [
-                  "rotationType": "regular",
-                  "current": true,
-                  "lastAvailable": "2024-11-14T12:00:00Z",
-                ],
-                [
-                  "rotationType": "beginner",
-                  "current": false,
-                ],
-              ],
-              "overview": [
-                "occurrences": 1,
-                "popularity": 1,
-                "currentStreak": 1,
-              ],
-              "history": [
-                [
-                  "type": "rotation",
-                  "id": "s1w1",
-                  "duration": [
-                    "start": "2024-11-14T12:00:00Z",
-                    "end": "2024-11-21T12:00:00Z",
-                  ],
-                  "current": true,
-                  "championImageUrls": [imageUrl("Nocturne")],
-                ],
-                [
-                  "type": "release",
-                  "releasedAt": "2024-01-01T00:00:00Z",
-                ],
-              ],
-            ]
-          )
-        }
+          headers: reqHeaders(accessToken: accessToken),
+          afterResponse: afterResponse,
+        )
       }
     }
 
-    @Test func championInPreviousRotation() async throws {
+    @Test func championInPreviousRotationMobile() async throws {
+      try await championInPreviousRotation(accessToken: mobileToken) { res async throws in
+        #expect(res.status == .ok)
+        try expectBody(
+          res.body,
+          [
+            "id": "nocturne",
+            "imageUrl": imageUrl("Nocturne"),
+            "name": "Nocturne",
+            "title": "the Eternal Nightmare",
+            "observing": false,
+            "availability": [
+              [
+                "rotationType": "regular",
+                "current": false,
+              ],
+              [
+                "rotationType": "beginner",
+                "current": true,
+                "lastAvailable": "2024-11-14T12:00:00Z",
+              ],
+            ],
+            "overview": [
+              "occurrences": 0,
+              "popularity": 1,
+              "currentStreak": 0,
+            ],
+            "history": [
+              [
+                "type": "release",
+                "releasedAt": "2024-01-01T00:00:00Z",
+              ]
+            ],
+          ]
+        )
+      }
+    }
+
+    @Test func championInPreviousRotationWeb() async throws {
+      try await championInPreviousRotation(accessToken: webApiKey) { res async throws in
+        #expect(res.status == .ok)
+        try expectBody(
+          res.body,
+          [
+            "id": "nocturne",
+            "imageUrl": imageUrl("Nocturne"),
+            "name": "Nocturne",
+            "title": "the Eternal Nightmare",
+            "availability": [
+              [
+                "rotationType": "regular",
+                "current": false,
+              ],
+              [
+                "rotationType": "beginner",
+                "current": true,
+                "lastAvailable": "2024-11-14T12:00:00Z",
+              ],
+            ],
+            "overview": [
+              "occurrences": 0,
+              "popularity": 1,
+              "currentStreak": 0,
+            ],
+            "history": [
+              [
+                "type": "release",
+                "releasedAt": "2024-01-01T00:00:00Z",
+              ]
+            ],
+          ]
+        )
+      }
+    }
+
+    func championInPreviousRotation(
+      accessToken: String,
+      afterResponse: (TestingHTTPResponse) async throws -> Void,
+    ) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
           appWebKey: webApiKey,
@@ -275,45 +539,181 @@ extension AppTests {
 
         try await app.test(
           .GET, "/champions/Nocturne",
-          headers: reqHeaders(accessToken: webApiKey),
-        ) { res async throws in
-          #expect(res.status == .ok)
-          try expectBody(
-            res.body,
-            [
-              "id": "nocturne",
-              "imageUrl": imageUrl("Nocturne"),
-              "name": "Nocturne",
-              "title": "the Eternal Nightmare",
-              "availability": [
-                [
-                  "rotationType": "regular",
-                  "current": false,
-                ],
-                [
-                  "rotationType": "beginner",
-                  "current": true,
-                  "lastAvailable": "2024-11-14T12:00:00Z",
-                ],
-              ],
-              "overview": [
-                "occurrences": 0,
-                "popularity": 1,
-                "currentStreak": 0,
-              ],
-              "history": [
-                [
-                  "type": "release",
-                  "releasedAt": "2024-01-01T00:00:00Z",
-                ]
-              ],
-            ]
-          )
-        }
+          headers: reqHeaders(accessToken: accessToken),
+          afterResponse: afterResponse,
+        )
       }
     }
 
-    @Test func overviewWithPositiveStreak() async throws {
+    @Test func overviewWithPositiveStreakMobile() async throws {
+      try await overviewWithPositiveStreak(accessToken: mobileToken) { res async throws in
+        #expect(res.status == .ok)
+        try expectBody(
+          res.body,
+          [
+            "id": "nocturne",
+            "imageUrl": imageUrl("Nocturne"),
+            "name": "Nocturne",
+            "title": "the Eternal Nightmare",
+            "observing": false,
+            "availability": [
+              [
+                "rotationType": "regular",
+                "current": true,
+                "lastAvailable": "2024-11-14T12:00:00Z",
+              ],
+              [
+                "rotationType": "beginner",
+                "current": false,
+              ],
+            ],
+            "overview": [
+              "occurrences": 3,
+              "popularity": 2,
+              "currentStreak": 2,
+            ],
+            "history": [
+              [
+                "type": "rotation",
+                "id": "s1w4",
+                "duration": [
+                  "start": "2024-11-14T12:00:00Z",
+                  "end": "2024-11-21T12:00:00Z",
+                ],
+                "current": true,
+                "championImageUrls": [
+                  imageUrl("Senna"),
+                  imageUrl("Nocturne"),
+                ],
+              ],
+              [
+                "type": "rotation",
+                "id": "s1w3",
+                "duration": [
+                  "start": "2024-11-13T12:00:00Z",
+                  "end": "2024-11-14T12:00:00Z",
+                ],
+                "current": false,
+                "championImageUrls": [
+                  imageUrl("Nocturne"),
+                  imageUrl("Fiora"),
+                  imageUrl("Senna"),
+                ],
+              ],
+              [
+                "type": "bench",
+                "rotationsMissed": 1,
+              ],
+              [
+                "type": "rotation",
+                "id": "s1w1",
+                "duration": [
+                  "start": "2024-11-11T12:00:00Z",
+                  "end": "2024-11-12T12:00:00Z",
+                ],
+                "current": false,
+                "championImageUrls": [
+                  imageUrl("Nocturne"),
+                  imageUrl("Fiora"),
+                  imageUrl("Senna"),
+                ],
+              ],
+              [
+                "type": "release",
+                "releasedAt": "2024-01-01T00:00:00Z",
+              ],
+            ],
+          ]
+        )
+      }
+    }
+
+    @Test func overviewWithPositiveStreakWeb() async throws {
+      try await overviewWithPositiveStreak(accessToken: webApiKey) { res async throws in
+        #expect(res.status == .ok)
+        try expectBody(
+          res.body,
+          [
+            "id": "nocturne",
+            "imageUrl": imageUrl("Nocturne"),
+            "name": "Nocturne",
+            "title": "the Eternal Nightmare",
+            "availability": [
+              [
+                "rotationType": "regular",
+                "current": true,
+                "lastAvailable": "2024-11-14T12:00:00Z",
+              ],
+              [
+                "rotationType": "beginner",
+                "current": false,
+              ],
+            ],
+            "overview": [
+              "occurrences": 3,
+              "popularity": 2,
+              "currentStreak": 2,
+            ],
+            "history": [
+              [
+                "type": "rotation",
+                "id": "s1w4",
+                "duration": [
+                  "start": "2024-11-14T12:00:00Z",
+                  "end": "2024-11-21T12:00:00Z",
+                ],
+                "current": true,
+                "championImageUrls": [
+                  imageUrl("Senna"),
+                  imageUrl("Nocturne"),
+                ],
+              ],
+              [
+                "type": "rotation",
+                "id": "s1w3",
+                "duration": [
+                  "start": "2024-11-13T12:00:00Z",
+                  "end": "2024-11-14T12:00:00Z",
+                ],
+                "current": false,
+                "championImageUrls": [
+                  imageUrl("Nocturne"),
+                  imageUrl("Fiora"),
+                  imageUrl("Senna"),
+                ],
+              ],
+              [
+                "type": "bench",
+                "rotationsMissed": 1,
+              ],
+              [
+                "type": "rotation",
+                "id": "s1w1",
+                "duration": [
+                  "start": "2024-11-11T12:00:00Z",
+                  "end": "2024-11-12T12:00:00Z",
+                ],
+                "current": false,
+                "championImageUrls": [
+                  imageUrl("Nocturne"),
+                  imageUrl("Fiora"),
+                  imageUrl("Senna"),
+                ],
+              ],
+              [
+                "type": "release",
+                "releasedAt": "2024-01-01T00:00:00Z",
+              ],
+            ],
+          ]
+        )
+      }
+    }
+
+    func overviewWithPositiveStreak(
+      accessToken: String,
+      afterResponse: (TestingHTTPResponse) async throws -> Void,
+    ) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
           appWebKey: webApiKey,
@@ -364,90 +764,133 @@ extension AppTests {
 
         try await app.test(
           .GET, "/champions/Nocturne",
-          headers: reqHeaders(accessToken: webApiKey),
-        ) { res async throws in
-          #expect(res.status == .ok)
-          try expectBody(
-            res.body,
-            [
-              "id": "nocturne",
-              "imageUrl": imageUrl("Nocturne"),
-              "name": "Nocturne",
-              "title": "the Eternal Nightmare",
-              "availability": [
-                [
-                  "rotationType": "regular",
-                  "current": true,
-                  "lastAvailable": "2024-11-14T12:00:00Z",
-                ],
-                [
-                  "rotationType": "beginner",
-                  "current": false,
-                ],
-              ],
-              "overview": [
-                "occurrences": 3,
-                "popularity": 2,
-                "currentStreak": 2,
-              ],
-              "history": [
-                [
-                  "type": "rotation",
-                  "id": "s1w4",
-                  "duration": [
-                    "start": "2024-11-14T12:00:00Z",
-                    "end": "2024-11-21T12:00:00Z",
-                  ],
-                  "current": true,
-                  "championImageUrls": [
-                    imageUrl("Senna"),
-                    imageUrl("Nocturne"),
-                  ],
-                ],
-                [
-                  "type": "rotation",
-                  "id": "s1w3",
-                  "duration": [
-                    "start": "2024-11-13T12:00:00Z",
-                    "end": "2024-11-14T12:00:00Z",
-                  ],
-                  "current": false,
-                  "championImageUrls": [
-                    imageUrl("Nocturne"),
-                    imageUrl("Fiora"),
-                    imageUrl("Senna"),
-                  ],
-                ],
-                [
-                  "type": "bench",
-                  "rotationsMissed": 1,
-                ],
-                [
-                  "type": "rotation",
-                  "id": "s1w1",
-                  "duration": [
-                    "start": "2024-11-11T12:00:00Z",
-                    "end": "2024-11-12T12:00:00Z",
-                  ],
-                  "current": false,
-                  "championImageUrls": [
-                    imageUrl("Nocturne"),
-                    imageUrl("Fiora"),
-                    imageUrl("Senna"),
-                  ],
-                ],
-                [
-                  "type": "release",
-                  "releasedAt": "2024-01-01T00:00:00Z",
-                ],
-              ],
-            ]
-          )
-        }
+          headers: reqHeaders(accessToken: accessToken),
+          afterResponse: afterResponse,
+        )
       }
     }
 
-    @Test func overviewWithNegativeStreak() async throws {
+    @Test func overviewWithNegativeStreakMobile() async throws {
+      try await overviewWithNegativeStreak(accessToken: mobileToken) { res async throws in
+        #expect(res.status == .ok)
+        try expectBody(
+          res.body,
+          [
+            "id": "nocturne",
+            "imageUrl": imageUrl("Nocturne"),
+            "name": "Nocturne",
+            "title": "the Eternal Nightmare",
+            "observing": false,
+            "availability": [
+              [
+                "rotationType": "regular",
+                "current": false,
+                "lastAvailable": "2024-11-12T12:00:00Z",
+              ],
+              [
+                "rotationType": "beginner",
+                "current": false,
+              ],
+            ],
+            "overview": [
+              "occurrences": 1,
+              "popularity": 3,
+              "currentStreak": -2,
+            ],
+            "history": [
+              [
+                "type": "bench",
+                "rotationsMissed": 2,
+              ],
+              [
+                "type": "rotation",
+                "id": "s1w2",
+                "duration": [
+                  "start": "2024-11-12T12:00:00Z",
+                  "end": "2024-11-13T12:00:00Z",
+                ],
+                "current": false,
+                "championImageUrls": [
+                  imageUrl("Senna"),
+                  imageUrl("Nocturne"),
+                ],
+              ],
+              [
+                "type": "bench",
+                "rotationsMissed": 1,
+              ],
+              [
+                "type": "release",
+                "releasedAt": "2024-01-01T00:00:00Z",
+              ],
+            ],
+          ]
+        )
+      }
+    }
+
+    @Test func overviewWithNegativeStreakWeb() async throws {
+      try await overviewWithNegativeStreak(accessToken: webApiKey) { res async throws in
+        #expect(res.status == .ok)
+        try expectBody(
+          res.body,
+          [
+            "id": "nocturne",
+            "imageUrl": imageUrl("Nocturne"),
+            "name": "Nocturne",
+            "title": "the Eternal Nightmare",
+            "availability": [
+              [
+                "rotationType": "regular",
+                "current": false,
+                "lastAvailable": "2024-11-12T12:00:00Z",
+              ],
+              [
+                "rotationType": "beginner",
+                "current": false,
+              ],
+            ],
+            "overview": [
+              "occurrences": 1,
+              "popularity": 3,
+              "currentStreak": -2,
+            ],
+            "history": [
+              [
+                "type": "bench",
+                "rotationsMissed": 2,
+              ],
+              [
+                "type": "rotation",
+                "id": "s1w2",
+                "duration": [
+                  "start": "2024-11-12T12:00:00Z",
+                  "end": "2024-11-13T12:00:00Z",
+                ],
+                "current": false,
+                "championImageUrls": [
+                  imageUrl("Senna"),
+                  imageUrl("Nocturne"),
+                ],
+              ],
+              [
+                "type": "bench",
+                "rotationsMissed": 1,
+              ],
+              [
+                "type": "release",
+                "releasedAt": "2024-01-01T00:00:00Z",
+              ],
+            ],
+          ]
+        )
+      }
+    }
+
+    func overviewWithNegativeStreak(
+      accessToken: String,
+      afterResponse: (TestingHTTPResponse) async throws -> Void,
+    ) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
           appWebKey: webApiKey,
@@ -498,66 +941,125 @@ extension AppTests {
 
         try await app.test(
           .GET, "/champions/Nocturne",
-          headers: reqHeaders(accessToken: webApiKey),
-        ) { res async throws in
-          #expect(res.status == .ok)
-          try expectBody(
-            res.body,
-            [
-              "id": "nocturne",
-              "imageUrl": imageUrl("Nocturne"),
-              "name": "Nocturne",
-              "title": "the Eternal Nightmare",
-              "availability": [
-                [
-                  "rotationType": "regular",
-                  "current": false,
-                  "lastAvailable": "2024-11-12T12:00:00Z",
-                ],
-                [
-                  "rotationType": "beginner",
-                  "current": false,
-                ],
-              ],
-              "overview": [
-                "occurrences": 1,
-                "popularity": 3,
-                "currentStreak": -2,
-              ],
-              "history": [
-                [
-                  "type": "bench",
-                  "rotationsMissed": 2,
-                ],
-                [
-                  "type": "rotation",
-                  "id": "s1w2",
-                  "duration": [
-                    "start": "2024-11-12T12:00:00Z",
-                    "end": "2024-11-13T12:00:00Z",
-                  ],
-                  "current": false,
-                  "championImageUrls": [
-                    imageUrl("Senna"),
-                    imageUrl("Nocturne"),
-                  ],
-                ],
-                [
-                  "type": "bench",
-                  "rotationsMissed": 1,
-                ],
-                [
-                  "type": "release",
-                  "releasedAt": "2024-01-01T00:00:00Z",
-                ],
-              ],
-            ]
-          )
-        }
+          headers: reqHeaders(accessToken: accessToken),
+          afterResponse: afterResponse,
+        )
       }
     }
 
-    @Test func championReleasedBetweenRotation() async throws {
+    @Test func championReleasedBetweenRotationMobile() async throws {
+      try await championReleasedBetweenRotation(accessToken: mobileToken) { res async throws in
+        #expect(res.status == .ok)
+        try expectBody(
+          res.body,
+          [
+            "id": "nocturne",
+            "imageUrl": imageUrl("Nocturne"),
+            "name": "Nocturne",
+            "title": "the Eternal Nightmare",
+            "observing": false,
+            "availability": [
+              [
+                "rotationType": "regular",
+                "current": true,
+                "lastAvailable": "2024-11-14T12:00:00Z",
+              ],
+              [
+                "rotationType": "beginner",
+                "current": false,
+              ],
+            ],
+            "overview": [
+              "occurrences": 1,
+              "popularity": 3,
+              "currentStreak": 1,
+            ],
+            "history": [
+              [
+                "type": "rotation",
+                "id": "s1w4",
+                "duration": [
+                  "start": "2024-11-14T12:00:00Z",
+                  "end": "2024-11-21T12:00:00Z",
+                ],
+                "current": true,
+                "championImageUrls": [
+                  imageUrl("Fiora"),
+                  imageUrl("Nocturne"),
+                ],
+              ],
+              [
+                "type": "bench",
+                "rotationsMissed": 1,
+              ],
+              [
+                "type": "release",
+                "releasedAt": "2024-11-13T00:00:00Z",
+              ],
+            ],
+          ]
+        )
+      }
+    }
+
+    @Test func championReleasedBetweenRotationWeb() async throws {
+      try await championReleasedBetweenRotation(accessToken: webApiKey) { res async throws in
+        #expect(res.status == .ok)
+        try expectBody(
+          res.body,
+          [
+            "id": "nocturne",
+            "imageUrl": imageUrl("Nocturne"),
+            "name": "Nocturne",
+            "title": "the Eternal Nightmare",
+            "availability": [
+              [
+                "rotationType": "regular",
+                "current": true,
+                "lastAvailable": "2024-11-14T12:00:00Z",
+              ],
+              [
+                "rotationType": "beginner",
+                "current": false,
+              ],
+            ],
+            "overview": [
+              "occurrences": 1,
+              "popularity": 3,
+              "currentStreak": 1,
+            ],
+            "history": [
+              [
+                "type": "rotation",
+                "id": "s1w4",
+                "duration": [
+                  "start": "2024-11-14T12:00:00Z",
+                  "end": "2024-11-21T12:00:00Z",
+                ],
+                "current": true,
+                "championImageUrls": [
+                  imageUrl("Fiora"),
+                  imageUrl("Nocturne"),
+                ],
+              ],
+              [
+                "type": "bench",
+                "rotationsMissed": 1,
+              ],
+              [
+                "type": "release",
+                "releasedAt": "2024-11-13T00:00:00Z",
+              ],
+            ],
+          ]
+        )
+      }
+    }
+
+    func championReleasedBetweenRotation(
+      accessToken: String,
+      afterResponse: (TestingHTTPResponse) async throws -> Void,
+    ) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
           appWebKey: webApiKey,
@@ -608,62 +1110,99 @@ extension AppTests {
 
         try await app.test(
           .GET, "/champions/Nocturne",
-          headers: reqHeaders(accessToken: webApiKey),
-        ) { res async throws in
-          #expect(res.status == .ok)
-          try expectBody(
-            res.body,
-            [
-              "id": "nocturne",
-              "imageUrl": imageUrl("Nocturne"),
-              "name": "Nocturne",
-              "title": "the Eternal Nightmare",
-              "availability": [
-                [
-                  "rotationType": "regular",
-                  "current": true,
-                  "lastAvailable": "2024-11-14T12:00:00Z",
-                ],
-                [
-                  "rotationType": "beginner",
-                  "current": false,
-                ],
-              ],
-              "overview": [
-                "occurrences": 1,
-                "popularity": 3,
-                "currentStreak": 1,
-              ],
-              "history": [
-                [
-                  "type": "rotation",
-                  "id": "s1w4",
-                  "duration": [
-                    "start": "2024-11-14T12:00:00Z",
-                    "end": "2024-11-21T12:00:00Z",
-                  ],
-                  "current": true,
-                  "championImageUrls": [
-                    imageUrl("Fiora"),
-                    imageUrl("Nocturne"),
-                  ],
-                ],
-                [
-                  "type": "bench",
-                  "rotationsMissed": 1,
-                ],
-                [
-                  "type": "release",
-                  "releasedAt": "2024-11-13T00:00:00Z",
-                ],
-              ],
-            ]
-          )
-        }
+          headers: reqHeaders(accessToken: accessToken),
+          afterResponse: afterResponse,
+        )
       }
     }
 
-    @Test func championReleasedBetweenRotationWithNegativeStreak() async throws {
+    @Test func championReleasedBetweenRotationWithNegativeStreakMobile() async throws {
+      try await championReleasedBetweenRotationWithNegativeStreak(accessToken: mobileToken) {
+        res async throws in
+        #expect(res.status == .ok)
+        try expectBody(
+          res.body,
+          [
+            "id": "nocturne",
+            "imageUrl": imageUrl("Nocturne"),
+            "name": "Nocturne",
+            "title": "the Eternal Nightmare",
+            "observing": false,
+            "availability": [
+              [
+                "rotationType": "regular",
+                "current": false,
+              ],
+              [
+                "rotationType": "beginner",
+                "current": false,
+              ],
+            ],
+            "overview": [
+              "occurrences": 0,
+              "popularity": 3,
+              "currentStreak": -2,
+            ],
+            "history": [
+              [
+                "type": "bench",
+                "rotationsMissed": 2,
+              ],
+              [
+                "type": "release",
+                "releasedAt": "2024-11-13T00:00:00Z",
+              ],
+            ],
+          ]
+        )
+      }
+    }
+
+    @Test func championReleasedBetweenRotationWithNegativeStreakWeb() async throws {
+      try await championReleasedBetweenRotationWithNegativeStreak(accessToken: webApiKey) {
+        res async throws in
+        #expect(res.status == .ok)
+        try expectBody(
+          res.body,
+          [
+            "id": "nocturne",
+            "imageUrl": imageUrl("Nocturne"),
+            "name": "Nocturne",
+            "title": "the Eternal Nightmare",
+            "availability": [
+              [
+                "rotationType": "regular",
+                "current": false,
+              ],
+              [
+                "rotationType": "beginner",
+                "current": false,
+              ],
+            ],
+            "overview": [
+              "occurrences": 0,
+              "popularity": 3,
+              "currentStreak": -2,
+            ],
+            "history": [
+              [
+                "type": "bench",
+                "rotationsMissed": 2,
+              ],
+              [
+                "type": "release",
+                "releasedAt": "2024-11-13T00:00:00Z",
+              ],
+            ],
+          ]
+        )
+      }
+    }
+
+    func championReleasedBetweenRotationWithNegativeStreak(
+      accessToken: String,
+      afterResponse: (TestingHTTPResponse) async throws -> Void,
+    ) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
           appWebKey: webApiKey,
@@ -713,48 +1252,145 @@ extension AppTests {
 
         try await app.test(
           .GET, "/champions/Nocturne",
-          headers: reqHeaders(accessToken: webApiKey),
-        ) { res async throws in
-          #expect(res.status == .ok)
-          try expectBody(
-            res.body,
-            [
-              "id": "nocturne",
-              "imageUrl": imageUrl("Nocturne"),
-              "name": "Nocturne",
-              "title": "the Eternal Nightmare",
-              "availability": [
-                [
-                  "rotationType": "regular",
-                  "current": false,
-                ],
-                [
-                  "rotationType": "beginner",
-                  "current": false,
-                ],
-              ],
-              "overview": [
-                "occurrences": 0,
-                "popularity": 3,
-                "currentStreak": -2,
-              ],
-              "history": [
-                [
-                  "type": "bench",
-                  "rotationsMissed": 2,
-                ],
-                [
-                  "type": "release",
-                  "releasedAt": "2024-11-13T00:00:00Z",
-                ],
-              ],
-            ]
-          )
-        }
+          headers: reqHeaders(accessToken: accessToken),
+          afterResponse: afterResponse,
+        )
       }
     }
 
-    @Test func championWithHighRelativeScore() async throws {
+    @Test func championWithHighRelativeScoreMobile() async throws {
+      try await championWithHighRelativeScore(accessToken: mobileToken) { res async throws in
+        #expect(res.status == .ok)
+        try expectBody(
+          res.body,
+          [
+            "id": "nocturne",
+            "imageUrl": imageUrl("Nocturne"),
+            "name": "Nocturne",
+            "title": "the Eternal Nightmare",
+            "observing": false,
+            "availability": [
+              [
+                "rotationType": "regular",
+                "current": true,
+                "lastAvailable": "2024-11-15T12:00:00Z",
+              ],
+              [
+                "rotationType": "beginner",
+                "current": false,
+              ],
+            ],
+            "overview": [
+              "occurrences": 2,
+              "popularity": 2,
+              "currentStreak": 2,
+            ],
+            "history": [
+              [
+                "type": "rotation",
+                "id": "s1w5",
+                "duration": [
+                  "start": "2024-11-15T12:00:00Z",
+                  "end": "2024-11-22T12:00:00Z",
+                ],
+                "current": true,
+                "championImageUrls": [
+                  imageUrl("Senna"),
+                  imageUrl("Fiora"),
+                  imageUrl("Nocturne"),
+                ],
+              ],
+              [
+                "type": "rotation",
+                "id": "s1w4",
+                "duration": [
+                  "start": "2024-11-14T12:00:00Z",
+                  "end": "2024-11-15T12:00:00Z",
+                ],
+                "current": false,
+                "championImageUrls": [
+                  imageUrl("Fiora"),
+                  imageUrl("Nocturne"),
+                ],
+              ],
+              [
+                "type": "release",
+                "releasedAt": "2024-11-14T00:00:00Z",
+              ],
+            ],
+          ]
+        )
+      }
+    }
+
+    @Test func championWithHighRelativeScoreWeb() async throws {
+      try await championWithHighRelativeScore(accessToken: webApiKey) { res async throws in
+        #expect(res.status == .ok)
+        try expectBody(
+          res.body,
+          [
+            "id": "nocturne",
+            "imageUrl": imageUrl("Nocturne"),
+            "name": "Nocturne",
+            "title": "the Eternal Nightmare",
+            "availability": [
+              [
+                "rotationType": "regular",
+                "current": true,
+                "lastAvailable": "2024-11-15T12:00:00Z",
+              ],
+              [
+                "rotationType": "beginner",
+                "current": false,
+              ],
+            ],
+            "overview": [
+              "occurrences": 2,
+              "popularity": 2,
+              "currentStreak": 2,
+            ],
+            "history": [
+              [
+                "type": "rotation",
+                "id": "s1w5",
+                "duration": [
+                  "start": "2024-11-15T12:00:00Z",
+                  "end": "2024-11-22T12:00:00Z",
+                ],
+                "current": true,
+                "championImageUrls": [
+                  imageUrl("Senna"),
+                  imageUrl("Fiora"),
+                  imageUrl("Nocturne"),
+                ],
+              ],
+              [
+                "type": "rotation",
+                "id": "s1w4",
+                "duration": [
+                  "start": "2024-11-14T12:00:00Z",
+                  "end": "2024-11-15T12:00:00Z",
+                ],
+                "current": false,
+                "championImageUrls": [
+                  imageUrl("Fiora"),
+                  imageUrl("Nocturne"),
+                ],
+              ],
+              [
+                "type": "release",
+                "releasedAt": "2024-11-14T00:00:00Z",
+              ],
+            ],
+          ]
+        )
+      }
+    }
+
+    func championWithHighRelativeScore(
+      accessToken: String,
+      afterResponse: (TestingHTTPResponse) async throws -> Void,
+    ) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
           appWebKey: webApiKey,
@@ -811,68 +1447,9 @@ extension AppTests {
 
         try await app.test(
           .GET, "/champions/Nocturne",
-          headers: reqHeaders(accessToken: webApiKey),
-        ) { res async throws in
-          #expect(res.status == .ok)
-          try expectBody(
-            res.body,
-            [
-              "id": "nocturne",
-              "imageUrl": imageUrl("Nocturne"),
-              "name": "Nocturne",
-              "title": "the Eternal Nightmare",
-              "availability": [
-                [
-                  "rotationType": "regular",
-                  "current": true,
-                  "lastAvailable": "2024-11-15T12:00:00Z",
-                ],
-                [
-                  "rotationType": "beginner",
-                  "current": false,
-                ],
-              ],
-              "overview": [
-                "occurrences": 2,
-                "popularity": 2,
-                "currentStreak": 2,
-              ],
-              "history": [
-                [
-                  "type": "rotation",
-                  "id": "s1w5",
-                  "duration": [
-                    "start": "2024-11-15T12:00:00Z",
-                    "end": "2024-11-22T12:00:00Z",
-                  ],
-                  "current": true,
-                  "championImageUrls": [
-                    imageUrl("Senna"),
-                    imageUrl("Fiora"),
-                    imageUrl("Nocturne"),
-                  ],
-                ],
-                [
-                  "type": "rotation",
-                  "id": "s1w4",
-                  "duration": [
-                    "start": "2024-11-14T12:00:00Z",
-                    "end": "2024-11-15T12:00:00Z",
-                  ],
-                  "current": false,
-                  "championImageUrls": [
-                    imageUrl("Fiora"),
-                    imageUrl("Nocturne"),
-                  ],
-                ],
-                [
-                  "type": "release",
-                  "releasedAt": "2024-11-14T00:00:00Z",
-                ],
-              ],
-            ]
-          )
-        }
+          headers: reqHeaders(accessToken: accessToken),
+          afterResponse: afterResponse,
+        )
       }
     }
 
@@ -990,7 +1567,147 @@ extension AppTests {
       }
     }
 
-    @Test func inactiveRotation() async throws {
+    @Test func inactiveRotationMobile() async throws {
+      try await inactiveRotation(accessToken: mobileToken) { res async throws in
+        #expect(res.status == .ok)
+        try expectBody(
+          res.body,
+          [
+            "id": "nocturne",
+            "imageUrl": imageUrl("Nocturne"),
+            "name": "Nocturne",
+            "title": "the Eternal Nightmare",
+            "observing": false,
+            "availability": [
+              [
+                "rotationType": "regular",
+                "current": true,
+                "lastAvailable": "2024-11-14T12:00:00Z",
+              ],
+              [
+                "rotationType": "beginner",
+                "current": false,
+              ],
+            ],
+            "overview": [
+              "occurrences": 2,
+              "popularity": 2,
+              "currentStreak": 1,
+            ],
+            "history": [
+              [
+                "type": "rotation",
+                "id": "s1w4",
+                "duration": [
+                  "start": "2024-11-14T12:00:00Z",
+                  "end": "2024-11-21T12:00:00Z",
+                ],
+                "current": true,
+                "championImageUrls": [
+                  imageUrl("Senna"),
+                  imageUrl("Nocturne"),
+                ],
+              ],
+              [
+                "type": "bench",
+                "rotationsMissed": 1,
+              ],
+              [
+                "type": "rotation",
+                "id": "s1w1",
+                "duration": [
+                  "start": "2024-11-11T12:00:00Z",
+                  "end": "2024-11-12T12:00:00Z",
+                ],
+                "current": false,
+                "championImageUrls": [
+                  imageUrl("Nocturne"),
+                  imageUrl("Fiora"),
+                  imageUrl("Senna"),
+                ],
+              ],
+              [
+                "type": "release",
+                "releasedAt": "2024-01-01T00:00:00Z",
+              ],
+            ],
+          ]
+        )
+      }
+    }
+
+    @Test func inactiveRotationWeb() async throws {
+      try await inactiveRotation(accessToken: webApiKey) { res async throws in
+        #expect(res.status == .ok)
+        try expectBody(
+          res.body,
+          [
+            "id": "nocturne",
+            "imageUrl": imageUrl("Nocturne"),
+            "name": "Nocturne",
+            "title": "the Eternal Nightmare",
+            "availability": [
+              [
+                "rotationType": "regular",
+                "current": true,
+                "lastAvailable": "2024-11-14T12:00:00Z",
+              ],
+              [
+                "rotationType": "beginner",
+                "current": false,
+              ],
+            ],
+            "overview": [
+              "occurrences": 2,
+              "popularity": 2,
+              "currentStreak": 1,
+            ],
+            "history": [
+              [
+                "type": "rotation",
+                "id": "s1w4",
+                "duration": [
+                  "start": "2024-11-14T12:00:00Z",
+                  "end": "2024-11-21T12:00:00Z",
+                ],
+                "current": true,
+                "championImageUrls": [
+                  imageUrl("Senna"),
+                  imageUrl("Nocturne"),
+                ],
+              ],
+              [
+                "type": "bench",
+                "rotationsMissed": 1,
+              ],
+              [
+                "type": "rotation",
+                "id": "s1w1",
+                "duration": [
+                  "start": "2024-11-11T12:00:00Z",
+                  "end": "2024-11-12T12:00:00Z",
+                ],
+                "current": false,
+                "championImageUrls": [
+                  imageUrl("Nocturne"),
+                  imageUrl("Fiora"),
+                  imageUrl("Senna"),
+                ],
+              ],
+              [
+                "type": "release",
+                "releasedAt": "2024-01-01T00:00:00Z",
+              ],
+            ],
+          ]
+        )
+      }
+    }
+
+    func inactiveRotation(
+      accessToken: String,
+      afterResponse: (TestingHTTPResponse) async throws -> Void,
+    ) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
           appWebKey: webApiKey,
@@ -1042,72 +1759,9 @@ extension AppTests {
 
         try await app.test(
           .GET, "/champions/Nocturne",
-          headers: reqHeaders(accessToken: webApiKey),
-        ) { res async throws in
-          #expect(res.status == .ok)
-          try expectBody(
-            res.body,
-            [
-              "id": "nocturne",
-              "imageUrl": imageUrl("Nocturne"),
-              "name": "Nocturne",
-              "title": "the Eternal Nightmare",
-              "availability": [
-                [
-                  "rotationType": "regular",
-                  "current": true,
-                  "lastAvailable": "2024-11-14T12:00:00Z",
-                ],
-                [
-                  "rotationType": "beginner",
-                  "current": false,
-                ],
-              ],
-              "overview": [
-                "occurrences": 2,
-                "popularity": 2,
-                "currentStreak": 1,
-              ],
-              "history": [
-                [
-                  "type": "rotation",
-                  "id": "s1w4",
-                  "duration": [
-                    "start": "2024-11-14T12:00:00Z",
-                    "end": "2024-11-21T12:00:00Z",
-                  ],
-                  "current": true,
-                  "championImageUrls": [
-                    imageUrl("Senna"),
-                    imageUrl("Nocturne"),
-                  ],
-                ],
-                [
-                  "type": "bench",
-                  "rotationsMissed": 1,
-                ],
-                [
-                  "type": "rotation",
-                  "id": "s1w1",
-                  "duration": [
-                    "start": "2024-11-11T12:00:00Z",
-                    "end": "2024-11-12T12:00:00Z",
-                  ],
-                  "current": false,
-                  "championImageUrls": [
-                    imageUrl("Nocturne"),
-                    imageUrl("Fiora"),
-                    imageUrl("Senna"),
-                  ],
-                ],
-                [
-                  "type": "release",
-                  "releasedAt": "2024-01-01T00:00:00Z",
-                ],
-              ],
-            ]
-          )
-        }
+          headers: reqHeaders(accessToken: accessToken),
+          afterResponse: afterResponse,
+        )
       }
     }
   }
