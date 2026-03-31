@@ -8,7 +8,8 @@ The application uses a `.env` file to provide necessary configuration at runtime
 
 | Variable                      | Description |
 |-------------------------------|-------------|
-| APP_MANAGEMENT_KEY            | Secret key used to authorize management endpoints (see [ManagementRoutes.swift](Sources/App/Routes/ManagementRoutes.swift) for the list of endpoints)
+| APP_MANAGEMENT_API_KEY        | Secret key used to authorize management endpoints (see [ManagementRoutes.swift](Sources/App/Routes/ManagementRoutes.swift) for the list of endpoints)
+| APP_WEB_API_KEY               | Secret key used to authorize the web application requests
 | APP_ALLOWED_ORIGINS           | Comma-separated list of allowed origins for CORS
 | B2_APP_KEY_ID                 | Backblaze B2 application key ID
 | B2_APP_KEY_SECRET             | Backblaze B2 application key secret
