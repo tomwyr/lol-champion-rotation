@@ -4,19 +4,32 @@ import Testing
 
 extension AppTests {
   @Suite(.serialized) struct UserTests {
-    @Test func invalidAuth() async throws {
+    @Test func missingAuth() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith()
 
         try await app.test(
-          .GET, "/user"
+          .GET, "/user",
         ) { res async throws in
           #expect(res.status == .unauthorized)
         }
       }
     }
 
-    @Test func validAuth() async throws {
+    @Test func webAuth() async throws {
+      try await withApp { app in
+        _ = try await app.testConfigureWith()
+
+        try await app.test(
+          .GET, "/user",
+          headers: reqHeaders(accessToken: webApiKey),
+        ) { res async throws in
+          #expect(res.status == .unauthorized)
+        }
+      }
+    }
+
+    @Test func mobileAuth() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith()
 

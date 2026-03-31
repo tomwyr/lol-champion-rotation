@@ -4,7 +4,7 @@ import Testing
 
 extension AppTests {
   @Suite(.serialized) struct PutNotificationsTokenTests {
-    @Test func invalidAuth() async throws {
+    @Test func missingAuth() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith()
 
@@ -17,8 +17,21 @@ extension AppTests {
         }
       }
     }
+    @Test func webAuth() async throws {
+      try await withApp { app in
+        _ = try await app.testConfigureWith()
 
-    @Test func validAuth() async throws {
+        try await app.test(
+          .PUT, "/notifications/token",
+          headers: reqHeaders(accessToken: webApiKey),
+          body: ["token": "123"],
+        ) { res async throws in
+          #expect(res.status == .unauthorized)
+        }
+      }
+    }
+
+    @Test func mobileAuth() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith()
 

@@ -4,7 +4,7 @@ import Testing
 
 extension AppTests {
   @Suite(.serialized) struct CreateFeedbackTests {
-    @Test func invalidAuth() async throws {
+    @Test func missingAuth() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith()
 
@@ -18,7 +18,21 @@ extension AppTests {
       }
     }
 
-    @Test func validAuth() async throws {
+    @Test func webAuth() async throws {
+      try await withApp { app in
+        _ = try await app.testConfigureWith()
+
+        try await app.test(
+          .POST, "/feedbacks",
+          headers: reqHeaders(accessToken: webApiKey),
+          body: ["title": "feedback", "description": "content"],
+        ) { res async throws in
+          #expect(res.status == .unauthorized)
+        }
+      }
+    }
+
+    @Test func mobileAuth() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith()
 

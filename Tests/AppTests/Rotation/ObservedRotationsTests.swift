@@ -35,6 +35,38 @@ extension AppTests {
       }
     }
 
+    @Test func webUser() async throws {
+      try await withApp { app in
+        _ = try await app.testConfigureWith(
+          dbRegularRotations: [
+            .init(
+              id: uuid("2"),
+              observedAt: .iso("2024-11-21T12:00:00Z")!,
+              champions: ["Nocturne"],
+              slug: "s1w2",
+            ),
+            .init(
+              id: uuid("1"),
+              observedAt: .iso("2024-11-14T12:00:00Z")!,
+              champions: ["Nocturne"],
+              slug: "s1w1",
+            ),
+          ],
+          dbChampions: [
+            .init(id: uuid("1"), riotId: "Nocturne", name: "Nocturne")
+          ],
+          b2AuthorizeDownloadData: .init(authorizationToken: "123"),
+        )
+
+        try await app.test(
+          .GET, "/rotations/observed",
+          headers: reqHeaders(accessToken: webApiKey),
+        ) { res async throws in
+          #expect(res.status == .unauthorized)
+        }
+      }
+    }
+
     @Test func authorizedUser() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(

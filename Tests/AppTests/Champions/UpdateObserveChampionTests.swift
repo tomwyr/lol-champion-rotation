@@ -17,6 +17,20 @@ extension AppTests {
       }
     }
 
+    @Test func webUser() async throws {
+      try await withApp { app in
+        _ = try await app.testConfigureWith()
+
+        try await app.test(
+          .POST, "/champions/Nocturne/observe",
+          headers: reqHeaders(accessToken: webApiKey),
+          body: ["observing": true],
+        ) { res async throws in
+          #expect(res.status == .unauthorized)
+        }
+      }
+    }
+
     @Test func addingNonObservedChampion() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(

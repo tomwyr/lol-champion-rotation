@@ -21,6 +21,24 @@ extension AppTests {
       }
     }
 
+    @Test func webUser() async throws {
+      try await withApp { app in
+        _ = try await app.testConfigureWith(
+          dbRegularRotations: [
+            .init(id: uuid("1"), slug: "s1w1")
+          ],
+        )
+
+        try await app.test(
+          .POST, "/rotations/s1w1/observe",
+          headers: reqHeaders(accessToken: webApiKey),
+          body: ["observing": true],
+        ) { res async throws in
+          #expect(res.status == .unauthorized)
+        }
+      }
+    }
+
     @Test func addingNonObservedRotation() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
