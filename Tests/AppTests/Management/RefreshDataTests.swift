@@ -24,7 +24,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/data/refresh",
-          headers: reqHeaders(accessToken: "123"),
+          headers: reqHeaders(accessToken: managementApiKey),
         ) { res async throws in
           #expect(res.status == .unauthorized)
           try expectBodyError(res.body, "Invalid auth token")
@@ -35,7 +35,7 @@ extension AppTests {
     @Test func validToken() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
-          managementApiKey: "123",
+          managementApiKey: managementApiKey,
           dbPatchVersions: [.init(value: "1")],
           dbChampionRotationConfigs: [.init(rotationChangeWeekday: 4)],
           riotPatchVersions: ["1"]
@@ -43,7 +43,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/data/refresh",
-          headers: reqHeaders(accessToken: "123"),
+          headers: reqHeaders(accessToken: managementApiKey),
         ) { res async throws in
           #expect(res.status == .ok)
         }
@@ -53,7 +53,7 @@ extension AppTests {
     @Test func rotationChampionsChanged() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
-          managementApiKey: "123",
+          managementApiKey: managementApiKey,
           dbRegularRotations: [
             .init(
               observedAt: Date.now,
@@ -86,7 +86,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/data/refresh",
-          headers: reqHeaders(accessToken: "123"),
+          headers: reqHeaders(accessToken: managementApiKey),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -103,7 +103,7 @@ extension AppTests {
     @Test func rotationChampionsPartiallyChanged() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
-          managementApiKey: "123",
+          managementApiKey: managementApiKey,
           dbRegularRotations: [
             .init(
               observedAt: Date.now,
@@ -140,7 +140,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/data/refresh",
-          headers: reqHeaders(accessToken: "123"),
+          headers: reqHeaders(accessToken: managementApiKey),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -157,7 +157,7 @@ extension AppTests {
     @Test func rotationMaxLevelChanged() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
-          managementApiKey: "123",
+          managementApiKey: managementApiKey,
           dbRegularRotations: [
             .init(
               observedAt: Date.now,
@@ -189,7 +189,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/data/refresh",
-          headers: reqHeaders(accessToken: "123"),
+          headers: reqHeaders(accessToken: managementApiKey),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -206,7 +206,7 @@ extension AppTests {
     @Test func rotationDidNotChange() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
-          managementApiKey: "123",
+          managementApiKey: managementApiKey,
           dbRegularRotations: [
             .init(
               observedAt: Date.now,
@@ -237,7 +237,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/data/refresh",
-          headers: reqHeaders(accessToken: "123"),
+          headers: reqHeaders(accessToken: managementApiKey),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -254,7 +254,7 @@ extension AppTests {
     @Test func championsDidNotChange() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
-          managementApiKey: "123",
+          managementApiKey: managementApiKey,
           dbRegularRotations: [
             .init(
               observedAt: Date.now,
@@ -290,7 +290,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/data/refresh",
-          headers: reqHeaders(accessToken: "123"),
+          headers: reqHeaders(accessToken: managementApiKey),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -307,7 +307,7 @@ extension AppTests {
     @Test func multipleLocalVersions() async throws {
       try await withApp { app in
         let mocks = try await app.testConfigureWith(
-          managementApiKey: "123",
+          managementApiKey: managementApiKey,
           dbPatchVersions: [
             .init(value: "15.23.5"),
             .init(value: "15.23.0"),
@@ -318,7 +318,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/data/refresh",
-          headers: reqHeaders(accessToken: "123"),
+          headers: reqHeaders(accessToken: managementApiKey),
         ) { res async throws in
           let latestChampionsUrl = requestUrls.riotChampions("15.23.5")
           #expect(mocks.httpClient.requestedUrls.contains(latestChampionsUrl))
@@ -329,14 +329,14 @@ extension AppTests {
     @Test func multipleRiotVersions() async throws {
       try await withApp { app in
         let mocks = try await app.testConfigureWith(
-          managementApiKey: "123",
+          managementApiKey: managementApiKey,
           dbPatchVersions: [.init(value: "1")],
           riotPatchVersions: ["15.23.5", "15.23.0", "15.22.8"]
         )
 
         try await app.test(
           .GET, "/data/refresh",
-          headers: reqHeaders(accessToken: "123"),
+          headers: reqHeaders(accessToken: managementApiKey),
         ) { res async throws in
           let latestChampionsUrl = requestUrls.riotChampions("15.23.5")
           #expect(mocks.httpClient.requestedUrls.contains(latestChampionsUrl))
@@ -347,7 +347,7 @@ extension AppTests {
     @Test func differentVersions() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
-          managementApiKey: "123",
+          managementApiKey: managementApiKey,
           dbPatchVersions: [.init(value: "14.0.0")],
           dbChampionRotationConfigs: [.init(rotationChangeWeekday: 4)],
           riotPatchVersions: ["15.23.5"]
@@ -355,7 +355,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/data/refresh",
-          headers: reqHeaders(accessToken: "123"),
+          headers: reqHeaders(accessToken: managementApiKey),
         ) { res async throws in
           let versions = try await app.dbPatchVersions()
           #expect(versions == ["14.0.0", "15.23.5"])
@@ -371,7 +371,7 @@ extension AppTests {
     @Test func identicalVersions() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
-          managementApiKey: "123",
+          managementApiKey: managementApiKey,
           dbPatchVersions: [.init(value: "15.23.5")],
           dbChampionRotationConfigs: [.init(rotationChangeWeekday: 4)],
           riotPatchVersions: ["15.23.5"]
@@ -379,7 +379,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/data/refresh",
-          headers: reqHeaders(accessToken: "123"),
+          headers: reqHeaders(accessToken: managementApiKey),
         ) { res async throws in
           let versions = try await app.dbPatchVersions()
           #expect(versions == ["15.23.5"])
@@ -395,7 +395,7 @@ extension AppTests {
     @Test func noLocalVersion() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
-          managementApiKey: "123",
+          managementApiKey: managementApiKey,
           dbPatchVersions: [],
           dbChampionRotationConfigs: [.init(rotationChangeWeekday: 4)],
           riotPatchVersions: ["15.23.5"]
@@ -403,7 +403,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/data/refresh",
-          headers: reqHeaders(accessToken: "123"),
+          headers: reqHeaders(accessToken: managementApiKey),
         ) { res async throws in
           let versions = try await app.dbPatchVersions()
           #expect(versions == ["15.23.5"])
@@ -419,7 +419,7 @@ extension AppTests {
     @Test func newChampionSaved() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
-          managementApiKey: "123",
+          managementApiKey: managementApiKey,
           riotPatchVersions: ["15.1.1"],
           riotChampionRotationsData: .init(
             freeChampionIds: [1],
@@ -433,7 +433,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/data/refresh",
-          headers: reqHeaders(accessToken: "123"),
+          headers: reqHeaders(accessToken: managementApiKey),
         ) { res async throws in
           let champions = try await app.dbChampions()
           #expect(champions.count == 1)
@@ -446,7 +446,7 @@ extension AppTests {
     @Test func newRotationSaved() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
-          managementApiKey: "123",
+          managementApiKey: managementApiKey,
           riotPatchVersions: ["15.1.1"],
           riotChampionRotationsData: .init(
             freeChampionIds: [1],
@@ -460,7 +460,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/data/refresh",
-          headers: reqHeaders(accessToken: "123"),
+          headers: reqHeaders(accessToken: managementApiKey),
         ) { res async throws in
           let rotations = try await app.dbRegularRotations()
           #expect(rotations.count == 1)
@@ -473,7 +473,7 @@ extension AppTests {
     @Test func predictionGeneratedWhenRotationChanged() async throws {
       try await withApp { app in
         let mocks = try await app.testConfigureWith(
-          managementApiKey: "123",
+          managementApiKey: managementApiKey,
           dbRegularRotations: [
             .init(
               observedAt: Date.now,
@@ -506,7 +506,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/data/refresh",
-          headers: reqHeaders(accessToken: "123"),
+          headers: reqHeaders(accessToken: managementApiKey),
         ) { res async throws in
           #expect(res.status == .ok)
           #expect(mocks.rotationForecast.predictCalls == 1)
@@ -519,7 +519,7 @@ extension AppTests {
     @Test func predictionNotGeneratedWhenRotationNotChanged() async throws {
       try await withApp { app in
         let mocks = try await app.testConfigureWith(
-          managementApiKey: "123",
+          managementApiKey: managementApiKey,
           dbRegularRotations: [
             .init(
               observedAt: Date.now,
@@ -550,7 +550,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/data/refresh",
-          headers: reqHeaders(accessToken: "123"),
+          headers: reqHeaders(accessToken: managementApiKey),
         ) { res async throws in
           #expect(res.status == .ok)
           #expect(mocks.rotationForecast.predictCalls == 0)
@@ -563,7 +563,7 @@ extension AppTests {
     @Test func uniqueSlugsForManyRotationsInWeek() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
-          managementApiKey: "123",
+          managementApiKey: managementApiKey,
           dbRegularRotations: [
             .init(
               id: uuid("1"),
@@ -608,7 +608,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/data/refresh",
-          headers: reqHeaders(accessToken: "123"),
+          headers: reqHeaders(accessToken: managementApiKey),
         ) { res async throws in
           #expect(res.status == .ok)
           let slugs = try await app.dbRotationSlugs()
