@@ -10,7 +10,21 @@ extension AppTests {
 
         try await app.test(
           .POST, "/champions/Nocturne/observe",
-          body: ["observing": true]
+          body: ["observing": true],
+        ) { res async throws in
+          #expect(res.status == .unauthorized)
+        }
+      }
+    }
+
+    @Test func webUser() async throws {
+      try await withApp { app in
+        _ = try await app.testConfigureWith()
+
+        try await app.test(
+          .POST, "/champions/Nocturne/observe",
+          headers: reqHeaders(accessToken: webApiKey),
+          body: ["observing": true],
         ) { res async throws in
           #expect(res.status == .unauthorized)
         }
@@ -31,8 +45,8 @@ extension AppTests {
 
         try await app.test(
           .POST, "/champions/Nocturne/observe",
-          headers: reqHeaders(accessToken: mobileToken),
-          body: ["observing": true]
+          headers: reqHeaders(accessToken: mobileAccessToken),
+          body: ["observing": true],
         ) { res async throws in
           let watchlists = try await app.dbUserWatchlists(userId: mobileUserId)
           #expect(res.status == .ok)
@@ -54,8 +68,8 @@ extension AppTests {
 
         try await app.test(
           .POST, "/champions/Nocturne/observe",
-          headers: reqHeaders(accessToken: mobileToken),
-          body: ["observing": true]
+          headers: reqHeaders(accessToken: mobileAccessToken),
+          body: ["observing": true],
         ) { res async throws in
           let watchlists = try await app.dbUserWatchlists(userId: mobileUserId)
           #expect(res.status == .ok)
@@ -77,8 +91,8 @@ extension AppTests {
 
         try await app.test(
           .POST, "/champions/Nocturne/observe",
-          headers: reqHeaders(accessToken: mobileToken),
-          body: ["observing": false]
+          headers: reqHeaders(accessToken: mobileAccessToken),
+          body: ["observing": false],
         ) { res async throws in
           let watchlists = try await app.dbUserWatchlists(userId: mobileUserId)
           #expect(res.status == .ok)
@@ -101,8 +115,8 @@ extension AppTests {
 
         try await app.test(
           .POST, "/champions/Nocturne/observe",
-          headers: reqHeaders(accessToken: mobileToken),
-          body: ["observing": false]
+          headers: reqHeaders(accessToken: mobileAccessToken),
+          body: ["observing": false],
         ) { res async throws in
           let watchlists = try await app.dbUserWatchlists(userId: mobileUserId)
           #expect(res.status == .ok)
@@ -122,8 +136,8 @@ extension AppTests {
 
         try await app.test(
           .POST, "/champions/Nocturne/observe",
-          headers: reqHeaders(accessToken: mobileToken),
-          body: ["observing": true]
+          headers: reqHeaders(accessToken: mobileAccessToken),
+          body: ["observing": true],
         ) { res async throws in
           let watchlists = try await app.dbUserWatchlists(userId: mobileUserId)
           #expect(res.status == .ok)
@@ -145,8 +159,8 @@ extension AppTests {
 
         try await app.test(
           .POST, "/champions/nocturne/observe",
-          headers: reqHeaders(accessToken: mobileToken),
-          body: ["observing": true]
+          headers: reqHeaders(accessToken: mobileAccessToken),
+          body: ["observing": true],
         ) { res async throws in
           let watchlists = try await app.dbUserWatchlists(userId: mobileUserId)
           #expect(res.status == .ok)
@@ -168,8 +182,8 @@ extension AppTests {
 
         try await app.test(
           .POST, "/champions/nocturne/observe",
-          headers: reqHeaders(accessToken: mobileToken),
-          body: ["observing": false]
+          headers: reqHeaders(accessToken: mobileAccessToken),
+          body: ["observing": false],
         ) { res async throws in
           let watchlists = try await app.dbUserWatchlists(userId: mobileUserId)
           #expect(res.status == .ok)
@@ -182,7 +196,7 @@ extension AppTests {
       try await withApp { app in
         _ = try await app.testConfigureWith(
           dbChampions: [
-            .init(id: uuid("1"), riotId: "Garen"),
+            .init(id: uuid("1"), riotId: "Garen")
           ],
           dbUserWatchlists: [
             .init(userId: mobileUserId, champions: [uuidString("1")])
@@ -191,8 +205,8 @@ extension AppTests {
 
         try await app.test(
           .POST, "/champions/Nocturne/observe",
-          headers: reqHeaders(accessToken: mobileToken),
-          body: ["observing": true]
+          headers: reqHeaders(accessToken: mobileAccessToken),
+          body: ["observing": true],
         ) { res async throws in
           #expect(res.status == .notFound)
         }

@@ -4,28 +4,41 @@ import Testing
 
 extension AppTests {
   @Suite(.serialized) struct PutNotificationsTokenTests {
-    @Test func invalidAuth() async throws {
+    @Test func missingAuth() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith()
 
         try await app.test(
           .PUT, "/notifications/token",
           headers: reqHeaders(),
-          body: ["token": "123"]
+          body: ["token": "123"],
+        ) { res async throws in
+          #expect(res.status == .unauthorized)
+        }
+      }
+    }
+    @Test func webAuth() async throws {
+      try await withApp { app in
+        _ = try await app.testConfigureWith()
+
+        try await app.test(
+          .PUT, "/notifications/token",
+          headers: reqHeaders(accessToken: webApiKey),
+          body: ["token": "123"],
         ) { res async throws in
           #expect(res.status == .unauthorized)
         }
       }
     }
 
-    @Test func validAuth() async throws {
+    @Test func mobileAuth() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith()
 
         try await app.test(
           .PUT, "/notifications/token",
-          headers: reqHeaders(accessToken: mobileToken),
-          body: ["token": "abc"]
+          headers: reqHeaders(accessToken: mobileAccessToken),
+          body: ["token": "abc"],
         ) { res async throws in
           #expect(res.status == .noContent)
         }
@@ -42,8 +55,8 @@ extension AppTests {
 
         try await app.test(
           .PUT, "/notifications/token",
-          headers: reqHeaders(accessToken: mobileToken),
-          body: ["token": "abc"]
+          headers: reqHeaders(accessToken: mobileAccessToken),
+          body: ["token": "abc"],
         ) { res async throws in
           let addedConfig = NotificationsConfigModel.disabled(
             userId: mobileUserId, token: "abc",
@@ -66,8 +79,8 @@ extension AppTests {
 
         try await app.test(
           .PUT, "/notifications/token",
-          headers: reqHeaders(accessToken: mobileToken),
-          body: ["token": "abc"]
+          headers: reqHeaders(accessToken: mobileAccessToken),
+          body: ["token": "abc"],
         ) { res async throws in
           let updatedConfig = NotificationsConfigModel.enabled(
             userId: mobileUserId, token: "abc",

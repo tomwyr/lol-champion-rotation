@@ -35,7 +35,8 @@ extension AppConfig {
   static func empty(
     databaseUrl: String = "",
     appAllowedOrigins: [String] = [],
-    appManagementKey: String = "",
+    appManagementApiKey: String = "",
+    appWebApiKey: String = "",
     b2AppKeyId: String = "",
     b2AppKeySecret: String = "",
     riotApiKey: String = "",
@@ -48,7 +49,8 @@ extension AppConfig {
     .init(
       databaseUrl: databaseUrl,
       appAllowedOrigins: appAllowedOrigins,
-      appManagementKey: appManagementKey,
+      appManagementApiKey: appManagementApiKey,
+      appWebApiKey: appWebApiKey,
       b2AppKeyId: b2AppKeyId,
       b2AppKeySecret: b2AppKeySecret,
       riotApiKey: riotApiKey,

@@ -4,7 +4,7 @@ import Testing
 
 extension AppTests {
   @Suite(.serialized) struct CreateFeedbackTests {
-    @Test func invalidAuth() async throws {
+    @Test func missingAuth() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith()
 
@@ -18,13 +18,27 @@ extension AppTests {
       }
     }
 
-    @Test func validAuth() async throws {
+    @Test func webAuth() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith()
 
         try await app.test(
           .POST, "/feedbacks",
-          headers: reqHeaders(accessToken: mobileToken),
+          headers: reqHeaders(accessToken: webApiKey),
+          body: ["title": "feedback", "description": "content"],
+        ) { res async throws in
+          #expect(res.status == .unauthorized)
+        }
+      }
+    }
+
+    @Test func mobileAuth() async throws {
+      try await withApp { app in
+        _ = try await app.testConfigureWith()
+
+        try await app.test(
+          .POST, "/feedbacks",
+          headers: reqHeaders(accessToken: mobileAccessToken),
           body: ["title": "feedback", "description": "content"],
         ) { res async throws in
           #expect(res.status == .noContent)
@@ -38,7 +52,7 @@ extension AppTests {
 
         try await app.test(
           .POST, "/feedbacks",
-          headers: reqHeaders(accessToken: mobileToken),
+          headers: reqHeaders(accessToken: mobileAccessToken),
           body: ["title": "feedback", "description": "content"],
         ) { res async throws in
           #expect(res.status == .noContent)
@@ -52,7 +66,7 @@ extension AppTests {
 
         try await app.test(
           .POST, "/feedbacks",
-          headers: reqHeaders(accessToken: mobileToken),
+          headers: reqHeaders(accessToken: mobileAccessToken),
           body: ["description": "content"],
         ) { res async throws in
           #expect(res.status == .noContent)
@@ -66,7 +80,7 @@ extension AppTests {
 
         try await app.test(
           .POST, "/feedbacks",
-          headers: reqHeaders(accessToken: mobileToken),
+          headers: reqHeaders(accessToken: mobileAccessToken),
           body: ["title": "feedback"],
         ) { res async throws in
           #expect(res.status == .badRequest)
@@ -80,7 +94,7 @@ extension AppTests {
 
         try await app.test(
           .POST, "/feedbacks",
-          headers: reqHeaders(accessToken: mobileToken),
+          headers: reqHeaders(accessToken: mobileAccessToken),
           body: ["title": "", "description": "content"],
         ) { res async throws in
           #expect(res.status == .badRequest)
@@ -98,7 +112,7 @@ extension AppTests {
 
         try await app.test(
           .POST, "/feedbacks",
-          headers: reqHeaders(accessToken: mobileToken),
+          headers: reqHeaders(accessToken: mobileAccessToken),
           body: ["title": title, "description": "content"],
         ) { res async throws in
           #expect(res.status == .badRequest)
@@ -116,7 +130,7 @@ extension AppTests {
 
         try await app.test(
           .POST, "/feedbacks",
-          headers: reqHeaders(accessToken: mobileToken),
+          headers: reqHeaders(accessToken: mobileAccessToken),
           body: ["title": "feedback", "description": ""],
         ) { res async throws in
           #expect(res.status == .badRequest)
@@ -134,7 +148,7 @@ extension AppTests {
 
         try await app.test(
           .POST, "/feedbacks",
-          headers: reqHeaders(accessToken: mobileToken),
+          headers: reqHeaders(accessToken: mobileAccessToken),
           body: ["title": "feedback", "description": description],
         ) { res async throws in
           #expect(res.status == .badRequest)
@@ -159,7 +173,7 @@ extension AppTests {
 
         try await app.test(
           .POST, "/feedbacks",
-          headers: reqHeaders(accessToken: mobileToken),
+          headers: reqHeaders(accessToken: mobileAccessToken),
           body: ["title": "feedback", "description": "content"],
         ) { res async throws in
           #expect(res.status == .noContent)
@@ -190,7 +204,7 @@ extension AppTests {
 
         try await app.test(
           .POST, "/feedbacks",
-          headers: reqHeaders(accessToken: mobileToken),
+          headers: reqHeaders(accessToken: mobileAccessToken),
           body: ["description": "content"],
         ) { res async throws in
           #expect(res.status == .noContent)
@@ -219,7 +233,7 @@ extension AppTests {
 
         try await app.test(
           .POST, "/feedbacks",
-          headers: reqHeaders(accessToken: mobileToken),
+          headers: reqHeaders(accessToken: mobileAccessToken),
           body: ["title": "feedback", "description": "content", "type": "bug"],
         ) { res async throws in
           #expect(res.status == .noContent)
@@ -248,7 +262,7 @@ extension AppTests {
 
         try await app.test(
           .POST, "/feedbacks",
-          headers: reqHeaders(accessToken: mobileToken),
+          headers: reqHeaders(accessToken: mobileAccessToken),
           body: ["title": "feedback", "description": "content", "type": "feature"],
         ) { res async throws in
           #expect(res.status == .noContent)
@@ -277,7 +291,7 @@ extension AppTests {
 
         try await app.test(
           .POST, "/feedbacks",
-          headers: reqHeaders(accessToken: mobileToken),
+          headers: reqHeaders(accessToken: mobileAccessToken),
           body: ["title": "feedback", "description": "content", "type": "other"],
         ) { res async throws in
           #expect(res.status == .badRequest)
@@ -300,7 +314,7 @@ extension AppTests {
 
         try await app.test(
           .POST, "/feedbacks",
-          headers: reqHeaders(accessToken: mobileToken),
+          headers: reqHeaders(accessToken: mobileAccessToken),
           body: ["title": "feedback", "description": "content"],
         ) { res async throws in
           #expect(res.status == .internalServerError)

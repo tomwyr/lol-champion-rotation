@@ -5,9 +5,13 @@ import Testing
 
 extension AppTests {
   @Suite(.serialized) struct RotationsOverviewTests {
-    @Test func simpleResult() async throws {
+    @Test(.serialized, arguments: appAccessTokens)
+    func simpleResult(
+      accessToken: String
+    ) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
+          webApiKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -35,7 +39,8 @@ extension AppTests {
         )
 
         try await app.test(
-          .GET, "/rotations/overview"
+          .GET, "/rotations/overview",
+          headers: reqHeaders(accessToken: accessToken),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -73,9 +78,11 @@ extension AppTests {
       }
     }
 
-    @Test func inactiveRotation() async throws {
+    @Test(.serialized, arguments: appAccessTokens)
+    func inactiveRotation(accessToken: String) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
+          webApiKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -110,7 +117,8 @@ extension AppTests {
         )
 
         try await app.test(
-          .GET, "/rotations/overview"
+          .GET, "/rotations/overview",
+          headers: reqHeaders(accessToken: accessToken),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -148,9 +156,11 @@ extension AppTests {
       }
     }
 
-    @Test func championsAreSortedById() async throws {
+    @Test(.serialized, arguments: appAccessTokens)
+    func championsAreSortedById(accessToken: String) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
+          webApiKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -179,7 +189,8 @@ extension AppTests {
         )
 
         try await app.test(
-          .GET, "/rotations/overview"
+          .GET, "/rotations/overview",
+          headers: reqHeaders(accessToken: accessToken),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -202,9 +213,11 @@ extension AppTests {
       }
     }
 
-    @Test func sameChampionIsBeginnerAndRegular() async throws {
+    @Test(.serialized, arguments: appAccessTokens)
+    func sameChampionIsBeginnerAndRegular(accessToken: String) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
+          webApiKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -230,7 +243,8 @@ extension AppTests {
         )
 
         try await app.test(
-          .GET, "/rotations/overview"
+          .GET, "/rotations/overview",
+          headers: reqHeaders(accessToken: accessToken),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -251,9 +265,11 @@ extension AppTests {
       }
     }
 
-    @Test func optionalDataUnavailable() async throws {
+    @Test(.serialized, arguments: appAccessTokens)
+    func optionalDataUnavailable(accessToken: String) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
+          webApiKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -276,7 +292,8 @@ extension AppTests {
         )
 
         try await app.test(
-          .GET, "/rotations/overview"
+          .GET, "/rotations/overview",
+          headers: reqHeaders(accessToken: accessToken),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -296,9 +313,11 @@ extension AppTests {
       }
     }
 
-    @Test func noNextRotation() async throws {
+    @Test(.serialized, arguments: appAccessTokens)
+    func noNextRotation(accessToken: String) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
+          webApiKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -321,7 +340,8 @@ extension AppTests {
         )
 
         try await app.test(
-          .GET, "/rotations/overview"
+          .GET, "/rotations/overview",
+          headers: reqHeaders(accessToken: accessToken),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -341,9 +361,11 @@ extension AppTests {
       }
     }
 
-    @Test func singleNextRotation() async throws {
+    @Test(.serialized, arguments: appAccessTokens)
+    func singleNextRotation(accessToken: String) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
+          webApiKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -372,7 +394,8 @@ extension AppTests {
         )
 
         try await app.test(
-          .GET, "/rotations/overview"
+          .GET, "/rotations/overview",
+          headers: reqHeaders(accessToken: accessToken),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -393,9 +416,11 @@ extension AppTests {
       }
     }
 
-    @Test func multipleNextRotations() async throws {
+    @Test(.serialized, arguments: appAccessTokens)
+    func multipleNextRotations(accessToken: String) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
+          webApiKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -436,7 +461,8 @@ extension AppTests {
         )
 
         try await app.test(
-          .GET, "/rotations/overview"
+          .GET, "/rotations/overview",
+          headers: reqHeaders(accessToken: accessToken),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(

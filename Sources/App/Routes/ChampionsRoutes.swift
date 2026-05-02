@@ -1,19 +1,17 @@
 import Vapor
 
 func championsRoutes(_ app: Application, _ deps: Dependencies) {
-  let anyUserGuard = AnyUserGuard()
   let mobileUserGuard = deps.mobileUserGuard
-  let optionalMobileUserGuard = deps.optionalMobileUserGuard
+  let appUserGuard = deps.appUserGuard
 
-  app.protected(with: anyUserGuard).grouped("champions") { champions in
-    champions.protected(with: optionalMobileUserGuard).get(":riotId") { req in
-      try req.auth.require(AnyUserAuth.self)
-      let auth = try? req.auth.require(MobileUserAuth.self)
+  app.protected(with: appUserGuard).grouped("champions") { champions in
+    champions.get(":riotId") { req in
+      let auth = try req.auth.require(AppUserAuth.self)
       let riotId = req.parameters.get("riotId")!
       let championsService = deps.championsService(request: req)
       let championDetails = try await championsService.championDetails(
         riotId: riotId,
-        userId: auth?.userId
+        userId: auth.userId
       )
       guard let championDetails else {
         throw Abort(.notFound)
@@ -41,7 +39,7 @@ func championsRoutes(_ app: Application, _ deps: Dependencies) {
     }
 
     champions.get("search") { req in
-      try req.auth.require(AnyUserAuth.self)
+      try req.auth.require(AppUserAuth.self)
       guard let championName = req.query[String.self, at: "name"] else {
         throw Abort(.badRequest)
       }

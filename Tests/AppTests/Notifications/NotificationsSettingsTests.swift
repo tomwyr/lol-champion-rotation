@@ -4,27 +4,41 @@ import Testing
 
 extension AppTests {
   @Suite(.serialized) struct GetNotificationsSettingsTests {
-    @Test func invalidAuth() async throws {
+    @Test func missingAuth() async throws {
       try await withApp { app in
 
         _ = try await app.testConfigureWith()
 
         try await app.test(
           .GET, "/notifications/settings",
-          headers: reqHeaders()
+          headers: reqHeaders(),
         ) { res async throws in
           #expect(res.status == .unauthorized)
         }
       }
     }
 
-    @Test func validAuth() async throws {
+    @Test func webAuth() async throws {
+      try await withApp { app in
+
+        _ = try await app.testConfigureWith()
+
+        try await app.test(
+          .GET, "/notifications/settings",
+          headers: reqHeaders(accessToken: webApiKey),
+        ) { res async throws in
+          #expect(res.status == .unauthorized)
+        }
+      }
+    }
+
+    @Test func mobileAuth() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith()
 
         try await app.test(
           .GET, "/notifications/settings",
-          headers: reqHeaders(accessToken: mobileToken)
+          headers: reqHeaders(accessToken: mobileAccessToken),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -45,7 +59,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/notifications/settings",
-          headers: reqHeaders(accessToken: mobileToken)
+          headers: reqHeaders(accessToken: mobileAccessToken),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -66,7 +80,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/notifications/settings",
-          headers: reqHeaders(accessToken: mobileToken)
+          headers: reqHeaders(accessToken: mobileAccessToken),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -79,28 +93,42 @@ extension AppTests {
   }
 
   @Suite(.serialized) struct PutNotificationsSettingsTests {
-    @Test func invalidAuth() async throws {
+    @Test func missingAuth() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith()
 
         try await app.test(
           .PUT, "/notifications/settings",
           headers: reqHeaders(),
-          body: ["rotationChanged": true, "championsAvailable": true, "championReleased": true]
+          body: ["rotationChanged": true, "championsAvailable": true, "championReleased": true],
         ) { res async throws in
           #expect(res.status == .unauthorized)
         }
       }
     }
 
-    @Test func validAuth() async throws {
+    @Test func webAuth() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith()
 
         try await app.test(
           .PUT, "/notifications/settings",
-          headers: reqHeaders(accessToken: mobileToken),
-          body: ["rotationChanged": true, "championsAvailable": true, "championReleased": true]
+          headers: reqHeaders(accessToken: webApiKey),
+          body: ["rotationChanged": true, "championsAvailable": true, "championReleased": true],
+        ) { res async throws in
+          #expect(res.status == .unauthorized)
+        }
+      }
+    }
+
+    @Test func mobileAuth() async throws {
+      try await withApp { app in
+        _ = try await app.testConfigureWith()
+
+        try await app.test(
+          .PUT, "/notifications/settings",
+          headers: reqHeaders(accessToken: mobileAccessToken),
+          body: ["rotationChanged": true, "championsAvailable": true, "championReleased": true],
         ) { res async throws in
           #expect(res.status == .noContent)
         }
@@ -117,8 +145,8 @@ extension AppTests {
 
         try await app.test(
           .PUT, "/notifications/settings",
-          headers: reqHeaders(accessToken: mobileToken),
-          body: ["rotationChanged": true, "championsAvailable": true, "championReleased": true]
+          headers: reqHeaders(accessToken: mobileAccessToken),
+          body: ["rotationChanged": true, "championsAvailable": true, "championReleased": true],
         ) { res async throws in
           let addedConfig = NotificationsConfigModel.enabled(
             userId: mobileUserId, token: "",
@@ -142,8 +170,8 @@ extension AppTests {
 
         try await app.test(
           .PUT, "/notifications/settings",
-          headers: reqHeaders(accessToken: mobileToken),
-          body: ["rotationChanged": true, "championsAvailable": true, "championReleased": true]
+          headers: reqHeaders(accessToken: mobileAccessToken),
+          body: ["rotationChanged": true, "championsAvailable": true, "championReleased": true],
         ) { res async throws in
           let updatedConfig = NotificationsConfigModel(
             userId: mobileUserId, token: "abc",

@@ -1,19 +1,17 @@
 import Vapor
 
 func rotationsRoutes(_ app: Application, _ deps: Dependencies) {
-  let anyUserGuard = AnyUserGuard()
+  let appUserGuard = deps.appUserGuard
   let mobileUserGuard = deps.mobileUserGuard
-  let optionalMobileUserGuard = deps.optionalMobileUserGuard
 
-  app.protected(with: anyUserGuard).grouped("rotations") { rotations in
-    rotations.protected(with: optionalMobileUserGuard).get(":slug") { req in
-      try req.auth.require(AnyUserAuth.self)
-      let auth = try? req.auth.require(MobileUserAuth.self)
+  app.protected(with: appUserGuard).grouped("rotations") { rotations in
+    rotations.get(":slug") { req in
+      let auth = try req.auth.require(AppUserAuth.self)
       let slug = req.parameters.get("slug")!
       let rotationService = deps.rotationService(request: req)
       let rotation = try await rotationService.rotation(
         slug: slug,
-        userId: auth?.userId
+        userId: auth.userId
       )
       guard let rotation else { throw Abort(.notFound) }
       return rotation
@@ -39,25 +37,25 @@ func rotationsRoutes(_ app: Application, _ deps: Dependencies) {
     }
 
     rotations.get("overview") { req in
-      try req.auth.require(AnyUserAuth.self)
+      try req.auth.require(AppUserAuth.self)
       let rotationService = deps.rotationService(request: req)
       return try await rotationService.rotationsOverview()
     }
 
     rotations.get("current") { req in
-      try req.auth.require(AnyUserAuth.self)
+      try req.auth.require(AppUserAuth.self)
       let rotationService = deps.rotationService(request: req)
       return try await rotationService.currentRegularRotation()
     }
 
     rotations.get("predict") { req in
-      try req.auth.require(AnyUserAuth.self)
+      try req.auth.require(AppUserAuth.self)
       let rotationService = deps.rotationService(request: req)
       return try await rotationService.predictRotation()
     }
 
     rotations.get { req in
-      try req.auth.require(AnyUserAuth.self)
+      try req.auth.require(AppUserAuth.self)
       guard let nextRotationToken = req.query[String.self, at: "nextRotationToken"] else {
         throw Abort(.badRequest)
       }
@@ -70,7 +68,7 @@ func rotationsRoutes(_ app: Application, _ deps: Dependencies) {
     }
 
     rotations.get("search") { req in
-      try req.auth.require(AnyUserAuth.self)
+      try req.auth.require(AppUserAuth.self)
       guard let championName = req.query[String.self, at: "championName"] else {
         throw Abort(.badRequest)
       }

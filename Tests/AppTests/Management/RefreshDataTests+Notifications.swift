@@ -9,7 +9,7 @@ extension AppTests {
     @Test func rotationChangedRecipients() async throws {
       try await withApp { app in
         let mocks = try await app.testConfigureWith(
-          appManagementKey: "123",
+          managementApiKey: managementApiKey,
           dbRegularRotations: [
             .init(
               observedAt: Date.now,
@@ -61,7 +61,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/data/refresh",
-          headers: ["Authorization": "Bearer 123"]
+          headers: reqHeaders(accessToken: managementApiKey),
         ) { res async throws in
           #expect(res.status == .ok)
           let tokens = mocks.fcm.rotationChangedMessages.map(\.token)
@@ -73,7 +73,7 @@ extension AppTests {
     @Test func rotationChangedContent() async throws {
       try await withApp { app in
         let mocks = try await app.testConfigureWith(
-          appManagementKey: "123",
+          managementApiKey: managementApiKey,
           dbRegularRotations: [
             .init(
               observedAt: Date.now,
@@ -103,7 +103,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/data/refresh",
-          headers: ["Authorization": "Bearer 123"]
+          headers: reqHeaders(accessToken: managementApiKey),
         ) { res async throws in
           #expect(res.status == .ok)
           #expect(mocks.fcm.rotationChangedMessages.count == 1)
@@ -117,7 +117,7 @@ extension AppTests {
     @Test func championsAvailableRecipients() async throws {
       try await withApp { app in
         let mocks = try await app.testConfigureWith(
-          appManagementKey: "123",
+          managementApiKey: managementApiKey,
           dbRegularRotations: [
             .init(
               observedAt: Date.now,
@@ -183,7 +183,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/data/refresh",
-          headers: ["Authorization": "Bearer 123"]
+          headers: reqHeaders(accessToken: managementApiKey),
         ) { res async throws in
           #expect(res.status == .ok)
           let tokens = mocks.fcm.championsAvailableMessages.compactMap(\.token).sorted()
@@ -195,7 +195,7 @@ extension AppTests {
     @Test func championsAvailableContent() async throws {
       try await withApp { app in
         let mocks = try await app.testConfigureWith(
-          appManagementKey: "123",
+          managementApiKey: managementApiKey,
           dbRegularRotations: [
             .init(
               observedAt: Date.now,
@@ -249,7 +249,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/data/refresh",
-          headers: ["Authorization": "Bearer 123"]
+          headers: reqHeaders(accessToken: managementApiKey),
         ) { res async throws in
           #expect(res.status == .ok)
           let notifications = mocks.fcm.championsAvailableMessages
@@ -271,7 +271,7 @@ extension AppTests {
     @Test func championReleasedRecipients() async throws {
       try await withApp { app in
         let mocks = try await app.testConfigureWith(
-          appManagementKey: "123",
+          managementApiKey: managementApiKey,
           dbRegularRotations: [
             .init(
               observedAt: Date.now,
@@ -324,7 +324,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/data/refresh",
-          headers: ["Authorization": "Bearer 123"]
+          headers: reqHeaders(accessToken: managementApiKey),
         ) { res async throws in
           #expect(res.status == .ok)
           let tokens = mocks.fcm.championReleasedMessages.map(\.token)
@@ -336,7 +336,7 @@ extension AppTests {
     @Test func championReleasedContent() async throws {
       try await withApp { app in
         let mocks = try await app.testConfigureWith(
-          appManagementKey: "123",
+          managementApiKey: managementApiKey,
           dbRegularRotations: [
             .init(
               observedAt: Date.now,
@@ -369,7 +369,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/data/refresh",
-          headers: ["Authorization": "Bearer 123"]
+          headers: reqHeaders(accessToken: managementApiKey),
         ) { res async throws in
           #expect(res.status == .ok)
           #expect(mocks.fcm.championReleasedMessages.count == 1)
@@ -385,7 +385,7 @@ extension AppTests {
     @Test func championReleasedContentWithMultipleChampions() async throws {
       try await withApp { app in
         let mocks = try await app.testConfigureWith(
-          appManagementKey: "123",
+          managementApiKey: managementApiKey,
           dbRegularRotations: [
             .init(
               observedAt: Date.now,
@@ -415,7 +415,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/data/refresh",
-          headers: ["Authorization": "Bearer 123"]
+          headers: reqHeaders(accessToken: managementApiKey),
         ) { res async throws in
           #expect(res.status == .ok)
           #expect(mocks.fcm.championReleasedMessages.count == 2)
@@ -438,7 +438,7 @@ extension AppTests {
     @Test func championReleasedSkippedForAmbiguousChampion() async throws {
       try await withApp { app in
         let mocks = try await app.testConfigureWith(
-          appManagementKey: "123",
+          managementApiKey: managementApiKey,
           dbRegularRotations: [
             .init(
               observedAt: Date.now,
@@ -490,7 +490,7 @@ extension AppTests {
 
         try await app.test(
           .GET, "/data/refresh",
-          headers: ["Authorization": "Bearer 123"]
+          headers: reqHeaders(accessToken: managementApiKey),
         ) { res async throws in
           #expect(res.status == .ok)
           #expect(mocks.fcm.championReleasedMessages.isEmpty)

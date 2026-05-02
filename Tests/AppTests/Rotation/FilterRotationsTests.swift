@@ -4,9 +4,11 @@ import Testing
 
 extension AppTests {
   @Suite(.serialized) struct FilterRotationsTests {
-    @Test func noQueryParam() async throws {
+    @Test(.serialized, arguments: appAccessTokens)
+    func noQueryParam(accessToken: String) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
+          webApiKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -26,16 +28,19 @@ extension AppTests {
         )
 
         try await app.test(
-          .GET, "/rotations/search"
+          .GET, "/rotations/search",
+          headers: reqHeaders(accessToken: accessToken),
         ) { res async throws in
           #expect(res.status == .badRequest)
         }
       }
     }
 
-    @Test func noMatchingRotations() async throws {
+    @Test(.serialized, arguments: appAccessTokens)
+    func noMatchingRotations(accessToken: String) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
+          webApiKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -55,7 +60,8 @@ extension AppTests {
         )
 
         try await app.test(
-          .GET, "/rotations/search?championName=Nocturne"
+          .GET, "/rotations/search?championName=Nocturne",
+          headers: reqHeaders(accessToken: accessToken),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -68,9 +74,11 @@ extension AppTests {
       }
     }
 
-    @Test func rotationWithExactMatch() async throws {
+    @Test(.serialized, arguments: appAccessTokens)
+    func rotationWithExactMatch(accessToken: String) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
+          webApiKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -91,7 +99,8 @@ extension AppTests {
         )
 
         try await app.test(
-          .GET, "/rotations/search?championName=Nocturne"
+          .GET, "/rotations/search?championName=Nocturne",
+          headers: reqHeaders(accessToken: accessToken),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -119,9 +128,11 @@ extension AppTests {
       }
     }
 
-    @Test func rotationWithNonExactMatch() async throws {
+    @Test(.serialized, arguments: appAccessTokens)
+    func rotationWithNonExactMatch(accessToken: String) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
+          webApiKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -142,7 +153,8 @@ extension AppTests {
         )
 
         try await app.test(
-          .GET, "/rotations/search?championName=oCtuRn"
+          .GET, "/rotations/search?championName=oCtuRn",
+          headers: reqHeaders(accessToken: accessToken),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -170,9 +182,11 @@ extension AppTests {
       }
     }
 
-    @Test func rotationWithMultipleMatches() async throws {
+    @Test(.serialized, arguments: appAccessTokens)
+    func rotationWithMultipleMatches(accessToken: String) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
+          webApiKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -194,7 +208,8 @@ extension AppTests {
         )
 
         try await app.test(
-          .GET, "/rotations/search?championName=En"
+          .GET, "/rotations/search?championName=En",
+          headers: reqHeaders(accessToken: accessToken),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -227,9 +242,11 @@ extension AppTests {
       }
     }
 
-    @Test func rotationWithMatchesInMultipleRotations() async throws {
+    @Test(.serialized, arguments: appAccessTokens)
+    func rotationWithMatchesInMultipleRotations(accessToken: String) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
+          webApiKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -264,7 +281,8 @@ extension AppTests {
         )
 
         try await app.test(
-          .GET, "/rotations/search?championName=En"
+          .GET, "/rotations/search?championName=En",
+          headers: reqHeaders(accessToken: accessToken),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -311,9 +329,11 @@ extension AppTests {
       }
     }
 
-    @Test func rotationWithMatchInNameOnly() async throws {
+    @Test(.serialized, arguments: appAccessTokens)
+    func rotationWithMatchInNameOnly(accessToken: String) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
+          webApiKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -334,7 +354,8 @@ extension AppTests {
         )
 
         try await app.test(
-          .GET, "/rotations/search?championName=willump"
+          .GET, "/rotations/search?championName=willump",
+          headers: reqHeaders(accessToken: accessToken),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -362,9 +383,11 @@ extension AppTests {
       }
     }
 
-    @Test func rotationsOrderedByDate() async throws {
+    @Test(.serialized, arguments: appAccessTokens)
+    func rotationsOrderedByDate(accessToken: String) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
+          webApiKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -395,7 +418,8 @@ extension AppTests {
         )
 
         try await app.test(
-          .GET, "/rotations/search?championName=sett"
+          .GET, "/rotations/search?championName=sett",
+          headers: reqHeaders(accessToken: accessToken),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -451,9 +475,11 @@ extension AppTests {
       }
     }
 
-    @Test func beginnerRotation() async throws {
+    @Test(.serialized, arguments: appAccessTokens)
+    func beginnerRotation(accessToken: String) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
+          webApiKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbBeginnerRotations: [
             .init(
@@ -481,7 +507,8 @@ extension AppTests {
         )
 
         try await app.test(
-          .GET, "/rotations/search?championName=dia"
+          .GET, "/rotations/search?championName=dia",
+          headers: reqHeaders(accessToken: accessToken),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -503,9 +530,11 @@ extension AppTests {
       }
     }
 
-    @Test func multipleRotationTypes() async throws {
+    @Test(.serialized, arguments: appAccessTokens)
+    func multipleRotationTypes(accessToken: String) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
+          webApiKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -535,7 +564,8 @@ extension AppTests {
         )
 
         try await app.test(
-          .GET, "/rotations/search?championName=se"
+          .GET, "/rotations/search?championName=se",
+          headers: reqHeaders(accessToken: accessToken),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
@@ -577,9 +607,11 @@ extension AppTests {
       }
     }
 
-    @Test func inactiveRotation() async throws {
+    @Test(.serialized, arguments: appAccessTokens)
+    func inactiveRotation(accessToken: String) async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
+          webApiKey: webApiKey,
           idHasherSeed: idHasherSeed,
           dbRegularRotations: [
             .init(
@@ -615,7 +647,8 @@ extension AppTests {
         )
 
         try await app.test(
-          .GET, "/rotations/search?championName=En"
+          .GET, "/rotations/search?championName=En",
+          headers: reqHeaders(accessToken: accessToken),
         ) { res async throws in
           #expect(res.status == .ok)
           try expectBody(
