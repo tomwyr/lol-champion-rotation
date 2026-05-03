@@ -3,11 +3,11 @@ import Foundation
 extension DefaultRotationService {
   func rotationsOverview() async throws -> ChampionRotationsOverview {
     let patchVersion = try? await versionService.latestVersion()
-    let localData = try await loadRotationsOverviewLocalData()
+    let localData = try await loadLocalData()
     return try await createRotationsOverview(patchVersion, localData)
   }
 
-  private func loadRotationsOverviewLocalData() async throws -> RotationsOverviewLocalData {
+  private func loadLocalData() async throws -> RotationsOverviewLocalData {
     let regularRotation = try await appDb.currentRegularRotation()
     let beginnerRotation = try await appDb.currentBeginnerRotation()
     let champions = try await appDb.champions()

@@ -2,12 +2,12 @@ import Foundation
 
 extension DefaultRotationService {
   func rotation(slug: String, userId: String?) async throws -> ChampionRotationDetails? {
-    let localData = try await loadRotationDetailsLocalData(slug, userId)
+    let localData = try await loadLocalData(slug, userId)
     guard let localData else { return nil }
     return try await createRotationDetails(slug, localData)
   }
 
-  private func loadRotationDetailsLocalData(
+  private func loadLocalData(
     _ slug: String, _ userId: String?,
   ) async throws -> RotationDetailsLocalData? {
     guard let rotation = try await appDb.regularRotation(slug: slug) else {

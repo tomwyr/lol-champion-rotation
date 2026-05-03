@@ -1,10 +1,18 @@
 import Foundation
 
+extension RotationService {
+  func nextRotations(
+    nextRotationToken: String, count: Int?,
+  ) async throws -> [RegularChampionRotation] {
+    try await nextRotations(nextRotationToken: nextRotationToken, count: count ?? 1)
+  }
+}
+
 extension DefaultRotationService {
   func nextRotations(
     nextRotationToken: String, count: Int,
   ) async throws -> [RegularChampionRotation] {
-    let localData = try await loadNextRotationLocalData(nextRotationToken, count)
+    let localData = try await loadLocalData(nextRotationToken, count)
     guard let localData else { return [] }
 
     let rotationDates = localData.rotations.map(\.observedAt)
@@ -14,9 +22,9 @@ extension DefaultRotationService {
     return try await createNextRotations(localData, patchVersions, durations)
   }
 
-  private func loadNextRotationLocalData(
+  private func loadLocalData(
     _ nextRotationToken: String, _ count: Int,
-  ) async throws -> RegularRotationLocalData? {
+  ) async throws -> NextRotationsLocalData? {
     guard let nextRotationId = try? idHasher.tokenToId(nextRotationToken) else {
       return nil
     }
@@ -42,7 +50,7 @@ extension DefaultRotationService {
   }
 
   private func createNextRotations(
-    _ data: RegularRotationLocalData,
+    _ data: NextRotationsLocalData,
     _ patchVersions: [String?],
     _ durations: [ChampionRotationDuration],
   ) async throws -> [RegularChampionRotation] {
@@ -84,7 +92,7 @@ extension DefaultRotationService {
   }
 }
 
-private typealias RegularRotationLocalData = (
+private typealias NextRotationsLocalData = (
   rotations: [RegularChampionRotationModel],
   champions: [ChampionModel],
   hasPreviousRegularRotation: Bool,

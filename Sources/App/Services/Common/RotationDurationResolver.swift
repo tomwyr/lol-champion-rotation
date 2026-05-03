@@ -81,9 +81,7 @@ extension RotationDurationResolver {
       return nextRotation.observedAt
     }
 
-    guard let rotationId = try? rotation.requireID().uuidString else {
-      return nil
-    }
+    guard let rotationId = rotation.idString else { return nil }
     let nextRotation = try await appDb.findNextRegularRotation(after: rotationId)
     return nextRotation?.observedAt
   }

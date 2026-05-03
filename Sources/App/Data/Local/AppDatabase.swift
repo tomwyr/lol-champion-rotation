@@ -142,9 +142,21 @@ extension AppDatabase {
     }
   }
 
-  func findNextRegularRotation(after id: String) async throws
-    -> RegularChampionRotationModel?
-  {
+  func findPreviousRegularRotations(
+    page: Int, count: Int, historical: Bool
+  ) async throws -> [RegularChampionRotationModel] {
+    try await runner.run { db in
+      let offset = (page - 1) * count + (historical ? 1 : 0)
+      return try await RegularChampionRotationModel.query(on: db)
+        .filter(\.$active == true)
+        .sort(\.$observedAt, .descending)
+        .offset(offset)
+        .limit(count)
+        .all()
+    }
+  }
+
+  func findNextRegularRotation(after id: String) async throws -> RegularChampionRotationModel? {
     try await runner.run { db in
       let uuid = try UUID(unsafe: id)
       let previousRotation = try await RegularChampionRotationModel.query(on: db)

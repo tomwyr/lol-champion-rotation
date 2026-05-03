@@ -9,18 +9,13 @@ protocol RotationService {
   func nextRotations(
     nextRotationToken: String, count: Int,
   ) async throws -> [RegularChampionRotation]
+  func nextRotationsPage(
+    page: Int, count: Int, historical: Bool,
+  ) async throws -> RegularChampionRotationsPage?
   func refreshRotation() async throws -> RefreshRotationResult
   func filterRotations(by championName: String) async throws -> FilterRotationsResult
   func observedRotations(by userId: String) async throws -> ObservedRotationsData
   func updateObserveRotation(slug: String, by userId: String, observing: Bool) async throws -> Bool?
-}
-
-extension RotationService {
-  func nextRotations(
-    nextRotationToken: String, count: Int?,
-  ) async throws -> [RegularChampionRotation] {
-    try await nextRotations(nextRotationToken: nextRotationToken, count: count ?? 1)
-  }
 }
 
 struct DefaultRotationService: RotationService {

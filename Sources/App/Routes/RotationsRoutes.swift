@@ -67,6 +67,22 @@ func rotationsRoutes(_ app: Application, _ deps: Dependencies) {
       )
     }
 
+    rotations.get("paged") { req in
+      try req.auth.require(AppUserAuth.self)
+      guard let page = req.query[Int.self, at: "page"], page > 0 else {
+        throw Abort(.badRequest)
+      }
+      let count = req.query[Int.self, at: "count"]
+      if let count, count < 0 { throw Abort(.badRequest) }
+      let historical = req.query[Bool.self, at: "historical"]
+      let rotationService = deps.rotationService(request: req)
+      let rotationPage = try await rotationService.nextRotationsPage(
+        page: page, count: count, historical: historical,
+      )
+      guard let rotationPage else { throw Abort(.notFound) }
+      return rotationPage
+    }
+
     rotations.get("search") { req in
       try req.auth.require(AppUserAuth.self)
       guard let championName = req.query[String.self, at: "championName"] else {

@@ -3,7 +3,7 @@ import Testing
 @testable import App
 
 extension AppTests {
-  @Suite(.serialized) struct NextRotationTests {
+  @Suite(.serialized) struct NextRotationsTests {
     @Test(.serialized, arguments: appAccessTokens)
     func noTokenParam(accessToken: String) async throws {
       try await withApp { app in

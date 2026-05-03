@@ -33,6 +33,11 @@ struct RegularChampionRotation: Content {
   let current: Bool
 }
 
+struct RegularChampionRotationsPage: Content {
+  let entries: [RegularChampionRotation]
+  let hasNext: Bool
+}
+
 struct ChampionRotationPrediction: Content {
   let duration: ChampionRotationDuration
   let champions: [Champion]
