@@ -33,13 +33,15 @@ extension DefaultRotationService {
       return nil
     }
 
+    let currentRotation = try await appDb.currentRegularRotation()
+
     let champions = try await appDb.champions()
 
     guard let lastRotationId = lastRotation.idString else { return nil }
     let nextRotationAfterLast = try await appDb.findPreviousRegularRotation(before: lastRotationId)
     let hasNext = nextRotationAfterLast != nil
 
-    return (rotations, champions, hasNext)
+    return (rotations, currentRotation, champions, hasNext)
   }
 
   private func createNextRotations(
@@ -57,13 +59,16 @@ extension DefaultRotationService {
         for: rotation.champions, models: data.champions
       ).sorted { $0.name < $1.name }
 
+      let currentRotationId = data.currentRotation?.id
+      let current = currentRotationId != nil && rotation.id == currentRotationId
+
       let rotation = RegularChampionRotation(
         id: rotation.slug,
         patchVersion: patchVersion,
         duration: duration,
         champions: champions,
         nextRotationToken: nil,
-        current: false,
+        current: current,
       )
 
       result.append(rotation)
@@ -75,6 +80,7 @@ extension DefaultRotationService {
 
 private typealias NextRotationsPageLocalData = (
   rotations: [RegularChampionRotationModel],
+  currentRotation: RegularChampionRotationModel?,
   champions: [ChampionModel],
   hasNext: Bool,
 )
