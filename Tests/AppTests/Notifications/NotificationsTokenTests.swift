@@ -92,5 +92,54 @@ extension AppTests {
         }
       }
     }
+
+    @Test func removesDuplicateTokenOwnersAfterUpdatingConfig() async throws {
+      try await withApp { app in
+        let previousOwnerConfig = NotificationsConfigModel.enabled(
+          userId: "previous", token: "abc",
+        )
+        let currentUserConfig = NotificationsConfigModel.disabled(
+          userId: mobileUserId, token: "def",
+        )
+
+        _ = try await app.testConfigureWith(
+          dbNotificationsConfigs: [previousOwnerConfig, currentUserConfig]
+        )
+
+        try await app.test(
+          .PUT, "/notifications/token",
+          headers: reqHeaders(accessToken: mobileAccessToken),
+          body: ["token": "abc"],
+        ) { res async throws in
+          let configs = try await app.dbNotificationConfigs().sorted(by: \.userId)
+
+          #expect(res.status == .noContent)
+          #expect(configs == [.disabled(userId: mobileUserId, token: "abc")])
+        }
+      }
+    }
+
+    @Test func transfersTokenOwnershipWhenConfigDoesNotExist() async throws {
+      try await withApp { app in
+        let previousOwnerConfig = NotificationsConfigModel.enabled(
+          userId: "previous", token: "abc",
+        )
+
+        _ = try await app.testConfigureWith(
+          dbNotificationsConfigs: [previousOwnerConfig]
+        )
+
+        try await app.test(
+          .PUT, "/notifications/token",
+          headers: reqHeaders(accessToken: mobileAccessToken),
+          body: ["token": "abc"],
+        ) { res async throws in
+          let configs = try await app.dbNotificationConfigs()
+
+          #expect(res.status == .noContent)
+          #expect(configs == [.enabled(userId: mobileUserId, token: "abc")])
+        }
+      }
+    }
   }
 }

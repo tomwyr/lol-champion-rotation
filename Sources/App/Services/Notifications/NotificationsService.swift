@@ -10,9 +10,11 @@ struct NotificationsService {
   }
 
   func updateToken(userId: String, input: NotificationsTokenInput) async throws {
-    let config = try await getOrCreateConfig(userId)
+    let config = try await getOrCreateConfig(userId, token: input.token)
+    config.userId = userId
     config.token = input.token
     try await appDb.updateNotificationsConfig(data: config)
+    try await appDb.removeNotificationsConfigs(token: input.token, excludingUserId: userId)
   }
 
   func getSettings(userId: String) async throws -> NotificationsSettings {
@@ -71,8 +73,15 @@ struct NotificationsService {
     return !duplicateChampions.isEmpty
   }
 
-  private func getOrCreateConfig(_ userId: String) async throws -> NotificationsConfigModel {
+  private func getOrCreateConfig(
+    _ userId: String,
+    token: String? = nil,
+  ) async throws -> NotificationsConfigModel {
     if let config = try await appDb.getNotificationsConfig(userId: userId) {
+      return config
+    }
+
+    if let token, let config = try await appDb.getNotificationsConfig(token: token) {
       return config
     }
 

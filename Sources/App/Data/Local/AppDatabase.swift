@@ -435,6 +435,12 @@ extension AppDatabase {
     }
   }
 
+  func getNotificationsConfig(token: String) async throws -> NotificationsConfigModel? {
+    try await runner.run { db in
+      try await NotificationsConfigModel.query(on: db).filter(\.$token == token).first()
+    }
+  }
+
   func updateNotificationsConfig(data: NotificationsConfigModel) async throws {
     try await runner.run { db in
       try await data.save(on: db)
@@ -444,6 +450,15 @@ extension AppDatabase {
   func removeNotificationsConfigs(userIds: [String]) async throws {
     try await runner.run { db in
       try await NotificationsConfigModel.query(on: db).filter(\.$userId ~~ userIds).delete()
+    }
+  }
+
+  func removeNotificationsConfigs(token: String, excludingUserId userId: String) async throws {
+    try await runner.run { db in
+      try await NotificationsConfigModel.query(on: db)
+        .filter(\.$token == token)
+        .filter(\.$userId != userId)
+        .delete()
     }
   }
 
