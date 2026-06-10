@@ -35,14 +35,10 @@ extension FeedbackError: AbortError {
 
   private func describe(_ error: UserFeedbackError) -> String {
     switch error {
-    case .titleEmpty:
-      "Title must not be empty"
-    case .titleTooLong(let maxLength):
-      "Title must not exceed \(maxLength) characters"
-    case .descriptionEmpty:
-      "Description must not be empty"
-    case .descriptionTooLong(let maxLength):
-      "Description must not exceed \(maxLength) characters"
+    case .messageEmpty:
+      "Message must not be empty"
+    case .messageTooLong(let maxLength):
+      "Message must not exceed \(maxLength) characters"
     }
   }
 }

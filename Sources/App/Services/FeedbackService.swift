@@ -10,7 +10,7 @@ struct FeedbackService {
       teamId: linearTeamId,
       stateId: linearFeedbackStateId,
       title: buildTitle(userFeedback),
-      description: userFeedback.description,
+      description: userFeedback.message,
     )
 
     if !payload.success {
@@ -27,21 +27,14 @@ struct FeedbackService {
   }
 
   private func buildTitle(_ userFeedback: UserFeedback) -> String {
-    var parts = [String]()
+    let typeName =
+      switch userFeedback.type {
+      case .bug: "[Bug]"
+      case .feature: "[Feature]"
+      case nil: "[Other]"
+      }
 
-    if let type = userFeedback.type {
-      let typeName =
-        switch type {
-        case .bug: "[Bug]"
-        case .feature: "[Feature]"
-        }
-      parts.append(typeName)
-    }
-
-    let title = userFeedback.title ?? "Untitled"
-    parts.append(title)
-
-    return parts.joined(separator: " ")
+    return "\(typeName) User feedback"
   }
 }
 

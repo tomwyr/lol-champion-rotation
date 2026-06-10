@@ -11,7 +11,7 @@ extension AppTests {
         try await app.test(
           .POST, "/feedbacks",
           headers: reqHeaders(),
-          body: ["title": "feedback", "description": "content"],
+          body: ["message": "content"],
         ) { res async throws in
           #expect(res.status == .unauthorized)
         }
@@ -25,7 +25,7 @@ extension AppTests {
         try await app.test(
           .POST, "/feedbacks",
           headers: reqHeaders(accessToken: webApiKey),
-          body: ["title": "feedback", "description": "content"],
+          body: ["message": "content"],
         ) { res async throws in
           #expect(res.status == .unauthorized)
         }
@@ -39,7 +39,7 @@ extension AppTests {
         try await app.test(
           .POST, "/feedbacks",
           headers: reqHeaders(accessToken: mobileAccessToken),
-          body: ["title": "feedback", "description": "content"],
+          body: ["message": "content"],
         ) { res async throws in
           #expect(res.status == .noContent)
         }
@@ -53,108 +53,58 @@ extension AppTests {
         try await app.test(
           .POST, "/feedbacks",
           headers: reqHeaders(accessToken: mobileAccessToken),
-          body: ["title": "feedback", "description": "content"],
+          body: ["message": "content"],
         ) { res async throws in
           #expect(res.status == .noContent)
         }
       }
     }
 
-    @Test func feedbackWithoutTitle() async throws {
+    @Test func feedbackWithoutMessage() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith()
 
         try await app.test(
           .POST, "/feedbacks",
           headers: reqHeaders(accessToken: mobileAccessToken),
-          body: ["description": "content"],
-        ) { res async throws in
-          #expect(res.status == .noContent)
-        }
-      }
-    }
-
-    @Test func feedbackWithoutDescription() async throws {
-      try await withApp { app in
-        _ = try await app.testConfigureWith()
-
-        try await app.test(
-          .POST, "/feedbacks",
-          headers: reqHeaders(accessToken: mobileAccessToken),
-          body: ["title": "feedback"],
+          body: ["type": "bug"],
         ) { res async throws in
           #expect(res.status == .badRequest)
         }
       }
     }
 
-    @Test func feedbackWithEmptyTitle() async throws {
+    @Test func feedbackWithEmptyMessage() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith()
 
         try await app.test(
           .POST, "/feedbacks",
           headers: reqHeaders(accessToken: mobileAccessToken),
-          body: ["title": "", "description": "content"],
+          body: ["message": ""],
         ) { res async throws in
           #expect(res.status == .badRequest)
-          try expectBodyError(res.body, "Invalid input: Title must not be empty")
+          try expectBodyError(res.body, "Invalid input: Message must not be empty")
         }
       }
     }
 
-    @Test func feedbackWithTooLongTitle() async throws {
+    @Test func feedbackWithTooLongMessage() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith()
 
-        let maxLength = UserFeedback.titleMaxLength
-        let title = String(repeating: "a", count: maxLength + 1)
+        let maxLength = UserFeedback.messageMaxLength
+        let message = String(repeating: "a", count: maxLength + 1)
 
         try await app.test(
           .POST, "/feedbacks",
           headers: reqHeaders(accessToken: mobileAccessToken),
-          body: ["title": title, "description": "content"],
+          body: ["message": message],
         ) { res async throws in
           #expect(res.status == .badRequest)
           try expectBodyError(
             res.body,
-            "Invalid input: Title must not exceed \(maxLength) characters",
-          )
-        }
-      }
-    }
-
-    @Test func feedbackWithEmptyDescription() async throws {
-      try await withApp { app in
-        _ = try await app.testConfigureWith()
-
-        try await app.test(
-          .POST, "/feedbacks",
-          headers: reqHeaders(accessToken: mobileAccessToken),
-          body: ["title": "feedback", "description": ""],
-        ) { res async throws in
-          #expect(res.status == .badRequest)
-          try expectBodyError(res.body, "Invalid input: Description must not be empty")
-        }
-      }
-    }
-
-    @Test func feedbackWithTooLongDescription() async throws {
-      try await withApp { app in
-        _ = try await app.testConfigureWith()
-
-        let maxLength = UserFeedback.descriptionMaxLength
-        let description = String(repeating: "a", count: maxLength + 1)
-
-        try await app.test(
-          .POST, "/feedbacks",
-          headers: reqHeaders(accessToken: mobileAccessToken),
-          body: ["title": "feedback", "description": description],
-        ) { res async throws in
-          #expect(res.status == .badRequest)
-          try expectBodyError(
-            res.body,
-            "Invalid input: Description must not exceed \(maxLength) characters",
+            "Invalid input: Message must not exceed \(maxLength) characters",
           )
         }
       }
@@ -174,48 +124,19 @@ extension AppTests {
         try await app.test(
           .POST, "/feedbacks",
           headers: reqHeaders(accessToken: mobileAccessToken),
-          body: ["title": "feedback", "description": "content"],
+          body: ["message": "content"],
         ) { res async throws in
           #expect(res.status == .noContent)
           #expect(mocks.graphQLClient.requestedQueries == [LinearClient.createIssueMutation])
           let expectedVariables = [
             "teamId": "456",
             "stateId": "789",
-            "title": "feedback",
+            "title": "[Other] User feedback",
             "description": "content",
           ]
           #expect(mocks.graphQLClient.requestedVariables == [expectedVariables])
           let expectedHeaders = ["Authorization": "123"]
           #expect(mocks.graphQLClient.requestedHeaders == [expectedHeaders])
-        }
-      }
-    }
-
-    @Test func linearIssueCreationWithoutTitle() async throws {
-      try await withApp { app in
-        let issueData = CreateIssueData(issueCreate: CreateIssueResult(success: true))
-
-        let mocks = try await app.testConfigureWith(
-          linearAccessToken: "123",
-          linearTeamId: "456",
-          linearFeedbackStateId: "789",
-          linearCreateIssueData: issueData,
-        )
-
-        try await app.test(
-          .POST, "/feedbacks",
-          headers: reqHeaders(accessToken: mobileAccessToken),
-          body: ["description": "content"],
-        ) { res async throws in
-          #expect(res.status == .noContent)
-          #expect(mocks.graphQLClient.requestedQueries == [LinearClient.createIssueMutation])
-          let expectedVariables = [
-            "teamId": "456",
-            "stateId": "789",
-            "title": "Untitled",
-            "description": "content",
-          ]
-          #expect(mocks.graphQLClient.requestedVariables == [expectedVariables])
         }
       }
     }
@@ -234,14 +155,14 @@ extension AppTests {
         try await app.test(
           .POST, "/feedbacks",
           headers: reqHeaders(accessToken: mobileAccessToken),
-          body: ["title": "feedback", "description": "content", "type": "bug"],
+          body: ["message": "content", "type": "bug"],
         ) { res async throws in
           #expect(res.status == .noContent)
           #expect(mocks.graphQLClient.requestedQueries == [LinearClient.createIssueMutation])
           let expectedVariables = [
             "teamId": "456",
             "stateId": "789",
-            "title": "[Bug] feedback",
+            "title": "[Bug] User feedback",
             "description": "content",
           ]
           #expect(mocks.graphQLClient.requestedVariables == [expectedVariables])
@@ -263,14 +184,14 @@ extension AppTests {
         try await app.test(
           .POST, "/feedbacks",
           headers: reqHeaders(accessToken: mobileAccessToken),
-          body: ["title": "feedback", "description": "content", "type": "feature"],
+          body: ["message": "content", "type": "feature"],
         ) { res async throws in
           #expect(res.status == .noContent)
           #expect(mocks.graphQLClient.requestedQueries == [LinearClient.createIssueMutation])
           let expectedVariables = [
             "teamId": "456",
             "stateId": "789",
-            "title": "[Feature] feedback",
+            "title": "[Feature] User feedback",
             "description": "content",
           ]
           #expect(mocks.graphQLClient.requestedVariables == [expectedVariables])
@@ -292,7 +213,7 @@ extension AppTests {
         try await app.test(
           .POST, "/feedbacks",
           headers: reqHeaders(accessToken: mobileAccessToken),
-          body: ["title": "feedback", "description": "content", "type": "other"],
+          body: ["message": "content", "type": "other"],
         ) { res async throws in
           #expect(res.status == .badRequest)
           #expect(mocks.graphQLClient.requestedVariables.isEmpty)
@@ -315,7 +236,7 @@ extension AppTests {
         try await app.test(
           .POST, "/feedbacks",
           headers: reqHeaders(accessToken: mobileAccessToken),
-          body: ["title": "feedback", "description": "content"],
+          body: ["message": "content"],
         ) { res async throws in
           #expect(res.status == .internalServerError)
           try expectBodyError(res.body, "Failed to create feedback record")
