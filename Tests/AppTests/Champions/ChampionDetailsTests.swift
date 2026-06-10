@@ -200,6 +200,62 @@ extension AppTests {
       }
     }
 
+    @Test func championRiotIdMatchesExactly() async throws {
+      try await withApp { app in
+        _ = try await app.testConfigureWith(
+          webApiKey: webApiKey,
+          idHasherSeed: idHasherSeed,
+          dbChampions: [
+            .init(
+              id: uuid("1"), releasedAt: .iso("2024-01-01T00:00:00Z")!, riotId: "Viktor",
+              name: "Viktor", title: "the Machine Herald"),
+            .init(
+              id: uuid("2"), releasedAt: .iso("2024-01-01T00:00:00Z")!, riotId: "Vi",
+              name: "Vi", title: "the Piltover Enforcer"),
+          ],
+          dbPatchVersions: [.init(value: "15.0.1")],
+          b2AuthorizeDownloadData: .init(authorizationToken: "123")
+        )
+
+        try await app.test(
+          .GET, "/champions/vi",
+          headers: reqHeaders(accessToken: webApiKey),
+        ) { res async throws in
+          #expect(res.status == .ok)
+          try expectBody(
+            res.body,
+            [
+              "id": "vi",
+              "imageUrl": imageUrl("Vi"),
+              "name": "Vi",
+              "title": "the Piltover Enforcer",
+              "availability": [
+                [
+                  "rotationType": "regular",
+                  "current": false,
+                ],
+                [
+                  "rotationType": "beginner",
+                  "current": false,
+                ],
+              ],
+              "overview": [
+                "occurrences": 0,
+                "popularity": 1,
+                "currentStreak": 0,
+              ],
+              "history": [
+                [
+                  "type": "release",
+                  "releasedAt": "2024-01-01T00:00:00Z",
+                ]
+              ],
+            ]
+          )
+        }
+      }
+    }
+
     func knownChampionCaseInsensitive(
       accessToken: String,
       afterResponse: (TestingHTTPResponse) async throws -> Void,
