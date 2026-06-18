@@ -46,11 +46,7 @@ extension AppTests {
           ],
           dbChampionRotationConfigs: [.init(rotationChangeWeekday: 4)],
           riotPatchVersions: ["1"],
-          riotChampionRotationsData: .init(
-            freeChampionIds: [1, 2],
-            freeChampionIdsForNewPlayers: [],
-            maxNewPlayerLevel: 10,
-          ),
+          riotChampionRotationsData: .init(sr: [1, 2], newplayer: []),
           riotChampionsData: .init(data: [
             "Sett": .init(id: "Sett", key: "1", name: "Sett"),
             "Garen": .init(id: "Garen", key: "2", name: "Garen"),
@@ -90,11 +86,7 @@ extension AppTests {
           ],
           dbChampionRotationConfigs: [.init(rotationChangeWeekday: 4)],
           riotPatchVersions: ["1"],
-          riotChampionRotationsData: .init(
-            freeChampionIds: [1, 2],
-            freeChampionIdsForNewPlayers: [],
-            maxNewPlayerLevel: 10,
-          ),
+          riotChampionRotationsData: .init(sr: [1, 2], newplayer: []),
           riotChampionsData: .init(data: [
             "Sett": .init(id: "Sett", key: "1", name: "Sett"),
             "Garen": .init(id: "Garen", key: "2", name: "Garen"),
@@ -168,11 +160,7 @@ extension AppTests {
           ],
           dbChampionRotationConfigs: [.init(rotationChangeWeekday: 4)],
           riotPatchVersions: ["1"],
-          riotChampionRotationsData: .init(
-            freeChampionIds: [1, 2],
-            freeChampionIdsForNewPlayers: [],
-            maxNewPlayerLevel: 10,
-          ),
+          riotChampionRotationsData: .init(sr: [1, 2], newplayer: []),
           riotChampionsData: .init(data: [
             "Sett": .init(id: "Sett", key: "1", name: "Sett"),
             "Garen": .init(id: "Garen", key: "2", name: "Garen"),
@@ -234,11 +222,7 @@ extension AppTests {
           ],
           dbChampionRotationConfigs: [.init(rotationChangeWeekday: 4)],
           riotPatchVersions: ["1"],
-          riotChampionRotationsData: .init(
-            freeChampionIds: [1, 2, 3, 4],
-            freeChampionIdsForNewPlayers: [],
-            maxNewPlayerLevel: 10,
-          ),
+          riotChampionRotationsData: .init(sr: [1, 2, 3, 4], newplayer: []),
           riotChampionsData: .init(data: [
             "Sett": .init(id: "Sett", key: "1", name: "Sett"),
             "Garen": .init(id: "Garen", key: "2", name: "Garen"),
@@ -311,11 +295,7 @@ extension AppTests {
           ],
           dbChampionRotationConfigs: [.init(rotationChangeWeekday: 4)],
           riotPatchVersions: ["1"],
-          riotChampionRotationsData: .init(
-            freeChampionIds: [1, 2],
-            freeChampionIdsForNewPlayers: [],
-            maxNewPlayerLevel: 10,
-          ),
+          riotChampionRotationsData: .init(sr: [1, 2], newplayer: []),
           riotChampionsData: .init(data: [
             "Sett": .init(id: "Sett", key: "1", name: "Sett"),
             "Nunu": .init(id: "Nunu", key: "2", name: "Nunu & Willump"),
@@ -356,11 +336,7 @@ extension AppTests {
           ],
           dbChampionRotationConfigs: [.init(rotationChangeWeekday: 4)],
           riotPatchVersions: ["1"],
-          riotChampionRotationsData: .init(
-            freeChampionIds: [1, 2],
-            freeChampionIdsForNewPlayers: [],
-            maxNewPlayerLevel: 10,
-          ),
+          riotChampionRotationsData: .init(sr: [1, 2], newplayer: []),
           riotChampionsData: .init(data: [
             "Sett": .init(id: "Sett", key: "1", name: "Sett"),
             "Nunu": .init(id: "Nunu", key: "2", name: "Nunu & Willump"),
@@ -402,11 +378,7 @@ extension AppTests {
           ],
           dbChampionRotationConfigs: [.init(rotationChangeWeekday: 4)],
           riotPatchVersions: ["1"],
-          riotChampionRotationsData: .init(
-            freeChampionIds: [1, 2],
-            freeChampionIdsForNewPlayers: [],
-            maxNewPlayerLevel: 10,
-          ),
+          riotChampionRotationsData: .init(sr: [1, 2], newplayer: []),
           riotChampionsData: .init(data: [
             "Sett": .init(id: "Sett", key: "1", name: "Sett"),
             "Nunu": .init(id: "Nunu", key: "2", name: "Nunu & Willump"),
@@ -478,11 +450,7 @@ extension AppTests {
           ],
           dbChampionRotationConfigs: [.init(rotationChangeWeekday: 4)],
           riotPatchVersions: ["1"],
-          riotChampionRotationsData: .init(
-            freeChampionIds: [1],
-            freeChampionIdsForNewPlayers: [],
-            maxNewPlayerLevel: 10,
-          ),
+          riotChampionRotationsData: .init(sr: [1], newplayer:  []),
           riotChampionsData: .init(data: [
             "Wukong": .init(id: "Wukong", key: "1", name: "Wukong")
           ])

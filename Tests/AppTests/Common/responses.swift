@@ -21,11 +21,7 @@ extension MockHttpClient {
       []
 
     case requestUrls.riotChampionRotations:
-      ChampionRotationsData(
-        freeChampionIds: [],
-        freeChampionIdsForNewPlayers: [],
-        maxNewPlayerLevel: 0
-      )
+      ChampionRotationsData(sr: [], newplayer: [])
 
     case let url where url.wholeMatch(of: championsDataRegex) != nil:
       ChampionsData(data: [:])
