@@ -36,9 +36,10 @@ private func championsDataUrl(_ version: String) -> String {
 }
 
 struct ChampionRotationsData: Decodable {
-  let freeChampionIds: [Int]
-  let freeChampionIdsForNewPlayers: [Int]
-  let maxNewPlayerLevel: Int
+  static let newplayerMaxLevel = 10
+
+  let sr: [Int]
+  let newplayer: [Int]
 }
 
 struct ChampionsData: Decodable {

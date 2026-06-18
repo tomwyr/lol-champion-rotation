@@ -48,10 +48,10 @@ extension DefaultRotationService {
       return data.id
     }
 
-    let beginnerMaxLevel = championRotations.maxNewPlayerLevel
-    let beginnerChampions = try championRotations.freeChampionIdsForNewPlayers
+    let beginnerMaxLevel = ChampionRotationsData.newplayerMaxLevel
+    let beginnerChampions = try championRotations.newplayer
       .map(championRiotId).sorted()
-    let regularChampions = try championRotations.freeChampionIds
+    let regularChampions = try championRotations.sr
       .map(championRiotId).sorted()
 
     let observedAt = instant.now
