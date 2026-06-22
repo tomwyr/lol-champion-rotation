@@ -1,40 +1,12 @@
 extension DefaultRotationService {
-  func predictRotation() async throws -> ChampionRotationPrediction {
-    if let existing = try await loadExistingPrediction() {
-      existing
-    } else {
-      try await generatePrediction()
-    }
-  }
-}
-
-extension DefaultRotationService {
-  private func loadExistingPrediction() async throws -> ChampionRotationPrediction? {
-    guard let currentRotation = try await appDb.currentRegularRotation(),
-      let currentRotationId = currentRotation.idString,
-      let prediction = try await appDb.rotationPrediction(refRotationId: currentRotationId)
-    else {
-      return nil
-    }
-    let championModels = try await appDb.champions(riotIds: prediction.champions)
-
-    let duration = try await getRotationPredictionDuration(currentRotation)
-    let champions = try createChampions(for: prediction.champions, models: championModels)
-    return ChampionRotationPrediction(
-      duration: duration,
-      champions: champions,
-    )
-  }
-
-}
-
-extension DefaultRotationService {
-  private func generatePrediction() async throws -> ChampionRotationPrediction {
+  func generateRotationPrediction() async throws -> ChampionRotationPrediction {
     let regularRotations = try await appDb.regularRotations()
     let champions = try await appDb.champions()
 
     let predictedChampions = try predictChampions(regularRotations, champions)
-    let prediction = try await createPrediction(regularRotations, champions, predictedChampions)
+    let prediction = try await createPrediction(
+      regularRotations, champions, predictedChampions
+    )
     try await savePrediction(regularRotations, predictedChampions)
 
     return prediction

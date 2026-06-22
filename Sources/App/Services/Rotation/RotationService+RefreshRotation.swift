@@ -10,10 +10,6 @@ extension DefaultRotationService {
     let rotationChanged = try await saveRotationsIfChanged(rotations)
     let championsAdded = try await saveChampionsData(riotData)
 
-    if rotationChanged {
-      _ = try await predictRotation()
-    }
-
     return RefreshRotationResult(
       rotationChanged: rotationChanged,
       championsAdded: championsAdded,

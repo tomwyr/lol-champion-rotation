@@ -16,6 +16,7 @@ func managementRoutes(_ app: Application, _ deps: Dependencies) {
     let rotationResult = try await rotationService.refreshRotation()
 
     if rotationResult.rotationChanged {
+      _ = try await rotationService.generateRotationPrediction()
       try? await notificationsService.onRotationChanged()
     }
 

@@ -48,10 +48,13 @@ func rotationsRoutes(_ app: Application, _ deps: Dependencies) {
       return try await rotationService.currentRegularRotation()
     }
 
-    rotations.get("predict") { req in
+    rotations.get("prediction") { req in
       try req.auth.require(AppUserAuth.self)
       let rotationService = deps.rotationService(request: req)
-      return try await rotationService.predictRotation()
+      guard let prediction = try await rotationService.currentRotationPrediction() else {
+        throw Abort(.notFound)
+      }
+      return prediction
     }
 
     rotations.get { req in

@@ -4,7 +4,8 @@ import Vapor
 protocol RotationService {
   func rotationsOverview() async throws -> ChampionRotationsOverview
   func currentRegularRotation() async throws -> ChampionRotationSummary
-  func predictRotation() async throws -> ChampionRotationPrediction
+  func currentRotationPrediction() async throws -> ChampionRotationPrediction?
+  func generateRotationPrediction() async throws -> ChampionRotationPrediction
   func rotation(slug: String, userId: String?) async throws -> ChampionRotationDetails?
   func nextRotations(
     nextRotationToken: String, count: Int,
