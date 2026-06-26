@@ -1004,8 +1004,8 @@ extension AppTests {
       }
     }
 
-    @Test func championReleasedBetweenRotationMobile() async throws {
-      try await championReleasedBetweenRotation(accessToken: mobileAccessToken) {
+    @Test func championReleasedBetweenRotationsMobile() async throws {
+      try await championReleasedBetweenRotations(accessToken: mobileAccessToken) {
         res async throws in
         #expect(res.status == .ok)
         try expectBody(
@@ -1060,8 +1060,8 @@ extension AppTests {
       }
     }
 
-    @Test func championReleasedBetweenRotationWeb() async throws {
-      try await championReleasedBetweenRotation(accessToken: webApiKey) { res async throws in
+    @Test func championReleasedBetweenRotationsWeb() async throws {
+      try await championReleasedBetweenRotations(accessToken: webApiKey) { res async throws in
         #expect(res.status == .ok)
         try expectBody(
           res.body,
@@ -1114,7 +1114,7 @@ extension AppTests {
       }
     }
 
-    func championReleasedBetweenRotation(
+    func championReleasedBetweenRotations(
       accessToken: String,
       afterResponse: (TestingHTTPResponse) async throws -> Void,
     ) async throws {
@@ -1174,8 +1174,8 @@ extension AppTests {
       }
     }
 
-    @Test func championReleasedBetweenRotationWithNegativeStreakMobile() async throws {
-      try await championReleasedBetweenRotationWithNegativeStreak(accessToken: mobileAccessToken) {
+    @Test func championReleasedBetweenRotationsWithNegativeStreakMobile() async throws {
+      try await championReleasedBetweenRotationsWithNegativeStreak(accessToken: mobileAccessToken) {
         res async throws in
         #expect(res.status == .ok)
         try expectBody(
@@ -1216,8 +1216,8 @@ extension AppTests {
       }
     }
 
-    @Test func championReleasedBetweenRotationWithNegativeStreakWeb() async throws {
-      try await championReleasedBetweenRotationWithNegativeStreak(accessToken: webApiKey) {
+    @Test func championReleasedBetweenRotationsWithNegativeStreakWeb() async throws {
+      try await championReleasedBetweenRotationsWithNegativeStreak(accessToken: webApiKey) {
         res async throws in
         #expect(res.status == .ok)
         try expectBody(
@@ -1257,7 +1257,7 @@ extension AppTests {
       }
     }
 
-    func championReleasedBetweenRotationWithNegativeStreak(
+    func championReleasedBetweenRotationsWithNegativeStreak(
       accessToken: String,
       afterResponse: (TestingHTTPResponse) async throws -> Void,
     ) async throws {
@@ -1316,8 +1316,9 @@ extension AppTests {
       }
     }
 
-    @Test func championWithHighRelativeScoreMobile() async throws {
-      try await championWithHighRelativeScore(accessToken: mobileAccessToken) { res async throws in
+    @Test func newChampionWithConsecutiveAppearancesMobile() async throws {
+      try await newChampionWithConsecutiveAppearances(accessToken: mobileAccessToken) {
+        res async throws in
         #expect(res.status == .ok)
         try expectBody(
           res.body,
@@ -1340,7 +1341,7 @@ extension AppTests {
             ],
             "overview": [
               "occurrences": 2,
-              "popularity": 2,
+              "popularity": 3,
               "currentStreak": 2,
             ],
             "history": [
@@ -1381,8 +1382,9 @@ extension AppTests {
       }
     }
 
-    @Test func championWithHighRelativeScoreWeb() async throws {
-      try await championWithHighRelativeScore(accessToken: webApiKey) { res async throws in
+    @Test func newChampionWithConsecutiveAppearancesWeb() async throws {
+      try await newChampionWithConsecutiveAppearances(accessToken: webApiKey) {
+        res async throws in
         #expect(res.status == .ok)
         try expectBody(
           res.body,
@@ -1404,7 +1406,7 @@ extension AppTests {
             ],
             "overview": [
               "occurrences": 2,
-              "popularity": 2,
+              "popularity": 3,
               "currentStreak": 2,
             ],
             "history": [
@@ -1445,7 +1447,7 @@ extension AppTests {
       }
     }
 
-    func championWithHighRelativeScore(
+    func newChampionWithConsecutiveAppearances(
       accessToken: String,
       afterResponse: (TestingHTTPResponse) async throws -> Void,
     ) async throws {

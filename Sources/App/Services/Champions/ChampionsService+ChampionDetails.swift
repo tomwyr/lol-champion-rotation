@@ -15,7 +15,8 @@ extension ChampionsService {
     )
     let overview = try createOverview(
       champion: champion,
-      rotationsCount: data.championsRotationsCount,
+      champions: data.champions,
+      rotations: data.regularRotations,
       championStreak: data.championStreak,
     )
     let history = try await createHistory(
@@ -45,10 +46,16 @@ extension ChampionsService {
     let championLatestBeginnerRotation =
       try await appDb.mostRecentBeginnerRotation(withChampion: riotId)
     let championRegularRotationsIds = try await appDb.regularRotationsIds(withChampion: riotId)
-    let rotationsAfterRelease = try await appDb.regularRotations(after: releasedAt)
+    let regularRotations = try await appDb.regularRotations()
+    let rotationsAfterRelease =
+      if let releasedAt {
+        regularRotations.filter { $0.observedAt > releasedAt }
+      } else {
+        regularRotations
+      }
     let currentRegularRotation = try await appDb.currentRegularRotation()
     let currentBeginnerRotation = try await appDb.currentBeginnerRotation()
-    let championsRotationsCount = try await appDb.countChampionsRotations()
+    let champions = try await appDb.champions()
 
     var championStreak: ChampionStreakModel? = nil
     // Only compute the streak if release is known as, otherwise, it might produce incorrect results.
@@ -66,9 +73,10 @@ extension ChampionsService {
       championLatestBeginnerRotation,
       championRegularRotationsIds,
       rotationsAfterRelease,
+      regularRotations,
       currentRegularRotation,
       currentBeginnerRotation,
-      championsRotationsCount,
+      champions,
       championStreak,
       userWatchlists,
     )
@@ -80,9 +88,10 @@ private typealias ChampionDetailsLocalData = (
   championLatestBeginnerRotation: BeginnerChampionRotationModel?,
   championRegularRotationsIds: [UUID],
   regularRotationsAfterRelease: [RegularChampionRotationModel],
+  regularRotations: [RegularChampionRotationModel],
   currentRegularRotation: RegularChampionRotationModel?,
   currentBeginnerRotation: BeginnerChampionRotationModel?,
-  championsRotationsCount: [ChampionRotationsCountModel],
+  champions: [ChampionModel],
   championStreak: ChampionStreakModel?,
   userWatchlists: UserWatchlistsModel?
 )

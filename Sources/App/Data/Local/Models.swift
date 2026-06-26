@@ -237,13 +237,6 @@ final class ChampionRotationConfigModel: Model, @unchecked Sendable {
   }
 }
 
-struct ChampionRotationsCountModel: Codable {
-  let champion: String
-  let presentIn: Int
-  let afterRelease: Int?
-  let total: Int
-}
-
 struct ChampionStreakModel: Codable {
   let champion: String
   let present: Int

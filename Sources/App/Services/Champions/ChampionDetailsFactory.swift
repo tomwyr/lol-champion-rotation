@@ -10,7 +10,8 @@ protocol ChampionDetailsFactory {
 
   func createOverview(
     champion: ChampionModel,
-    rotationsCount: [ChampionRotationsCountModel],
+    champions: [ChampionModel],
+    rotations: [RegularChampionRotationModel],
     championStreak: ChampionStreakModel?,
   ) throws -> ChampionDetailsOverview
 
@@ -54,11 +55,16 @@ extension ChampionsService {
 extension ChampionsService {
   func createOverview(
     champion: ChampionModel,
-    rotationsCount: [ChampionRotationsCountModel],
+    champions: [ChampionModel],
+    rotations: [RegularChampionRotationModel],
     championStreak: ChampionStreakModel?,
   ) throws -> ChampionDetailsOverview {
-    let occurrences = rotationsCount.first { $0.champion == champion.riotId }?.presentIn ?? 0
-    let popularity = try? ChampionPopularity().calculate(for: champion, data: rotationsCount)
+    let occurrences = rotations.count { $0.champions.contains(champion.riotId) }
+    let popularity = try? ChampionPopularity().calculate(
+      for: champion,
+      champions: champions,
+      rotations: rotations,
+    )
 
     var currentStreak: Int? = nil
     if let championStreak {

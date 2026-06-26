@@ -316,29 +316,6 @@ extension AppDatabase {
     }
   }
 
-  func countChampionsRotations() async throws
-    -> [ChampionRotationsCountModel]
-  {
-    let query: SQLQueryString = """
-      WITH active_champions AS (
-        SELECT * FROM "regular-champion-rotations" WHERE active = TRUE
-      )
-      SELECT riot_id as "champion",
-        (SELECT COUNT(*) FROM active_champions WHERE riot_id = ANY(champions)) AS "presentIn",
-        CASE
-          WHEN released_at IS NULL THEN NULL
-        ELSE
-          (SELECT COUNT(*) FROM active_champions WHERE observed_at >= released_at)
-        END AS "afterRelease",
-        (SELECT COUNT(*) FROM active_champions) AS "total"
-      FROM "champions"
-      """
-
-    return try await runner.runSql { db in
-      try await db.raw(query).all(decoding: ChampionRotationsCountModel.self)
-    }
-  }
-
   func championStreak(of championRiotId: String) async throws -> ChampionStreakModel? {
     let query: SQLQueryString = """
       WITH
