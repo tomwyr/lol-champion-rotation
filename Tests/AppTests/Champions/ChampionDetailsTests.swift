@@ -50,11 +50,6 @@ extension AppTests {
                 "current": false,
               ],
             ],
-            "overview": [
-              "occurrences": 0,
-              "popularity": 1,
-              "currentStreak": 0,
-            ],
             "history": [
               [
                 "type": "release",
@@ -85,11 +80,6 @@ extension AppTests {
                 "rotationType": "beginner",
                 "current": false,
               ],
-            ],
-            "overview": [
-              "occurrences": 0,
-              "popularity": 1,
-              "currentStreak": 0,
             ],
             "history": [
               [
@@ -148,11 +138,6 @@ extension AppTests {
                 "current": false,
               ],
             ],
-            "overview": [
-              "occurrences": 0,
-              "popularity": 1,
-              "currentStreak": 0,
-            ],
             "history": [
               [
                 "type": "release",
@@ -183,11 +168,6 @@ extension AppTests {
                 "rotationType": "beginner",
                 "current": false,
               ],
-            ],
-            "overview": [
-              "occurrences": 0,
-              "popularity": 1,
-              "currentStreak": 0,
             ],
             "history": [
               [
@@ -239,11 +219,6 @@ extension AppTests {
                   "current": false,
                 ],
               ],
-              "overview": [
-                "occurrences": 0,
-                "popularity": 1,
-                "currentStreak": 0,
-              ],
               "history": [
                 [
                   "type": "release",
@@ -281,6 +256,54 @@ extension AppTests {
       }
     }
 
+    @Test func missingStatistics() async throws {
+      try await withApp { app in
+        _ = try await app.testConfigureWith(
+          webApiKey: webApiKey,
+          idHasherSeed: idHasherSeed,
+          dbChampions: [
+            .init(
+              id: uuid("1"), releasedAt: .iso("2024-01-01T00:00:00Z")!,
+              riotId: "Nocturne", name: "Nocturne", title: "the Eternal Nightmare")
+          ],
+          dbPatchVersions: [.init(value: "15.0.1")],
+          b2AuthorizeDownloadData: .init(authorizationToken: "123")
+        )
+
+        try await app.test(
+          .GET, "/champions/Nocturne",
+          headers: reqHeaders(accessToken: webApiKey),
+        ) { res async throws in
+          #expect(res.status == .ok)
+          try expectBody(
+            res.body,
+            [
+              "id": "nocturne",
+              "imageUrl": imageUrl("Nocturne"),
+              "name": "Nocturne",
+              "title": "the Eternal Nightmare",
+              "availability": [
+                [
+                  "rotationType": "regular",
+                  "current": false,
+                ],
+                [
+                  "rotationType": "beginner",
+                  "current": false,
+                ],
+              ],
+              "history": [
+                [
+                  "type": "release",
+                  "releasedAt": "2024-01-01T00:00:00Z",
+                ]
+              ],
+            ],
+          )
+        }
+      }
+    }
+
     @Test func championWithMissingReleaseDateMobile() async throws {
       try await championWithMissingReleaseDate(accessToken: mobileAccessToken) { res async throws in
         #expect(res.status == .ok)
@@ -303,7 +326,9 @@ extension AppTests {
               ],
             ],
             "overview": [
-              "occurrences": 0
+              "occurrences": 0,
+              "popularity": 1,
+              "currentStreak": 0,
             ],
             "history": [],
           ],
@@ -332,7 +357,9 @@ extension AppTests {
               ],
             ],
             "overview": [
-              "occurrences": 0
+              "occurrences": 0,
+              "popularity": 1,
+              "currentStreak": 0,
             ],
             "history": [],
           ],
@@ -352,6 +379,14 @@ extension AppTests {
             .init(
               id: uuid("1"), riotId: "Nocturne",
               name: "Nocturne", title: "the Eternal Nightmare")
+          ],
+          dbChampionHistoryStatistics: [
+            .init(
+              championRiotId: "Nocturne",
+              occurrences: 0,
+              popularity: 1,
+              currentStreak: 0,
+            )
           ],
           dbPatchVersions: [.init(value: "15.0.1")],
           b2AuthorizeDownloadData: .init(authorizationToken: "123")
@@ -387,11 +422,6 @@ extension AppTests {
                 "rotationType": "beginner",
                 "current": false,
               ],
-            ],
-            "overview": [
-              "occurrences": 1,
-              "popularity": 1,
-              "currentStreak": 1,
             ],
             "history": [
               [
@@ -434,11 +464,6 @@ extension AppTests {
                 "rotationType": "beginner",
                 "current": false,
               ],
-            ],
-            "overview": [
-              "occurrences": 1,
-              "popularity": 1,
-              "currentStreak": 1,
             ],
             "history": [
               [
@@ -517,11 +542,6 @@ extension AppTests {
                 "lastAvailable": "2024-11-14T12:00:00Z",
               ],
             ],
-            "overview": [
-              "occurrences": 0,
-              "popularity": 1,
-              "currentStreak": 0,
-            ],
             "history": [
               [
                 "type": "release",
@@ -553,11 +573,6 @@ extension AppTests {
                 "current": true,
                 "lastAvailable": "2024-11-14T12:00:00Z",
               ],
-            ],
-            "overview": [
-              "occurrences": 0,
-              "popularity": 1,
-              "currentStreak": 0,
             ],
             "history": [
               [
@@ -814,6 +829,14 @@ extension AppTests {
               name: "Fiora",
               title: "the Grand Duelist"),
           ],
+          dbChampionHistoryStatistics: [
+            .init(
+              championRiotId: "Nocturne",
+              occurrences: 3,
+              popularity: 2,
+              currentStreak: 2,
+            )
+          ],
           dbPatchVersions: [.init(value: "15.0.1")],
           dbChampionRotationConfigs: [.init(rotationChangeWeekday: 4)],
           b2AuthorizeDownloadData: .init(authorizationToken: "123")
@@ -991,6 +1014,14 @@ extension AppTests {
               name: "Fiora",
               title: "the Grand Duelist"),
           ],
+          dbChampionHistoryStatistics: [
+            .init(
+              championRiotId: "Nocturne",
+              occurrences: 1,
+              popularity: 3,
+              currentStreak: -2,
+            )
+          ],
           dbPatchVersions: [.init(value: "15.0.1")],
           dbChampionRotationConfigs: [.init(rotationChangeWeekday: 4)],
           b2AuthorizeDownloadData: .init(authorizationToken: "123")
@@ -1026,11 +1057,6 @@ extension AppTests {
                 "rotationType": "beginner",
                 "current": false,
               ],
-            ],
-            "overview": [
-              "occurrences": 1,
-              "popularity": 3,
-              "currentStreak": 1,
             ],
             "history": [
               [
@@ -1080,11 +1106,6 @@ extension AppTests {
                 "rotationType": "beginner",
                 "current": false,
               ],
-            ],
-            "overview": [
-              "occurrences": 1,
-              "popularity": 3,
-              "currentStreak": 1,
             ],
             "history": [
               [
@@ -1196,11 +1217,6 @@ extension AppTests {
                 "current": false,
               ],
             ],
-            "overview": [
-              "occurrences": 0,
-              "popularity": 3,
-              "currentStreak": -2,
-            ],
             "history": [
               [
                 "type": "bench",
@@ -1236,11 +1252,6 @@ extension AppTests {
                 "rotationType": "beginner",
                 "current": false,
               ],
-            ],
-            "overview": [
-              "occurrences": 0,
-              "popularity": 3,
-              "currentStreak": -2,
             ],
             "history": [
               [
@@ -1339,11 +1350,6 @@ extension AppTests {
                 "current": false,
               ],
             ],
-            "overview": [
-              "occurrences": 2,
-              "popularity": 3,
-              "currentStreak": 2,
-            ],
             "history": [
               [
                 "type": "rotation",
@@ -1403,11 +1409,6 @@ extension AppTests {
                 "rotationType": "beginner",
                 "current": false,
               ],
-            ],
-            "overview": [
-              "occurrences": 2,
-              "popularity": 3,
-              "currentStreak": 2,
             ],
             "history": [
               [
@@ -1553,11 +1554,6 @@ extension AppTests {
                   "current": false,
                 ],
               ],
-              "overview": [
-                "occurrences": 0,
-                "popularity": 1,
-                "currentStreak": 0,
-              ],
               "history": [
                 [
                   "type": "release",
@@ -1610,11 +1606,6 @@ extension AppTests {
                   "current": false,
                 ],
               ],
-              "overview": [
-                "occurrences": 0,
-                "popularity": 1,
-                "currentStreak": 0,
-              ],
               "history": [
                 [
                   "type": "release",
@@ -1648,11 +1639,6 @@ extension AppTests {
                 "rotationType": "beginner",
                 "current": false,
               ],
-            ],
-            "overview": [
-              "occurrences": 2,
-              "popularity": 2,
-              "currentStreak": 1,
             ],
             "history": [
               [
@@ -1716,11 +1702,6 @@ extension AppTests {
                 "rotationType": "beginner",
                 "current": false,
               ],
-            ],
-            "overview": [
-              "occurrences": 2,
-              "popularity": 2,
-              "currentStreak": 1,
             ],
             "history": [
               [

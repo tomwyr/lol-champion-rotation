@@ -118,10 +118,10 @@ extension AppTests {
             )
           ],
           dbChampions: [
-            .init(id: uuid("1"), riotId: "Sett", name: "Sett"),
-            .init(id: uuid("2"), riotId: "Garen", name: "Garen"),
-            .init(id: uuid("3"), riotId: "Nocturne", name: "Nocturne"),
-            .init(id: uuid("4"), riotId: "Senna", name: "Senna"),
+            .init(id: uuid("1"), releasedAt: .isoDate("2024-01-01")!, riotId: "Sett", name: "Sett"),
+            .init(id: uuid("2"), releasedAt: .isoDate("2024-01-01")!, riotId: "Garen", name: "Garen"),
+            .init(id: uuid("3"), releasedAt: .isoDate("2024-01-01")!, riotId: "Nocturne", name: "Nocturne"),
+            .init(id: uuid("4"), releasedAt: .isoDate("2024-01-01")!, riotId: "Senna", name: "Senna"),
           ],
           dbPatchVersions: [.init(value: "1")],
           dbNotificationsConfigs: [
@@ -192,10 +192,10 @@ extension AppTests {
             )
           ],
           dbChampions: [
-            .init(id: uuid("1"), riotId: "Sett", name: "Sett"),
-            .init(id: uuid("2"), riotId: "Garen", name: "Garen"),
-            .init(id: uuid("3"), riotId: "Nocturne", name: "Nocturne"),
-            .init(id: uuid("4"), riotId: "Senna", name: "Senna"),
+            .init(id: uuid("1"), releasedAt: .isoDate("2024-01-01")!, riotId: "Sett", name: "Sett"),
+            .init(id: uuid("2"), releasedAt: .isoDate("2024-01-01")!, riotId: "Garen", name: "Garen"),
+            .init(id: uuid("3"), releasedAt: .isoDate("2024-01-01")!, riotId: "Nocturne", name: "Nocturne"),
+            .init(id: uuid("4"), releasedAt: .isoDate("2024-01-01")!, riotId: "Senna", name: "Senna"),
           ],
           dbPatchVersions: [.init(value: "1")],
           dbNotificationsConfigs: [
@@ -264,7 +264,7 @@ extension AppTests {
             )
           ],
           dbChampions: [
-            .init(id: uuid("1"), riotId: "Sett", name: "Sett")
+            .init(id: uuid("1"), releasedAt: .isoDate("2024-01-01")!, riotId: "Sett", name: "Sett")
           ],
           dbPatchVersions: [.init(value: "1")],
           dbNotificationsConfigs: [
@@ -325,7 +325,7 @@ extension AppTests {
             )
           ],
           dbChampions: [
-            .init(id: uuid("1"), riotId: "Sett", name: "Sett")
+            .init(id: uuid("1"), releasedAt: .isoDate("2024-01-01")!, riotId: "Sett", name: "Sett")
           ],
           dbPatchVersions: [.init(value: "1")],
           dbNotificationsConfigs: [
@@ -419,7 +419,7 @@ extension AppTests {
             )
           ],
           dbChampions: [
-            .init(id: uuid("1"), riotId: "MonkeyKing", name: "Wukong")
+            .init(id: uuid("1"), releasedAt: .isoDate("2024-01-01")!, riotId: "MonkeyKing", name: "Wukong")
           ],
           dbPatchVersions: [.init(value: "1")],
           dbNotificationsConfigs: [

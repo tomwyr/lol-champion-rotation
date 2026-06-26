@@ -360,6 +360,34 @@ extension AppDatabase {
       try await db.raw(query).first(decoding: ChampionStreakModel.self)
     }
   }
+
+  func championHistoryStatistics(
+    championRiotId: String,
+  ) async throws -> ChampionHistoryStatisticsModel? {
+    try await runner.run { db in
+      try await ChampionHistoryStatisticsModel.query(on: db)
+        .filter(\.$championRiotId == championRiotId)
+        .first()
+    }
+  }
+
+  func saveChampionHistoryStatistics(
+    data: [ChampionHistoryStatisticsModel],
+  ) async throws {
+    try await runner.run(timeout: .seconds(5)) { db in
+      try await db.transaction { db in
+        let existing = try await ChampionHistoryStatisticsModel.query(on: db)
+          .all()
+          .associatedBy(key: \.championRiotId)
+
+        for statistics in data {
+          statistics.id = existing[statistics.championRiotId]?.id
+          statistics.$id.exists = statistics.id != nil
+          try await statistics.save(on: db)
+        }
+      }
+    }
+  }
 }
 
 extension AppDatabase {

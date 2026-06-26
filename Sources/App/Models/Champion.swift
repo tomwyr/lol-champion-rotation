@@ -7,7 +7,7 @@ struct ChampionDetails: Content {
   let imageUrl: String
   let observing: Bool?
   let availability: [ChampionDetailsAvailability]
-  let overview: ChampionDetailsOverview
+  let overview: ChampionDetailsOverview?
   let history: [ChampionDetailsHistoryEvent]
 }
 
@@ -19,8 +19,8 @@ struct ChampionDetailsAvailability: Content {
 
 struct ChampionDetailsOverview: Content {
   let occurrences: Int
-  let popularity: Int?
-  let currentStreak: Int?
+  let popularity: Int
+  let currentStreak: Int
 }
 
 enum ChampionDetailsHistoryEvent: Content {

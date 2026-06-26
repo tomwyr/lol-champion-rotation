@@ -20,6 +20,8 @@ extension Migrations {
     add(AddChampionRotationActive())
     add(AddChampionRotationConfigs())
     add(AddChampionReleasedNotification())
+    add(AddChampionHistoryStatistics())
+    add(PopulateChampionHistoryStatistics())
   }
 }
 
@@ -389,6 +391,42 @@ struct AddChampionReleasedNotification: AsyncMigration {
     try await db.schema("notifications-configs")
       .deleteField("champion_released")
       .update()
+  }
+}
+
+struct AddChampionHistoryStatistics: AsyncMigration {
+  func prepare(on db: Database) async throws {
+    try await db.schema(ChampionHistoryStatisticsModel.schema)
+      .id()
+      .field("champion_riot_id", .string, .required)
+      .field("occurrences", .int, .required)
+      .field("popularity", .int, .required)
+      .field("current_streak", .int, .required)
+      .create()
+  }
+
+  func revert(on db: Database) async throws {
+    try await db.schema(ChampionHistoryStatisticsModel.schema).delete()
+  }
+}
+
+struct PopulateChampionHistoryStatistics: AsyncMigration {
+  func prepare(on db: Database) async throws {
+    let champions = try await ChampionModel.query(on: db).all()
+    let rotations = try await RegularChampionRotationModel.query(on: db)
+      .filter(\.$active == true)
+      .sort(\.$observedAt, .descending)
+      .all()
+
+    let statistics = try ChampionHistoryStatistics().calculate(
+      champions: champions,
+      rotations: rotations,
+    )
+    try await statistics.create(on: db)
+  }
+
+  func revert(on db: Database) async throws {
+    try await ChampionHistoryStatisticsModel.query(on: db).delete()
   }
 }
 

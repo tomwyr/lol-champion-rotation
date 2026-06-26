@@ -21,6 +21,7 @@ extension Application {
     dbBeginnerRotations: [BeginnerChampionRotationModel] = [],
     dbRotationPredictions: [ChampionRotationPredictionModel] = [],
     dbChampions: [ChampionModel] = [],
+    dbChampionHistoryStatistics: [ChampionHistoryStatisticsModel]? = nil,
     dbPatchVersions: [PatchVersionModel] = [],
     dbNotificationsConfigs: [NotificationsConfigModel] = [],
     dbUserWatchlists: [UserWatchlistsModel] = [],
@@ -96,6 +97,11 @@ extension Application {
         }
         for champion in dbChampions {
           try await champion.create(on: db)
+        }
+        if let dbChampionHistoryStatistics {
+          for statistics in dbChampionHistoryStatistics {
+            try await statistics.create(on: db)
+          }
         }
         for version in dbPatchVersions {
           let observedAt = version.observedAt

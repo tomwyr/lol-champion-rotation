@@ -13,12 +13,14 @@ extension ChampionsService {
       currentRegularRotation: data.currentRegularRotation,
       currentBeginnerRotation: data.currentBeginnerRotation,
     )
-    let overview = try createOverview(
-      champion: champion,
-      champions: data.champions,
-      rotations: data.regularRotations,
-      championStreak: data.championStreak,
-    )
+
+    let overview: ChampionDetailsOverview? =
+      if let statistics = data.statistics {
+        try createOverview(champion: champion, statistics: statistics)
+      } else {
+        nil
+      }
+
     let history = try await createHistory(
       champion: champion,
       rotationsAfterRelease: data.regularRotationsAfterRelease,
@@ -55,13 +57,7 @@ extension ChampionsService {
       }
     let currentRegularRotation = try await appDb.currentRegularRotation()
     let currentBeginnerRotation = try await appDb.currentBeginnerRotation()
-    let champions = try await appDb.champions()
-
-    var championStreak: ChampionStreakModel? = nil
-    // Only compute the streak if release is known as, otherwise, it might produce incorrect results.
-    if releasedAt != nil {
-      championStreak = try await appDb.championStreak(of: riotId)
-    }
+    let statistics = try? await appDb.championHistoryStatistics(championRiotId: champion.riotId)
 
     var userWatchlists: UserWatchlistsModel?
     if let userId {
@@ -76,8 +72,7 @@ extension ChampionsService {
       regularRotations,
       currentRegularRotation,
       currentBeginnerRotation,
-      champions,
-      championStreak,
+      statistics,
       userWatchlists,
     )
   }
@@ -91,7 +86,6 @@ private typealias ChampionDetailsLocalData = (
   regularRotations: [RegularChampionRotationModel],
   currentRegularRotation: RegularChampionRotationModel?,
   currentBeginnerRotation: BeginnerChampionRotationModel?,
-  champions: [ChampionModel],
-  championStreak: ChampionStreakModel?,
+  statistics: ChampionHistoryStatisticsModel?,
   userWatchlists: UserWatchlistsModel?
 )

@@ -9,6 +9,9 @@ extension DefaultRotationService {
     let rotations = try createRotationModels(localData, riotData)
     let rotationChanged = try await saveRotationsIfChanged(rotations)
     let championsAdded = try await saveChampionsData(riotData)
+    if rotationChanged || !championsAdded.isEmpty {
+      try await refreshChampionHistoryStatistics()
+    }
 
     return RefreshRotationResult(
       rotationChanged: rotationChanged,
@@ -102,6 +105,16 @@ extension DefaultRotationService {
     let data = riotData.champions.data.values.toModels()
     let createdChampionsIds = try await appDb.saveChampions(data: data)
     return createdChampionsIds.sorted()
+  }
+
+  private func refreshChampionHistoryStatistics() async throws {
+    let champions = try await appDb.champions()
+    let rotations = try await appDb.regularRotations()
+    let statistics = try ChampionHistoryStatistics().calculate(
+      champions: champions,
+      rotations: rotations,
+    )
+    try await appDb.saveChampionHistoryStatistics(data: statistics)
   }
 }
 

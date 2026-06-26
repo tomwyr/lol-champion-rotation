@@ -31,6 +31,18 @@ extension NotificationsConfigModel: Equatable {
   }
 }
 
+extension ChampionHistoryStatisticsModel: Equatable {
+  static public func == (
+    lhs: ChampionHistoryStatisticsModel,
+    rhs: ChampionHistoryStatisticsModel
+  ) -> Bool {
+    lhs.championRiotId == rhs.championRiotId
+      && lhs.occurrences == rhs.occurrences
+      && lhs.popularity == rhs.popularity
+      && lhs.currentStreak == rhs.currentStreak
+  }
+}
+
 extension AppConfig {
   static func empty(
     databaseUrl: String = "",
@@ -90,5 +102,11 @@ extension Application {
 
   func dbRotationPredictions() async throws -> [ChampionRotationPredictionModel] {
     try await ChampionRotationPredictionModel.query(on: db).all()
+  }
+
+  func dbChampionHistoryStatistics() async throws -> [ChampionHistoryStatisticsModel] {
+    try await ChampionHistoryStatisticsModel.query(on: db)
+      .sort(\.$championRiotId)
+      .all()
   }
 }

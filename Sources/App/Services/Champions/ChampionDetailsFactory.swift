@@ -10,9 +10,7 @@ protocol ChampionDetailsFactory {
 
   func createOverview(
     champion: ChampionModel,
-    champions: [ChampionModel],
-    rotations: [RegularChampionRotationModel],
-    championStreak: ChampionStreakModel?,
+    statistics: ChampionHistoryStatisticsModel,
   ) throws -> ChampionDetailsOverview
 
   func createHistory(
@@ -55,30 +53,16 @@ extension ChampionsService {
 extension ChampionsService {
   func createOverview(
     champion: ChampionModel,
-    champions: [ChampionModel],
-    rotations: [RegularChampionRotationModel],
-    championStreak: ChampionStreakModel?,
+    statistics: ChampionHistoryStatisticsModel,
   ) throws -> ChampionDetailsOverview {
-    let occurrences = rotations.count { $0.champions.contains(champion.riotId) }
-    let popularity = try? ChampionPopularity().calculate(
-      for: champion,
-      champions: champions,
-      rotations: rotations,
-    )
-
-    var currentStreak: Int? = nil
-    if let championStreak {
-      let (present, absent) = (championStreak.present, championStreak.absent)
-      guard present == 0 || absent == 0 else {
-        throw ChampionsError.dataInvalidOrMissing(championId: champion.riotId)
-      }
-      currentStreak = if present > 0 { present } else if absent > 0 { -absent } else { 0 }
+    guard statistics.championRiotId == champion.riotId else {
+      throw ChampionsError.dataInvalidOrMissing(championId: champion.riotId)
     }
 
     return ChampionDetailsOverview(
-      occurrences: occurrences,
-      popularity: popularity,
-      currentStreak: currentStreak
+      occurrences: statistics.occurrences,
+      popularity: statistics.popularity,
+      currentStreak: statistics.currentStreak
     )
   }
 }

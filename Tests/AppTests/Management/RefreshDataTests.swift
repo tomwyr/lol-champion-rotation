@@ -115,8 +115,14 @@ extension AppTests {
             )
           ],
           dbChampions: [
-            .init(id: uuid("1"), riotId: "Nocturne", name: "Nocturne"),
-            .init(id: uuid("2"), riotId: "Sett", name: "Sett"),
+            .init(
+              id: uuid("1"), releasedAt: .isoDate("2024-01-01")!,
+              riotId: "Nocturne", name: "Nocturne",
+            ),
+            .init(
+              id: uuid("2"), releasedAt: .isoDate("2024-01-01")!,
+              riotId: "Sett", name: "Sett",
+            ),
           ],
           dbPatchVersions: [.init(value: "1")],
           dbChampionRotationConfigs: [.init(rotationChangeWeekday: 4)],
@@ -235,6 +241,239 @@ extension AppTests {
       }
     }
 
+    @Test func statisticsWithRotationChange() async throws {
+      let now = Date.iso("2024-11-14T12:00:00Z")!
+
+      try await withApp { app in
+        _ = try await app.testConfigureWith(
+          managementApiKey: managementApiKey,
+          dbRegularRotations: [
+            .init(
+              observedAt: now.adding(-1, .weekOfYear)!,
+              champions: ["Sett"],
+              slug: "s1w1",
+            )
+          ],
+          dbBeginnerRotations: [
+            .init(observedAt: now, maxLevel: 10, champions: [])
+          ],
+          dbChampions: [
+            .init(
+              id: uuid("1"), releasedAt: .isoDate("2024-01-01")!,
+              riotId: "Sett", name: "Sett",
+            ),
+            .init(
+              id: uuid("2"), releasedAt: .isoDate("2024-01-01")!,
+              riotId: "Garen", name: "Garen",
+            ),
+          ],
+          dbChampionHistoryStatistics: [
+            .init(
+              championRiotId: "Sett",
+              occurrences: 99,
+              popularity: 99,
+              currentStreak: 99,
+            )
+          ],
+          dbPatchVersions: [.init(observedAt: .isoDate("2024-01-01"), value: "1")],
+          dbChampionRotationConfigs: [.init(rotationChangeWeekday: 4)],
+          riotPatchVersions: ["1"],
+          riotChampionRotationsData: .init(sr: [1, 2], newplayer: []),
+          riotChampionsData: .init(data: [
+            "Sett": .init(id: "Sett", key: "1", name: "Sett"),
+            "Garen": .init(id: "Garen", key: "2", name: "Garen"),
+          ]),
+          getCurrentDate: { now }
+        )
+
+        try await app.test(
+          .GET, "/data/refresh",
+          headers: reqHeaders(accessToken: managementApiKey),
+        ) { res async throws in
+          #expect(res.status == .ok)
+
+          let statistics = try await app.dbChampionHistoryStatistics()
+          #expect(statistics.map(\.championRiotId) == ["Garen", "Sett"])
+
+          let settStats = #require(statistics.first { $0.championRiotId == "Sett" })
+          #expect(settStats.occurrences == 2)
+          #expect(settStats.popularity == 1)
+          #expect(settStats.currentStreak == 2)
+
+          let garenStats = #require(statistics.first { $0.championRiotId == "Garen" })
+          #expect(garenStats.occurrences == 1)
+          #expect(garenStats.popularity == 2)
+          #expect(garenStats.currentStreak == 1)
+        }
+      }
+    }
+
+    @Test func statisticsWithNewChampion() async throws {
+      let now = Date.iso("2024-11-14T12:00:00Z")!
+
+      try await withApp { app in
+        _ = try await app.testConfigureWith(
+          managementApiKey: managementApiKey,
+          dbRegularRotations: [
+            .init(
+              observedAt: now,
+              champions: ["Sett", "Garen"],
+              slug: "s1w1",
+            )
+          ],
+          dbBeginnerRotations: [
+            .init(observedAt: now, maxLevel: 10, champions: [])
+          ],
+          dbChampions: [
+            .init(id: uuid("1"), releasedAt: .isoDate("2024-01-01")!, riotId: "Sett", name: "Sett")
+          ],
+          dbChampionHistoryStatistics: [
+            .init(
+              championRiotId: "Sett",
+              occurrences: 99,
+              popularity: 99,
+              currentStreak: 99,
+            )
+          ],
+          dbPatchVersions: [.init(observedAt: .isoDate("2024-01-01"), value: "1")],
+          riotPatchVersions: ["1"],
+          riotChampionRotationsData: .init(sr: [1, 2], newplayer: []),
+          riotChampionsData: .init(data: [
+            "Sett": .init(id: "Sett", key: "1", name: "Sett"),
+            "Garen": .init(id: "Garen", key: "2", name: "Garen"),
+          ]),
+          getCurrentDate: { now }
+        )
+
+        try await app.test(
+          .GET, "/data/refresh",
+          headers: reqHeaders(accessToken: managementApiKey),
+        ) { res async throws in
+          #expect(res.status == .ok)
+
+          let statistics = try await app.dbChampionHistoryStatistics()
+          #expect(statistics.map(\.championRiotId) == ["Garen", "Sett"])
+
+          let settStats = #require(statistics.first { $0.championRiotId == "Sett" })
+          #expect(settStats.occurrences == 1)
+          #expect(settStats.popularity == 1)
+          #expect(settStats.currentStreak == 1)
+
+          let garenStats = #require(statistics.first { $0.championRiotId == "Garen" })
+          #expect(garenStats.occurrences == 1)
+          #expect(garenStats.popularity == 1)
+          #expect(garenStats.currentStreak == 1)
+        }
+      }
+    }
+
+    @Test func statisticsWithRotationChangeAndNewChampion() async throws {
+      let now = Date.iso("2024-11-14T12:00:00Z")!
+
+      try await withApp { app in
+        _ = try await app.testConfigureWith(
+          managementApiKey: managementApiKey,
+          dbRegularRotations: [
+            .init(
+              observedAt: now.adding(-1, .weekOfYear)!,
+              champions: ["Sett"],
+              slug: "s1w1",
+            )
+          ],
+          dbBeginnerRotations: [
+            .init(observedAt: now, maxLevel: 10, champions: [])
+          ],
+          dbChampions: [
+            .init(id: uuid("1"), releasedAt: .isoDate("2024-01-01")!, riotId: "Sett", name: "Sett")
+          ],
+          dbChampionHistoryStatistics: [
+            .init(
+              championRiotId: "Sett",
+              occurrences: 99,
+              popularity: 99,
+              currentStreak: 99,
+            )
+          ],
+          dbPatchVersions: [.init(observedAt: .isoDate("2024-01-01"), value: "1")],
+          dbChampionRotationConfigs: [.init(rotationChangeWeekday: 4)],
+          riotPatchVersions: ["1"],
+          riotChampionRotationsData: .init(sr: [1, 2], newplayer: []),
+          riotChampionsData: .init(data: [
+            "Sett": .init(id: "Sett", key: "1", name: "Sett"),
+            "Garen": .init(id: "Garen", key: "2", name: "Garen"),
+          ]),
+          getCurrentDate: { now }
+        )
+
+        try await app.test(
+          .GET, "/data/refresh",
+          headers: reqHeaders(accessToken: managementApiKey),
+        ) { res async throws in
+          #expect(res.status == .ok)
+
+          let statistics = try await app.dbChampionHistoryStatistics()
+          #expect(statistics.map(\.championRiotId) == ["Garen", "Sett"])
+
+          let settStats = #require(statistics.first { $0.championRiotId == "Sett" })
+          #expect(settStats.occurrences == 2)
+          #expect(settStats.popularity == 1)
+          #expect(settStats.currentStreak == 2)
+
+          let garenStats = #require(statistics.first { $0.championRiotId == "Garen" })
+          #expect(garenStats.occurrences == 1)
+          #expect(garenStats.popularity == 2)
+          #expect(garenStats.currentStreak == 1)
+        }
+      }
+    }
+
+    @Test func statisticsDidNotChange() async throws {
+      let now = Date.iso("2024-11-14T12:00:00Z")!
+      let initialStatistics = ChampionHistoryStatisticsModel(
+        championRiotId: "Sett",
+        occurrences: 99,
+        popularity: 99,
+        currentStreak: 99,
+      )
+
+      try await withApp { app in
+        _ = try await app.testConfigureWith(
+          managementApiKey: managementApiKey,
+          dbRegularRotations: [
+            .init(
+              observedAt: now,
+              champions: ["Sett"],
+              slug: "s1w1",
+            )
+          ],
+          dbBeginnerRotations: [
+            .init(observedAt: now, maxLevel: 10, champions: [])
+          ],
+          dbChampions: [
+            .init(id: uuid("1"), releasedAt: .isoDate("2024-01-01")!, riotId: "Sett", name: "Sett")
+          ],
+          dbChampionHistoryStatistics: [initialStatistics],
+          dbPatchVersions: [.init(observedAt: .isoDate("2024-01-01"), value: "1")],
+          riotPatchVersions: ["1"],
+          riotChampionRotationsData: .init(sr: [1], newplayer: []),
+          riotChampionsData: .init(data: [
+            "Sett": .init(id: "Sett", key: "1", name: "Sett")
+          ]),
+          getCurrentDate: { now }
+        )
+
+        try await app.test(
+          .GET, "/data/refresh",
+          headers: reqHeaders(accessToken: managementApiKey),
+        ) { res async throws in
+          #expect(res.status == .ok)
+
+          let statistics = try await app.dbChampionHistoryStatistics()
+          #expect(statistics == [initialStatistics])
+        }
+      }
+    }
+
     @Test func championsDidNotChange() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
@@ -254,9 +493,18 @@ extension AppTests {
             )
           ],
           dbChampions: [
-            .init(id: uuid("1"), riotId: "Sett", name: "Sett"),
-            .init(id: uuid("2"), riotId: "Garen", name: "Garen"),
-            .init(id: uuid("3"), riotId: "Nocturne", name: "Nocturne"),
+            .init(
+              id: uuid("1"), releasedAt: .isoDate("2024-01-01")!,
+              riotId: "Sett", name: "Sett",
+            ),
+            .init(
+              id: uuid("2"), releasedAt: .isoDate("2024-01-01")!,
+              riotId: "Garen", name: "Garen",
+            ),
+            .init(
+              id: uuid("3"), releasedAt: .isoDate("2024-01-01")!,
+              riotId: "Nocturne", name: "Nocturne",
+            ),
           ],
           dbPatchVersions: [.init(value: "1")],
           riotPatchVersions: ["1"],

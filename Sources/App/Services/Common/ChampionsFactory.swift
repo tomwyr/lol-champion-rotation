@@ -9,7 +9,7 @@ protocol ChampionFactory {
     model: ChampionModel,
     userWatchlists: UserWatchlistsModel?,
     availability: [ChampionDetailsAvailability],
-    overview: ChampionDetailsOverview,
+    overview: ChampionDetailsOverview?,
     history: [ChampionDetailsHistoryEvent]
   ) throws -> ChampionDetails
 }
@@ -41,7 +41,7 @@ extension ChampionFactory {
     model: ChampionModel,
     userWatchlists: UserWatchlistsModel?,
     availability: [ChampionDetailsAvailability],
-    overview: ChampionDetailsOverview,
+    overview: ChampionDetailsOverview?,
     history: [ChampionDetailsHistoryEvent]
   ) throws -> ChampionDetails {
     guard let championId = model.idString else {

@@ -242,3 +242,38 @@ struct ChampionStreakModel: Codable {
   let present: Int
   let absent: Int
 }
+
+final class ChampionHistoryStatisticsModel: Model, @unchecked Sendable {
+  static let schema = "champion-history-statistics"
+
+  @ID(key: .id)
+  var id: UUID?
+
+  @Field(key: "champion_riot_id")
+  var championRiotId: String
+
+  @Field(key: "occurrences")
+  var occurrences: Int
+
+  @Field(key: "popularity")
+  var popularity: Int
+
+  @Field(key: "current_streak")
+  var currentStreak: Int
+
+  init() {}
+
+  init(
+    id: UUID? = nil,
+    championRiotId: String,
+    occurrences: Int,
+    popularity: Int,
+    currentStreak: Int,
+  ) {
+    self.id = id
+    self.championRiotId = championRiotId
+    self.occurrences = occurrences
+    self.popularity = popularity
+    self.currentStreak = currentStreak
+  }
+}
