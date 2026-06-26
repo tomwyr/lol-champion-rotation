@@ -157,6 +157,10 @@ extension Date {
     Calendar.currentUtc.date(byAdding: component, value: value, to: self)
   }
 
+  func subtracting(_ value: Int, _ component: Calendar.Component) -> Date? {
+    adding(-value, component)
+  }
+
   func trimTime() -> Date {
     Calendar.currentUtc.startOfDay(for: self)
   }

@@ -164,7 +164,7 @@ extension AppTests {
     }
 
     @Test func missingReleaseDateFails() {
-      let unknown = champion("Unknown")
+      let unknown = champion("Unknown", releasedAt: nil)
 
       #expect(throws: ChampionPopularityError.insufficientData) {
         try calculator.calculate(for: unknown, champions: [unknown], rotations: [])
@@ -205,7 +205,7 @@ extension AppTests {
         champion("Nocturne"),
         champion("Garen"),
       ]
-      let rotationsLimit = 104
+      let rotationsLimit = ChampionPopularity.rotationsLimit
       let rotations =
         [rotation(age: 0, champions: ["Nocturne"])]
         + (1..<rotationsLimit).map { age in rotation(age: age, champions: []) }
@@ -221,7 +221,7 @@ extension AppTests {
   }
 }
 
-private func champion(_ id: String, releasedAt: Date = date(day: 1)) -> ChampionModel {
+private func champion(_ id: String, releasedAt: Date? = date(day: 1)) -> ChampionModel {
   .init(
     releasedAt: releasedAt,
     riotId: id,
@@ -240,7 +240,7 @@ private func rotation(day: Int, champions: [String]) -> RegularChampionRotationM
 
 private func rotation(age: Int, champions: [String]) -> RegularChampionRotationModel {
   .init(
-    observedAt: date(day: 14 - age),
+    observedAt: date(age: age),
     champions: champions,
     slug: "rotation-\(age)"
   )
@@ -249,4 +249,9 @@ private func rotation(age: Int, champions: [String]) -> RegularChampionRotationM
 private func date(day: Int) -> Date {
   let paddedDay = String(format: "%02d", day)
   return .iso("2024-01-\(paddedDay)T00:00:00Z")!
+}
+
+private func date(age: Int) -> Date {
+  let startDate = Date.iso("2024-01-01T00:00:00Z")!
+  return startDate.subtracting(age, .day)!
 }

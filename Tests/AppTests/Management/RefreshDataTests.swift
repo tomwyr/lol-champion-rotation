@@ -295,12 +295,12 @@ extension AppTests {
           let statistics = try await app.dbChampionHistoryStatistics()
           #expect(statistics.map(\.championRiotId) == ["Garen", "Sett"])
 
-          let settStats = #require(statistics.first { $0.championRiotId == "Sett" })
+          let settStats = try #require(statistics.first { $0.championRiotId == "Sett" })
           #expect(settStats.occurrences == 2)
           #expect(settStats.popularity == 1)
           #expect(settStats.currentStreak == 2)
 
-          let garenStats = #require(statistics.first { $0.championRiotId == "Garen" })
+          let garenStats = try #require(statistics.first { $0.championRiotId == "Garen" })
           #expect(garenStats.occurrences == 1)
           #expect(garenStats.popularity == 2)
           #expect(garenStats.currentStreak == 1)
@@ -354,12 +354,12 @@ extension AppTests {
           let statistics = try await app.dbChampionHistoryStatistics()
           #expect(statistics.map(\.championRiotId) == ["Garen", "Sett"])
 
-          let settStats = #require(statistics.first { $0.championRiotId == "Sett" })
+          let settStats = try #require(statistics.first { $0.championRiotId == "Sett" })
           #expect(settStats.occurrences == 1)
           #expect(settStats.popularity == 1)
           #expect(settStats.currentStreak == 1)
 
-          let garenStats = #require(statistics.first { $0.championRiotId == "Garen" })
+          let garenStats = try #require(statistics.first { $0.championRiotId == "Garen" })
           #expect(garenStats.occurrences == 1)
           #expect(garenStats.popularity == 1)
           #expect(garenStats.currentStreak == 1)
@@ -414,12 +414,12 @@ extension AppTests {
           let statistics = try await app.dbChampionHistoryStatistics()
           #expect(statistics.map(\.championRiotId) == ["Garen", "Sett"])
 
-          let settStats = #require(statistics.first { $0.championRiotId == "Sett" })
+          let settStats = try #require(statistics.first { $0.championRiotId == "Sett" })
           #expect(settStats.occurrences == 2)
           #expect(settStats.popularity == 1)
           #expect(settStats.currentStreak == 2)
 
-          let garenStats = #require(statistics.first { $0.championRiotId == "Garen" })
+          let garenStats = try #require(statistics.first { $0.championRiotId == "Garen" })
           #expect(garenStats.occurrences == 1)
           #expect(garenStats.popularity == 2)
           #expect(garenStats.currentStreak == 1)

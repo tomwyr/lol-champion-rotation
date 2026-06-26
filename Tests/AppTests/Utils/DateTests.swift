@@ -40,6 +40,12 @@ import Testing
     #expect(nextSaturday == .isoDate("2025-10-11"))
   }
 
+  @Test func subtracting() {
+    let date = Date.isoDate("2025-10-04")!
+
+    #expect(date.subtracting(50, .day) == .isoDate("2025-08-15"))
+  }
+
   @Test func withTime() {
     func testWithTime(dateOf: String, timeOf: String, expected: String) {
       let date = Date.iso(dateOf)!

@@ -7,11 +7,11 @@ import Foundation
 /// more rotations occur after their release.
 struct ChampionPopularity {
   /// Number of rotations after which an observation's weight is halved.
-  let halfLife = 13.0
+  static let halfLife = 13.0
   /// Number of eligible rotations after which the new-champion boost is halved.
-  let newChampionHalfLife = 4.0
+  static let newChampionHalfLife = 4.0
   /// Maximum number of newest rotations included in the calculation.
-  let rotationsLimit = 104
+  static let rotationsLimit = 104
 
   func calculate(
     for champion: ChampionModel,
@@ -22,7 +22,7 @@ struct ChampionPopularity {
       throw .insufficientData
     }
 
-    let recentRotations = rotations.prefix(rotationsLimit)
+    let recentRotations = rotations.prefix(Self.rotationsLimit)
     let scores = champions.compactMap { champion in
       score(for: champion, rotations: recentRotations)
     }
@@ -44,12 +44,12 @@ struct ChampionPopularity {
 
     let eligibleRotations = rotations.count { $0.observedAt >= releasedAt }
     let rotationsSinceRelease = max(eligibleRotations - 1, 0)
-    let newChampionBoost = pow(2, -Double(rotationsSinceRelease) / newChampionHalfLife)
+    let newChampionBoost = pow(2, -Double(rotationsSinceRelease) / Self.newChampionHalfLife)
 
     var value = 0.0
     for (age, rotation) in rotations.enumerated() where rotation.observedAt >= releasedAt {
       if rotation.champions.contains(champion.riotId) {
-        let recencyWeight = pow(2, -Double(age) / halfLife)
+        let recencyWeight = pow(2, -Double(age) / Self.halfLife)
         value += recencyWeight * (1 + newChampionBoost)
       }
     }
