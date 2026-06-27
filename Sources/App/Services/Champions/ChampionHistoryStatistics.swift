@@ -5,70 +5,142 @@ struct ChampionHistoryStatistics {
     champions: [ChampionModel],
     rotations: [RegularChampionRotationModel],
   ) throws -> [ChampionHistoryStatisticsModel] {
-    try champions.map { champion in
-      ChampionHistoryStatisticsModel(
-        championRiotId: champion.riotId,
-        occurrences: occurrences(of: champion, in: rotations),
-        popularity: try popularity(of: champion, among: champions, in: rotations),
-        currentStreak: try currentStreak(of: champion, in: rotations),
+    let occurrences = occurrencesByChampion(champions, rotations)
+    let data = StatisticsData(
+      occurrences: occurrences,
+      popularity: popularityByChampion(occurrences),
+      currentStreaks: try currentStreaksByChampion(champions, rotations),
+    )
+
+    return try champions.map { champion in
+      let championId = champion.riotId
+      return ChampionHistoryStatisticsModel(
+        championRiotId: championId,
+        occurrences: try data.result(for: championId, \.occurrences),
+        popularity: try data.result(for: championId, \.popularity),
+        currentStreak: try data.result(for: championId, \.currentStreaks),
       )
     }
   }
 
-  private func occurrences(
-    of champion: ChampionModel,
-    in rotations: [RegularChampionRotationModel],
-  ) -> Int {
-    rotations.count { $0.champions.contains(champion.riotId) }
+  private func occurrencesByChampion(
+    _ champions: [ChampionModel],
+    _ rotations: [RegularChampionRotationModel],
+  ) -> [String: Int] {
+    var result: [String: Int] = [:]
+    for champion in champions {
+      result[champion.riotId] = 0
+    }
+    for rotation in rotations {
+      for champion in Set(rotation.champions) {
+        result[champion, default: 0] += 1
+      }
+    }
+    return result
   }
 
-  private func popularity(
-    of champion: ChampionModel,
-    among champions: [ChampionModel],
-    in rotations: [RegularChampionRotationModel],
-  ) throws -> Int {
-    guard let releasedAt = champion.releasedAt else {
-      throw ChampionHistoryStatisticsError.insufficientData(championRiotId: champion.riotId)
+  private func popularityByChampion(
+    _ occurrencesByChampion: [String: Int],
+  ) -> [String: Int] {
+    let appearanceCounts = occurrencesByChampion.values.sorted(by: >)
+    var popularityByAppearanceCount = [Int: Int]()
+
+    if let mostPopularCount = appearanceCounts.first {
+      popularityByAppearanceCount[mostPopularCount] = 1
+    }
+    for index in appearanceCounts.indices.dropFirst() {
+      let (previousCount, nextCount) = (appearanceCounts[index - 1], appearanceCounts[index])
+      if nextCount != previousCount {
+        popularityByAppearanceCount[nextCount] = index + 1
+      }
     }
 
-    let appearanceCount = rotations.count { rotation in
-      rotation.observedAt >= releasedAt && rotation.champions.contains(champion.riotId)
+    var result: [String: Int] = [:]
+    for (champion, appearanceCount) in occurrencesByChampion {
+      result[champion] = popularityByAppearanceCount[appearanceCount]!
     }
-    let higherAppearanceCounts = champions.compactMap { champion -> Int? in
+    return result
+  }
+
+  private func currentStreaksByChampion(
+    _ champions: [ChampionModel],
+    _ rotations: [RegularChampionRotationModel],
+  ) throws -> [String: Int] {
+    var result: [String: Int] = [:]
+    for champion in champions {
+      result[champion.riotId] = 0
+    }
+
+    let releaseDatesByChampion = try releaseDatesByChampion(champions: champions)
+    var unresolvedChampions = Set(champions.map(\.riotId))
+    let rotationsNewestToOldest = rotations.sorted { lhs, rhs in
+      lhs.observedAt > rhs.observedAt
+    }
+
+    for rotation in rotationsNewestToOldest {
+      let champions = Set(rotation.champions)
+
+      for champion in unresolvedChampions {
+        guard let releasedAt = releaseDatesByChampion[champion],
+          rotation.observedAt >= releasedAt
+        else {
+          unresolvedChampions.remove(champion)
+          continue
+        }
+
+        if champions.contains(champion) {
+          if result[champion, default: 0] >= 0 {
+            result[champion, default: 0] += 1
+          } else {
+            unresolvedChampions.remove(champion)
+          }
+        } else {
+          if result[champion, default: 0] <= 0 {
+            result[champion, default: 0] -= 1
+          } else {
+            unresolvedChampions.remove(champion)
+          }
+        }
+      }
+
+      if unresolvedChampions.isEmpty {
+        break
+      }
+    }
+
+    return result
+  }
+
+  private func releaseDatesByChampion(
+    champions: [ChampionModel],
+  ) throws -> [String: Date] {
+    try champions.reduce(into: [:]) { result, champion in
       guard let releasedAt = champion.releasedAt else {
-        return nil
+        throw ChampionHistoryStatisticsError.insufficientData(championId: champion.riotId)
       }
-      return rotations.count { rotation in
-        rotation.observedAt >= releasedAt && rotation.champions.contains(champion.riotId)
-      }
+      result[champion.riotId] = releasedAt
     }
-
-    // Competition ranking: equal appearance counts share a position.
-    return higherAppearanceCounts.count { $0 > appearanceCount } + 1
   }
 
-  private func currentStreak(
-    of champion: ChampionModel,
-    in rotations: [RegularChampionRotationModel],
-  ) throws -> Int {
-    guard let releasedAt = champion.releasedAt else {
-      throw ChampionHistoryStatisticsError.insufficientData(championRiotId: champion.riotId)
+}
+
+private struct StatisticsData {
+  let occurrences: [String: Int]
+  let popularity: [String: Int]
+  let currentStreaks: [String: Int]
+
+  func result<T>(
+    for championId: String,
+    _ selectResults: KeyPath<StatisticsData, [String: T]>,
+  ) throws -> T {
+    guard let value = self[keyPath: selectResults][championId] else {
+      throw ChampionHistoryStatisticsError.missingResult(championId: championId)
     }
-
-    let eligibleRotations = rotations.filter { $0.observedAt >= releasedAt }
-    guard let firstRotation = eligibleRotations.first else {
-      return 0
-    }
-
-    let present = firstRotation.champions.contains(champion.riotId)
-    let streak = eligibleRotations.prefix {
-      $0.champions.contains(champion.riotId) == present
-    }.count
-
-    return present ? streak : -streak
+    return value
   }
 }
 
 enum ChampionHistoryStatisticsError: Error, Equatable {
-  case insufficientData(championRiotId: String)
+  case insufficientData(championId: String)
+  case missingResult(championId: String)
 }

@@ -7,7 +7,55 @@ extension AppTests {
   @Suite struct ChampionHistoryStatisticsTests {
     private let statistics = ChampionHistoryStatistics()
 
-    @Test func recencyDoesNotBreakTies() throws {
+    @Test func allStatistics() throws {
+      let champions = [
+        champion("Nocturne"),
+        champion("Garen"),
+        champion("Sett"),
+        champion("Aurora", releasedAt: date(day: 3)),
+      ]
+      let rotations = [
+        rotation(day: 5, champions: ["Nocturne", "Garen", "Sett"]),
+        rotation(day: 4, champions: ["Nocturne", "Sett"]),
+        rotation(day: 3, champions: ["Garen", "Sett"]),
+        rotation(day: 2, champions: ["Nocturne", "Sett"]),
+        rotation(day: 1, champions: ["Nocturne", "Garen"]),
+      ]
+
+      let statistics = try calculateStatistics(champions: champions, rotations: rotations)
+
+      let nocturne = try #require(statistics["Nocturne"])
+      #expect(nocturne.occurrences == 4)
+      #expect(nocturne.popularity == 1)
+      #expect(nocturne.currentStreak == 2)
+
+      let sett = try #require(statistics["Sett"])
+      #expect(sett.occurrences == 4)
+      #expect(sett.popularity == 1)
+      #expect(sett.currentStreak == 4)
+
+      let garen = try #require(statistics["Garen"])
+      #expect(garen.occurrences == 3)
+      #expect(garen.popularity == 3)
+      #expect(garen.currentStreak == 1)
+
+      let aurora = try #require(statistics["Aurora"])
+      #expect(aurora.occurrences == 0)
+      #expect(aurora.popularity == 4)
+      #expect(aurora.currentStreak == -3)
+    }
+
+    @Test func emptyChampionList() throws {
+      let rotations = [
+        rotation(day: 1, champions: ["Garen"])
+      ]
+
+      let statistics = try statistics.calculate(champions: [], rotations: rotations)
+
+      #expect(statistics.isEmpty)
+    }
+
+    @Test func recencyTie() throws {
       let champions = [
         champion("Nocturne"),
         champion("Garen"),
@@ -29,13 +77,37 @@ extension AppTests {
         rotation(day: 1, champions: ["Garen"]),
       ]
 
-      let popularity = try popularity(champions: champions, rotations: rotations)
+      let statistics = try calculateStatistics(champions: champions, rotations: rotations)
 
-      #expect(popularity[champions[0].riotId] == 1)
-      #expect(popularity[champions[1].riotId] == 1)
+      let nocturne = try #require(statistics["Nocturne"])
+      let garen = try #require(statistics["Garen"])
+
+      #expect(nocturne.popularity == 1)
+      #expect(garen.popularity == 1)
     }
 
-    @Test func fewerAppearancesRankLower() throws {
+    @Test func currentStreak() throws {
+      let champions = [
+        champion("Garen"),
+        champion("Nocturne"),
+      ]
+      let rotations = [
+        rotation(day: 11, champions: ["Garen", "Nocturne"]),
+        rotation(day: 14, champions: ["Garen"]),
+        rotation(day: 12, champions: ["Garen"]),
+        rotation(day: 13, champions: ["Garen"]),
+      ]
+
+      let statistics = try calculateStatistics(champions: champions, rotations: rotations)
+
+      let garen = try #require(statistics["Garen"])
+      let nocturne = try #require(statistics["Nocturne"])
+
+      #expect(garen.currentStreak == 4)
+      #expect(nocturne.currentStreak == -3)
+    }
+
+    @Test func distinctPopularity() throws {
       let champions = [
         champion("Aurora", releasedAt: date(day: 14)),
         champion("Sett"),
@@ -58,14 +130,18 @@ extension AppTests {
         rotation(day: 1, champions: ["Nocturne", "Sett"]),
       ]
 
-      let popularity = try popularity(champions: champions, rotations: rotations)
+      let statistics = try calculateStatistics(champions: champions, rotations: rotations)
 
-      #expect(popularity[champions[2].riotId] == 1)
-      #expect(popularity[champions[1].riotId] == 2)
-      #expect(popularity[champions[0].riotId] == 3)
+      let nocturne = try #require(statistics["Nocturne"])
+      let sett = try #require(statistics["Sett"])
+      let aurora = try #require(statistics["Aurora"])
+
+      #expect(nocturne.popularity == 1)
+      #expect(sett.popularity == 2)
+      #expect(aurora.popularity == 3)
     }
 
-    @Test func championsWithoutAppearancesShareRank() throws {
+    @Test func popularityWithoutAppearances() throws {
       let champions = [
         champion("Aurora", releasedAt: date(day: 14)),
         champion("Garen"),
@@ -88,13 +164,16 @@ extension AppTests {
         rotation(day: 1, champions: ["Nocturne"]),
       ]
 
-      let popularity = try popularity(champions: champions, rotations: rotations)
+      let statistics = try calculateStatistics(champions: champions, rotations: rotations)
 
-      #expect(popularity[champions[0].riotId] == 2)
-      #expect(popularity[champions[1].riotId] == 2)
+      let aurora = try #require(statistics["Aurora"])
+      let garen = try #require(statistics["Garen"])
+
+      #expect(aurora.popularity == 2)
+      #expect(garen.popularity == 2)
     }
 
-    @Test func newChampionNotBoosted() throws {
+    @Test func newChampionsPopularity() throws {
       let champions = [
         champion("Aurora", releasedAt: date(day: 14)),
         champion("Garen"),
@@ -116,13 +195,16 @@ extension AppTests {
         rotation(day: 1, champions: []),
       ]
 
-      let popularity = try popularity(champions: champions, rotations: rotations)
+      let statistics = try calculateStatistics(champions: champions, rotations: rotations)
 
-      #expect(popularity[champions[0].riotId] == 1)
-      #expect(popularity[champions[1].riotId] == 1)
+      let aurora = try #require(statistics["Aurora"])
+      let garen = try #require(statistics["Garen"])
+
+      #expect(aurora.popularity == 1)
+      #expect(garen.popularity == 1)
     }
 
-    @Test func equalCountsShareRank() throws {
+    @Test func equalOccurrencesPopularity() throws {
       let champions = [
         champion("Nocturne"),
         champion("Sett"),
@@ -146,56 +228,74 @@ extension AppTests {
         rotation(day: 1, champions: ["Nocturne"]),
       ]
 
-      let popularity = try popularity(champions: champions, rotations: rotations)
+      let statistics = try calculateStatistics(champions: champions, rotations: rotations)
 
-      #expect(popularity[champions[1].riotId] == 2)
-      #expect(popularity[champions[2].riotId] == 2)
-      #expect(popularity[champions[3].riotId] == 4)
+      let sett = try #require(statistics["Sett"])
+      let garen = try #require(statistics["Garen"])
+      let senna = try #require(statistics["Senna"])
+
+      #expect(sett.popularity == 2)
+      #expect(garen.popularity == 2)
+      #expect(senna.popularity == 4)
     }
 
-    @Test func missingReleaseDateFails() {
+    @Test func missingReleaseDate() {
       let unknown = champion("Unknown", releasedAt: nil)
 
-      #expect(throws: ChampionHistoryStatisticsError.insufficientData(championRiotId: "Unknown")) {
+      #expect(throws: ChampionHistoryStatisticsError.insufficientData(championId: "Unknown")) {
         try statistics.calculate(champions: [unknown], rotations: [])
       }
     }
 
-    @Test func preReleaseRotationsIgnored() throws {
+    @Test func currentPresentStreak() throws {
       let champions = [
-        champion("Aurora", releasedAt: date(day: 10)),
+        champion("Garen"),
         champion("Nocturne"),
       ]
       let rotations = [
-        rotation(day: 14, champions: ["Aurora", "Nocturne"]),
-        rotation(day: 13, champions: ["Nocturne"]),
-        rotation(day: 12, champions: ["Nocturne"]),
+        rotation(day: 14, champions: ["Garen", "Nocturne"]),
+        rotation(day: 13, champions: ["Garen"]),
+        rotation(day: 12, champions: ["Garen"]),
         rotation(day: 11, champions: ["Nocturne"]),
-        rotation(day: 10, champions: ["Nocturne"]),
-        rotation(day: 9, champions: ["Aurora"]),
-        rotation(day: 8, champions: ["Aurora"]),
-        rotation(day: 7, champions: ["Aurora"]),
-        rotation(day: 6, champions: ["Aurora"]),
-        rotation(day: 5, champions: ["Aurora"]),
-        rotation(day: 4, champions: ["Aurora"]),
-        rotation(day: 3, champions: ["Aurora"]),
-        rotation(day: 2, champions: ["Aurora"]),
-        rotation(day: 1, champions: ["Aurora"]),
       ]
 
-      let popularity = try popularity(champions: champions, rotations: rotations)
+      let statistics = try calculateStatistics(champions: champions, rotations: rotations)
 
-      #expect(popularity[champions[0].riotId] == 2)
+      let garen = try #require(statistics["Garen"])
+      let nocturne = try #require(statistics["Nocturne"])
+
+      #expect(garen.currentStreak == 3)
+      #expect(nocturne.currentStreak == 1)
     }
 
-    private func popularity(
+    @Test func currentAbsentStreak() throws {
+      let champions = [
+        champion("Sett"),
+        champion("Senna", releasedAt: date(day: 13)),
+        champion("Garen"),
+      ]
+      let rotations = [
+        rotation(day: 14, champions: ["Garen"]),
+        rotation(day: 13, champions: ["Garen"]),
+        rotation(day: 12, champions: ["Sett", "Garen"]),
+        rotation(day: 11, champions: ["Senna", "Garen"]),
+      ]
+
+      let statistics = try calculateStatistics(champions: champions, rotations: rotations)
+
+      let sett = try #require(statistics["Sett"])
+      let senna = try #require(statistics["Senna"])
+
+      #expect(sett.currentStreak == -2)
+      #expect(senna.currentStreak == -2)
+    }
+
+    private func calculateStatistics(
       champions: [ChampionModel],
       rotations: [RegularChampionRotationModel],
-    ) throws -> [String: Int] {
-      let statistics = try statistics.calculate(champions: champions, rotations: rotations)
-      return statistics.reduce(into: [:]) { result, statistics in
-        result[statistics.championRiotId] = statistics.popularity
-      }
+    ) throws -> [String: ChampionHistoryStatisticsModel] {
+      try statistics.calculate(champions: champions, rotations: rotations)
+        .associatedBy(key: \.championRiotId)
     }
   }
 }
