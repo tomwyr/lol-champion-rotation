@@ -4,10 +4,10 @@ import Testing
 @testable import App
 
 extension AppTests {
-  @Suite struct ChampionPopularityTests {
-    private let calculator = ChampionPopularity()
+  @Suite struct ChampionHistoryStatisticsTests {
+    private let statistics = ChampionHistoryStatistics()
 
-    @Test func recentAppearancesRankHigher() throws {
+    @Test func recencyDoesNotBreakTies() throws {
       let champions = [
         champion("Nocturne"),
         champion("Garen"),
@@ -29,15 +29,13 @@ extension AppTests {
         rotation(day: 1, champions: ["Garen"]),
       ]
 
-      let popularity = { (champion: ChampionModel) throws -> Int in
-        try calculator.calculate(for: champion, champions: champions, rotations: rotations)
-      }
+      let popularity = try popularity(champions: champions, rotations: rotations)
 
-      #expect(try popularity(champions[0]) == 1)
-      #expect(try popularity(champions[1]) == 2)
+      #expect(popularity[champions[0].riotId] == 1)
+      #expect(popularity[champions[1].riotId] == 1)
     }
 
-    @Test func newChampionRanksBelowRepeatedAppearances() throws {
+    @Test func fewerAppearancesRankLower() throws {
       let champions = [
         champion("Aurora", releasedAt: date(day: 14)),
         champion("Sett"),
@@ -60,13 +58,11 @@ extension AppTests {
         rotation(day: 1, champions: ["Nocturne", "Sett"]),
       ]
 
-      let popularity = { (champion: ChampionModel) throws -> Int in
-        try calculator.calculate(for: champion, champions: champions, rotations: rotations)
-      }
+      let popularity = try popularity(champions: champions, rotations: rotations)
 
-      #expect(try popularity(champions[2]) == 1)
-      #expect(try popularity(champions[1]) == 2)
-      #expect(try popularity(champions[0]) == 3)
+      #expect(popularity[champions[2].riotId] == 1)
+      #expect(popularity[champions[1].riotId] == 2)
+      #expect(popularity[champions[0].riotId] == 3)
     }
 
     @Test func championsWithoutAppearancesShareRank() throws {
@@ -92,15 +88,13 @@ extension AppTests {
         rotation(day: 1, champions: ["Nocturne"]),
       ]
 
-      let popularity = { (champion: ChampionModel) throws -> Int in
-        try calculator.calculate(for: champion, champions: champions, rotations: rotations)
-      }
+      let popularity = try popularity(champions: champions, rotations: rotations)
 
-      #expect(try popularity(champions[0]) == 2)
-      #expect(try popularity(champions[1]) == 2)
+      #expect(popularity[champions[0].riotId] == 2)
+      #expect(popularity[champions[1].riotId] == 2)
     }
 
-    @Test func newChampionReceivesBoost() throws {
+    @Test func newChampionNotBoosted() throws {
       let champions = [
         champion("Aurora", releasedAt: date(day: 14)),
         champion("Garen"),
@@ -122,15 +116,13 @@ extension AppTests {
         rotation(day: 1, champions: []),
       ]
 
-      let popularity = { (champion: ChampionModel) throws -> Int in
-        try calculator.calculate(for: champion, champions: champions, rotations: rotations)
-      }
+      let popularity = try popularity(champions: champions, rotations: rotations)
 
-      #expect(try popularity(champions[0]) == 1)
-      #expect(try popularity(champions[1]) == 2)
+      #expect(popularity[champions[0].riotId] == 1)
+      #expect(popularity[champions[1].riotId] == 1)
     }
 
-    @Test func equalScoresShareRank() throws {
+    @Test func equalCountsShareRank() throws {
       let champions = [
         champion("Nocturne"),
         champion("Sett"),
@@ -154,20 +146,18 @@ extension AppTests {
         rotation(day: 1, champions: ["Nocturne"]),
       ]
 
-      let popularity = { (champion: ChampionModel) throws -> Int in
-        try calculator.calculate(for: champion, champions: champions, rotations: rotations)
-      }
+      let popularity = try popularity(champions: champions, rotations: rotations)
 
-      #expect(try popularity(champions[1]) == 2)
-      #expect(try popularity(champions[2]) == 2)
-      #expect(try popularity(champions[3]) == 4)
+      #expect(popularity[champions[1].riotId] == 2)
+      #expect(popularity[champions[2].riotId] == 2)
+      #expect(popularity[champions[3].riotId] == 4)
     }
 
     @Test func missingReleaseDateFails() {
       let unknown = champion("Unknown", releasedAt: nil)
 
-      #expect(throws: ChampionPopularityError.insufficientData) {
-        try calculator.calculate(for: unknown, champions: [unknown], rotations: [])
+      #expect(throws: ChampionHistoryStatisticsError.insufficientData(championRiotId: "Unknown")) {
+        try statistics.calculate(champions: [unknown], rotations: [])
       }
     }
 
@@ -193,30 +183,19 @@ extension AppTests {
         rotation(day: 1, champions: ["Aurora"]),
       ]
 
-      let popularity = { (champion: ChampionModel) throws -> Int in
-        try calculator.calculate(for: champion, champions: champions, rotations: rotations)
-      }
+      let popularity = try popularity(champions: champions, rotations: rotations)
 
-      #expect(try popularity(champions[0]) == 2)
+      #expect(popularity[champions[0].riotId] == 2)
     }
 
-    @Test func oldRotationsIgnored() throws {
-      let champions = [
-        champion("Nocturne"),
-        champion("Garen"),
-      ]
-      let rotationsLimit = ChampionPopularity.rotationsLimit
-      let rotations =
-        [rotation(age: 0, champions: ["Nocturne"])]
-        + (1..<rotationsLimit).map { age in rotation(age: age, champions: []) }
-        + [rotation(age: rotationsLimit, champions: ["Garen"])]
-
-      let popularity = { (champion: ChampionModel) throws -> Int in
-        try calculator.calculate(for: champion, champions: champions, rotations: rotations)
+    private func popularity(
+      champions: [ChampionModel],
+      rotations: [RegularChampionRotationModel],
+    ) throws -> [String: Int] {
+      let statistics = try statistics.calculate(champions: champions, rotations: rotations)
+      return statistics.reduce(into: [:]) { result, statistics in
+        result[statistics.championRiotId] = statistics.popularity
       }
-
-      #expect(try popularity(champions[0]) == 1)
-      #expect(try popularity(champions[1]) == 2)
     }
   }
 }

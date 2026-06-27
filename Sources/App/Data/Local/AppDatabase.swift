@@ -31,6 +31,13 @@ extension AppDatabase {
     }
   }
 
+  func lastYearRegularRotations() async throws -> [RegularChampionRotationModel] {
+    try await runner.run { db in
+      try await RegularChampionRotationModel.query(on: db)
+        .lastYear(instant: instant)
+    }
+  }
+
   func regularRotations(after minDate: Date? = nil) async throws -> [RegularChampionRotationModel] {
     try await runner.run { db in
       var query = RegularChampionRotationModel.query(on: db)

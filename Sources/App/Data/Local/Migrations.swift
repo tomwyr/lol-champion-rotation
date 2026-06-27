@@ -413,10 +413,7 @@ struct AddChampionHistoryStatistics: AsyncMigration {
 struct PopulateChampionHistoryStatistics: AsyncMigration {
   func prepare(on db: Database) async throws {
     let champions = try await ChampionModel.query(on: db).all()
-    let rotations = try await RegularChampionRotationModel.query(on: db)
-      .filter(\.$active == true)
-      .sort(\.$observedAt, .descending)
-      .all()
+    let rotations = try await RegularChampionRotationModel.query(on: db).lastYear()
 
     let statistics = try ChampionHistoryStatistics().calculate(
       champions: champions,

@@ -9,11 +9,7 @@ struct ChampionHistoryStatistics {
       ChampionHistoryStatisticsModel(
         championRiotId: champion.riotId,
         occurrences: occurrences(of: champion, in: rotations),
-        popularity: try ChampionPopularity().calculate(
-          for: champion,
-          champions: champions,
-          rotations: rotations
-        ),
+        popularity: try popularity(of: champion, among: champions, in: rotations),
         currentStreak: try currentStreak(of: champion, in: rotations),
       )
     }
@@ -24,6 +20,31 @@ struct ChampionHistoryStatistics {
     in rotations: [RegularChampionRotationModel],
   ) -> Int {
     rotations.count { $0.champions.contains(champion.riotId) }
+  }
+
+  private func popularity(
+    of champion: ChampionModel,
+    among champions: [ChampionModel],
+    in rotations: [RegularChampionRotationModel],
+  ) throws -> Int {
+    guard let releasedAt = champion.releasedAt else {
+      throw ChampionHistoryStatisticsError.insufficientData(championRiotId: champion.riotId)
+    }
+
+    let appearanceCount = rotations.count { rotation in
+      rotation.observedAt >= releasedAt && rotation.champions.contains(champion.riotId)
+    }
+    let higherAppearanceCounts = champions.compactMap { champion -> Int? in
+      guard let releasedAt = champion.releasedAt else {
+        return nil
+      }
+      return rotations.count { rotation in
+        rotation.observedAt >= releasedAt && rotation.champions.contains(champion.riotId)
+      }
+    }
+
+    // Competition ranking: equal appearance counts share a position.
+    return higherAppearanceCounts.count { $0 > appearanceCount } + 1
   }
 
   private func currentStreak(
@@ -48,6 +69,6 @@ struct ChampionHistoryStatistics {
   }
 }
 
-enum ChampionHistoryStatisticsError: Error {
+enum ChampionHistoryStatisticsError: Error, Equatable {
   case insufficientData(championRiotId: String)
 }

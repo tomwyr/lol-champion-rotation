@@ -427,14 +427,8 @@ extension AppTests {
       }
     }
 
-    @Test func statisticsDidNotChange() async throws {
+    @Test func missingStatisticsCreated() async throws {
       let now = Date.iso("2024-11-14T12:00:00Z")!
-      let initialStatistics = ChampionHistoryStatisticsModel(
-        championRiotId: "Sett",
-        occurrences: 99,
-        popularity: 99,
-        currentStreak: 99,
-      )
 
       try await withApp { app in
         _ = try await app.testConfigureWith(
@@ -452,7 +446,6 @@ extension AppTests {
           dbChampions: [
             .init(id: uuid("1"), releasedAt: .isoDate("2024-01-01")!, riotId: "Sett", name: "Sett")
           ],
-          dbChampionHistoryStatistics: [initialStatistics],
           dbPatchVersions: [.init(observedAt: .isoDate("2024-01-01"), value: "1")],
           riotPatchVersions: ["1"],
           riotChampionRotationsData: .init(sr: [1], newplayer: []),
@@ -469,7 +462,14 @@ extension AppTests {
           #expect(res.status == .ok)
 
           let statistics = try await app.dbChampionHistoryStatistics()
-          #expect(statistics == [initialStatistics])
+          #expect(statistics == [
+            ChampionHistoryStatisticsModel(
+              championRiotId: "Sett",
+              occurrences: 1,
+              popularity: 1,
+              currentStreak: 1,
+            )
+          ])
         }
       }
     }
