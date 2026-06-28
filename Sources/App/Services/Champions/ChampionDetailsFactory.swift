@@ -76,28 +76,11 @@ extension ChampionsService {
     currentRotation: RegularChampionRotationModel?,
     featuredRotationsIds: [UUID],
   ) async throws -> [ChampionDetailsHistoryEvent] {
-    var items = [ChampionDetailsHistoryEvent]()
-    var rotationsMissed = 0
-
-    for rotation in rotationsAfterRelease {
-      guard let id = rotation.id else { continue }
-
-      if !featuredRotationsIds.contains(id) {
-        rotationsMissed += 1
-        continue
-      }
-
-      if rotationsMissed > 0 {
-        items.append(createBench(rotationsMissed))
-        rotationsMissed = 0
-      }
-      try await items.append(createRotation(rotation, currentRotation))
-    }
-
-    if rotationsMissed > 0 {
-      items.append(createBench(rotationsMissed))
-      rotationsMissed = 0
-    }
+    var items = try await createYearGroupedHistory(
+      rotationsAfterRelease: rotationsAfterRelease,
+      currentRotation: currentRotation,
+      featuredRotationsIds: featuredRotationsIds,
+    )
 
     if let releasedAt = champion.releasedAt {
       let releasedBeforeTrackedHistory =
@@ -112,6 +95,63 @@ extension ChampionsService {
     return items
   }
 
+  private func createYearGroupedHistory(
+    rotationsAfterRelease: [RegularChampionRotationModel],
+    currentRotation: RegularChampionRotationModel?,
+    featuredRotationsIds: [UUID],
+  ) async throws -> [ChampionDetailsHistoryEvent] {
+    let calendar = Calendar.gregorianUtc
+
+    var eventsByYear: [Int: [ChampionDetailsHistoryEvent]] = [:]
+    var benchYear: Int?
+    var rotationsMissed = 0
+
+    for rotation in rotationsAfterRelease {
+      guard let id = rotation.id else { continue }
+      let rotationYear = calendar.year(of: rotation.observedAt)
+
+      // Champion not in rotation
+      if !featuredRotationsIds.contains(id) {
+        // Year ended while on bench
+        if let year = benchYear, year != rotationYear {
+          eventsByYear.append(in: year, createBench(rotationsMissed))
+          rotationsMissed = 0
+        }
+        benchYear = rotationYear
+        rotationsMissed += 1
+        continue
+      }
+
+      // Bench streak ended
+      if let year = benchYear, rotationsMissed > 0 {
+        eventsByYear.append(in: year, createBench(rotationsMissed))
+        benchYear = nil
+        rotationsMissed = 0
+      }
+
+      // Champion in rotation
+      let historyRotation = try await createHistoryRotation(
+        rotation: rotation,
+        currentRotation: currentRotation,
+      )
+      eventsByYear.append(in: rotationYear, .rotation(historyRotation))
+    }
+
+    // Currently still on bench
+    if let year = benchYear, rotationsMissed > 0 {
+      eventsByYear.append(in: year, createBench(rotationsMissed))
+    }
+
+  // Interleave with year changed events
+  return eventsByYear.keys.sorted(by: >).flatMap { year in
+    (eventsByYear[year] ?? []) + [createYearChanged(year)]
+  }
+}
+
+  private func createYearChanged(_ year: Int) -> ChampionDetailsHistoryEvent {
+    .yearChanged(.init(year: year))
+  }
+
   private func createBench(_ rotationsMissed: Int) -> ChampionDetailsHistoryEvent {
     .bench(.init(rotationsMissed: rotationsMissed))
   }
@@ -122,18 +162,6 @@ extension ChampionsService {
 
   private func createRelease(_ releasedAt: Date) -> ChampionDetailsHistoryEvent {
     .release(.init(releasedAt: releasedAt))
-  }
-
-  private func createRotation(
-    _ rotation: RegularChampionRotationModel,
-    _ currentRotation: RegularChampionRotationModel?,
-  ) async throws -> ChampionDetailsHistoryEvent {
-    .rotation(
-      try await createHistoryRotation(
-        rotation: rotation,
-        currentRotation: currentRotation,
-      )
-    )
   }
 
   private func createHistoryRotation(
@@ -152,5 +180,11 @@ extension ChampionsService {
       current: current,
       championImageUrls: championImageUrls
     )
+  }
+}
+
+extension [Int: [ChampionDetailsHistoryEvent]] {
+  fileprivate mutating func append(in year: Int, _ event: ChampionDetailsHistoryEvent) {
+    self[year, default: []].append(event)
   }
 }

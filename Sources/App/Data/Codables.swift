@@ -8,6 +8,8 @@ extension ChampionDetailsHistoryEvent {
     let type = try container.decode(String.self, forKey: .type)
     self =
       switch type {
+      case "yearChanged":
+        try .yearChanged(ChampionDetailsHistoryYearChanged(from: decoder))
       case "rotation":
         try .rotation(ChampionDetailsHistoryRotation(from: decoder))
       case "bench":
@@ -27,6 +29,9 @@ extension ChampionDetailsHistoryEvent {
   func encode(to encoder: any Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
     switch self {
+    case .yearChanged(let value):
+      try container.encode("yearChanged", forKey: .type)
+      try value.encode(to: encoder)
     case .rotation(let value):
       try container.encode("rotation", forKey: .type)
       try value.encode(to: encoder)

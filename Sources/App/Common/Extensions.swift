@@ -184,7 +184,6 @@ extension Date {
       matchingPolicy: .nextTime,
     )
   }
-
 }
 
 extension Calendar {
@@ -192,6 +191,16 @@ extension Calendar {
     var calendar = Calendar.current
     calendar.timeZone = TimeZone(secondsFromGMT: 0)!
     return calendar
+  }
+
+  static var gregorianUtc: Calendar {
+    var calendar = Calendar(identifier: .gregorian)
+    calendar.timeZone = TimeZone(secondsFromGMT: 0)!
+    return calendar
+  }
+
+  func year(of date: Date) -> Int {
+    component(.year, from: date)
   }
 }
 
