@@ -16,6 +16,7 @@ protocol ChampionDetailsFactory {
   func createHistory(
     champion: ChampionModel,
     rotationsAfterRelease: [RegularChampionRotationModel],
+    trackedHistoryStartedAt: Date?,
     currentRotation: RegularChampionRotationModel?,
     featuredRotationsIds: [UUID],
   ) async throws -> [ChampionDetailsHistoryEvent]
@@ -71,6 +72,7 @@ extension ChampionsService {
   func createHistory(
     champion: ChampionModel,
     rotationsAfterRelease: [RegularChampionRotationModel],
+    trackedHistoryStartedAt: Date?,
     currentRotation: RegularChampionRotationModel?,
     featuredRotationsIds: [UUID],
   ) async throws -> [ChampionDetailsHistoryEvent] {
@@ -98,6 +100,12 @@ extension ChampionsService {
     }
 
     if let releasedAt = champion.releasedAt {
+      let releasedBeforeTrackedHistory =
+        if let trackedHistoryStartedAt { releasedAt < trackedHistoryStartedAt } else { false }
+
+      if releasedBeforeTrackedHistory {
+        items.append(createGap())
+      }
       items.append(createRelease(releasedAt))
     }
 
@@ -106,6 +114,10 @@ extension ChampionsService {
 
   private func createBench(_ rotationsMissed: Int) -> ChampionDetailsHistoryEvent {
     .bench(.init(rotationsMissed: rotationsMissed))
+  }
+
+  private func createGap() -> ChampionDetailsHistoryEvent {
+    .gap(.init())
   }
 
   private func createRelease(_ releasedAt: Date) -> ChampionDetailsHistoryEvent {

@@ -24,6 +24,7 @@ extension ChampionsService {
     let history = try await createHistory(
       champion: champion,
       rotationsAfterRelease: data.regularRotationsAfterRelease,
+      trackedHistoryStartedAt: data.regularRotations.map(\.observedAt).min(),
       currentRotation: data.currentRegularRotation,
       featuredRotationsIds: data.championRegularRotationsIds,
     )

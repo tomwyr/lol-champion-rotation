@@ -12,6 +12,8 @@ extension ChampionDetailsHistoryEvent {
         try .rotation(ChampionDetailsHistoryRotation(from: decoder))
       case "bench":
         try .bench(ChampionDetailsHistoryBench(from: decoder))
+      case "gap":
+        try .gap(ChampionDetailsHistoryGap(from: decoder))
       case "release":
         try .release(ChampionDetailsHistoryRelease(from: decoder))
       default:
@@ -30,6 +32,9 @@ extension ChampionDetailsHistoryEvent {
       try value.encode(to: encoder)
     case .bench(let value):
       try container.encode("bench", forKey: .type)
+      try value.encode(to: encoder)
+    case .gap(let value):
+      try container.encode("gap", forKey: .type)
       try value.encode(to: encoder)
     case .release(let value):
       try container.encode("release", forKey: .type)

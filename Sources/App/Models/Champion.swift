@@ -26,6 +26,7 @@ struct ChampionDetailsOverview: Content {
 enum ChampionDetailsHistoryEvent: Content {
   case rotation(ChampionDetailsHistoryRotation)
   case bench(ChampionDetailsHistoryBench)
+  case gap(ChampionDetailsHistoryGap)
   case release(ChampionDetailsHistoryRelease)
 }
 
@@ -39,6 +40,8 @@ struct ChampionDetailsHistoryRotation: Content {
 struct ChampionDetailsHistoryBench: Content {
   let rotationsMissed: Int
 }
+
+struct ChampionDetailsHistoryGap: Content {}
 
 struct ChampionDetailsHistoryRelease: Content {
   let releasedAt: Date
