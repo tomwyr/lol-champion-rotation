@@ -142,11 +142,11 @@ extension ChampionsService {
       eventsByYear.append(in: year, createBench(rotationsMissed))
     }
 
-  // Interleave with year changed events
-  return eventsByYear.keys.sorted(by: >).flatMap { year in
-    (eventsByYear[year] ?? []) + [createYearChanged(year)]
+    // Interleave with year changed events
+    return eventsByYear.keys.sorted(by: >).flatMap { year in
+      (eventsByYear[year] ?? []) + [createYearChanged(year)]
+    }
   }
-}
 
   private func createYearChanged(_ year: Int) -> ChampionDetailsHistoryEvent {
     .yearChanged(.init(year: year))
