@@ -76,15 +76,32 @@ extension ChampionsService {
     currentRotation: RegularChampionRotationModel?,
     featuredRotationsIds: [UUID],
   ) async throws -> [ChampionDetailsHistoryEvent] {
-    var items = try await createYearGroupedHistory(
+    let calendar = Calendar.gregorianUtc
+    var items = [ChampionDetailsHistoryEvent]()
+
+    let eventsByYear = try await createYearGroupedHistory(
+      calendar: calendar,
       rotationsAfterRelease: rotationsAfterRelease,
       currentRotation: currentRotation,
       featuredRotationsIds: featuredRotationsIds,
     )
+    let eventsOldestYear = eventsByYear.keys.min()
+
+    for (year, events) in eventsByYear.sorted(by: \.key, with: >) {
+      items.append(contentsOf: events)
+      if year != eventsOldestYear {
+        items.append(createYearChanged(year))
+      }
+    }
 
     if let releasedAt = champion.releasedAt {
       let releasedBeforeTrackedHistory =
         if let trackedHistoryStartedAt { releasedAt < trackedHistoryStartedAt } else { false }
+
+      let releaseYear = calendar.year(of: releasedAt)
+      if let eventsOldestYear, eventsOldestYear != releaseYear {
+        items.append(createYearChanged(eventsOldestYear))
+      }
 
       if releasedBeforeTrackedHistory {
         items.append(createGap())
@@ -96,12 +113,11 @@ extension ChampionsService {
   }
 
   private func createYearGroupedHistory(
+    calendar: Calendar,
     rotationsAfterRelease: [RegularChampionRotationModel],
     currentRotation: RegularChampionRotationModel?,
     featuredRotationsIds: [UUID],
-  ) async throws -> [ChampionDetailsHistoryEvent] {
-    let calendar = Calendar.gregorianUtc
-
+  ) async throws -> [Int: [ChampionDetailsHistoryEvent]] {
     var eventsByYear: [Int: [ChampionDetailsHistoryEvent]] = [:]
     var benchYear: Int?
     var rotationsMissed = 0
@@ -142,10 +158,7 @@ extension ChampionsService {
       eventsByYear.append(in: year, createBench(rotationsMissed))
     }
 
-    // Interleave with year changed events
-    return eventsByYear.keys.sorted(by: >).flatMap { year in
-      (eventsByYear[year] ?? []) + [createYearChanged(year)]
-    }
+    return eventsByYear
   }
 
   private func createYearChanged(_ year: Int) -> ChampionDetailsHistoryEvent {

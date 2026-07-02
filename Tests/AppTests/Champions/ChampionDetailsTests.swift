@@ -1,3 +1,4 @@
+import Foundation
 import Testing
 import VaporTestUtils
 
@@ -435,11 +436,7 @@ extension AppTests {
                 "championImageUrls": [imageUrl("Nocturne")],
               ],
               [
-                "type": "yearChanged",
-                "year": 2024,
-              ],
-              [
-                "type": "gap",
+                "type": "gap"
               ],
               [
                 "type": "release",
@@ -484,11 +481,7 @@ extension AppTests {
                 "championImageUrls": [imageUrl("Nocturne")],
               ],
               [
-                "type": "yearChanged",
-                "year": 2024,
-              ],
-              [
-                "type": "gap",
+                "type": "gap"
               ],
               [
                 "type": "release",
@@ -573,11 +566,7 @@ extension AppTests {
                 "rotationsMissed": 1,
               ],
               [
-                "type": "yearChanged",
-                "year": 2024,
-              ],
-              [
-                "type": "gap",
+                "type": "gap"
               ],
               [
                 "type": "release",
@@ -627,11 +616,7 @@ extension AppTests {
                 "rotationsMissed": 1,
               ],
               [
-                "type": "yearChanged",
-                "year": 2024,
-              ],
-              [
-                "type": "gap",
+                "type": "gap"
               ],
               [
                 "type": "release",
@@ -663,7 +648,7 @@ extension AppTests {
               observedAt: .iso("2024-11-07T12:00:00Z")!,
               champions: ["Garen"],
               slug: "s1w0",
-            )
+            ),
           ],
           dbChampions: [
             .init(
@@ -811,16 +796,12 @@ extension AppTests {
                 "rotationsMissed": 2,
               ],
               [
-                "type": "yearChanged",
-                "year": 2024,
-              ],
-              [
-                "type": "gap",
+                "type": "gap"
               ],
               [
                 "type": "release",
                 "releasedAt": "2024-01-01T00:00:00Z",
-              ]
+              ],
             ],
           ]
         )
@@ -853,16 +834,12 @@ extension AppTests {
                 "rotationsMissed": 2,
               ],
               [
-                "type": "yearChanged",
-                "year": 2024,
-              ],
-              [
-                "type": "gap",
+                "type": "gap"
               ],
               [
                 "type": "release",
                 "releasedAt": "2024-01-01T00:00:00Z",
-              ]
+              ],
             ],
           ]
         )
@@ -986,11 +963,7 @@ extension AppTests {
                 ],
               ],
               [
-                "type": "yearChanged",
-                "year": 2024,
-              ],
-              [
-                "type": "gap",
+                "type": "gap"
               ],
               [
                 "type": "release",
@@ -1075,11 +1048,7 @@ extension AppTests {
                 ],
               ],
               [
-                "type": "yearChanged",
-                "year": 2024,
-              ],
-              [
-                "type": "gap",
+                "type": "gap"
               ],
               [
                 "type": "release",
@@ -1209,11 +1178,7 @@ extension AppTests {
                 "rotationsMissed": 1,
               ],
               [
-                "type": "yearChanged",
-                "year": 2024,
-              ],
-              [
-                "type": "gap",
+                "type": "gap"
               ],
               [
                 "type": "release",
@@ -1274,11 +1239,7 @@ extension AppTests {
                 "rotationsMissed": 1,
               ],
               [
-                "type": "yearChanged",
-                "year": 2024,
-              ],
-              [
-                "type": "gap",
+                "type": "gap"
               ],
               [
                 "type": "release",
@@ -1400,10 +1361,6 @@ extension AppTests {
                 "rotationsMissed": 1,
               ],
               [
-                "type": "yearChanged",
-                "year": 2024,
-              ],
-              [
                 "type": "release",
                 "releasedAt": "2024-11-13T00:00:00Z",
               ],
@@ -1451,10 +1408,6 @@ extension AppTests {
               [
                 "type": "bench",
                 "rotationsMissed": 1,
-              ],
-              [
-                "type": "yearChanged",
-                "year": 2024,
               ],
               [
                 "type": "release",
@@ -1554,10 +1507,6 @@ extension AppTests {
                 "rotationsMissed": 2,
               ],
               [
-                "type": "yearChanged",
-                "year": 2024,
-              ],
-              [
                 "type": "release",
                 "releasedAt": "2024-11-13T00:00:00Z",
               ],
@@ -1592,10 +1541,6 @@ extension AppTests {
               [
                 "type": "bench",
                 "rotationsMissed": 2,
-              ],
-              [
-                "type": "yearChanged",
-                "year": 2024,
               ],
               [
                 "type": "release",
@@ -1718,10 +1663,6 @@ extension AppTests {
                 ],
               ],
               [
-                "type": "yearChanged",
-                "year": 2024,
-              ],
-              [
                 "type": "release",
                 "releasedAt": "2024-11-14T00:00:00Z",
               ],
@@ -1780,10 +1721,6 @@ extension AppTests {
                   imageUrl("Fiora"),
                   imageUrl("Nocturne"),
                 ],
-              ],
-              [
-                "type": "yearChanged",
-                "year": 2024,
               ],
               [
                 "type": "release",
@@ -2020,11 +1957,7 @@ extension AppTests {
                 ],
               ],
               [
-                "type": "yearChanged",
-                "year": 2024,
-              ],
-              [
-                "type": "gap",
+                "type": "gap"
               ],
               [
                 "type": "release",
@@ -2090,11 +2023,7 @@ extension AppTests {
                 ],
               ],
               [
-                "type": "yearChanged",
-                "year": 2024,
-              ],
-              [
-                "type": "gap",
+                "type": "gap"
               ],
               [
                 "type": "release",
@@ -2167,15 +2096,185 @@ extension AppTests {
       }
     }
 
-    func championHistory(
-      rotations: [RegularChampionRotationModel],
-      afterResponse: (TestingHTTPResponse) async throws -> Void
-    ) async throws {
+    @Test func releaseAndRotationInSameYear() async throws {
       try await withApp { app in
         _ = try await app.testConfigureWith(
           webApiKey: webApiKey,
           idHasherSeed: idHasherSeed,
-          dbRegularRotations: rotations,
+          dbRegularRotations: [
+            .init(
+              id: uuid("2"),
+              observedAt: .iso("2025-03-15T12:00:00Z")!,
+              champions: ["Nocturne"],
+              slug: "s3w11",
+            ),
+            .init(
+              id: uuid("1"),
+              observedAt: .iso("2025-03-01T12:00:00Z")!,
+              champions: ["Garen"],
+              slug: "s3w9",
+            ),
+          ],
+          dbChampions: [
+            .init(
+              id: uuid("1"), releasedAt: .iso("2025-03-12T00:00:00Z")!, riotId: "Nocturne",
+              name: "Nocturne", title: "the Eternal Nightmare"),
+            .init(
+              id: uuid("2"), releasedAt: .iso("2024-01-01T00:00:00Z")!, riotId: "Garen",
+              name: "Garen",
+              title: "The Might of Demacia"),
+          ],
+          dbPatchVersions: [.init(value: "15.0.1")],
+          dbChampionRotationConfigs: [.init(rotationChangeWeekday: 4)],
+          b2AuthorizeDownloadData: .init(authorizationToken: "123")
+        )
+
+        try await app.test(
+          .GET, "/champions/Nocturne",
+          headers: reqHeaders(accessToken: webApiKey),
+        ) { res async throws in
+          #expect(res.status == .ok)
+          try expectBody(
+            res.body,
+            [
+              "id": "nocturne",
+              "imageUrl": imageUrl("Nocturne"),
+              "name": "Nocturne",
+              "title": "the Eternal Nightmare",
+              "availability": [
+                [
+                  "rotationType": "regular",
+                  "current": true,
+                  "lastAvailable": "2025-03-15T12:00:00Z",
+                ],
+                [
+                  "rotationType": "beginner",
+                  "current": false,
+                ],
+              ],
+              "history": [
+                [
+                  "type": "rotation",
+                  "id": "s3w11",
+                  "duration": [
+                    "start": "2025-03-15T12:00:00Z",
+                    "end": "2025-03-20T12:00:00Z",
+                  ],
+                  "current": true,
+                  "championImageUrls": [imageUrl("Nocturne")],
+                ],
+                [
+                  "type": "release",
+                  "releasedAt": "2025-03-12T00:00:00Z",
+                ],
+              ],
+            ]
+          )
+        }
+      }
+    }
+
+    @Test func releaseAndRotationAtYearBoundaries() async throws {
+      try await withApp { app in
+        _ = try await app.testConfigureWith(
+          webApiKey: webApiKey,
+          idHasherSeed: idHasherSeed,
+          dbRegularRotations: [
+            .init(
+              id: uuid("2"),
+              observedAt: .iso("2026-01-01T12:00:00Z")!,
+              champions: ["Nocturne"],
+              slug: "s4w1",
+            ),
+            .init(
+              id: uuid("1"),
+              observedAt: .iso("2025-12-30T12:00:00Z")!,
+              champions: ["Garen"],
+              slug: "s3w52",
+            ),
+          ],
+          dbChampions: [
+            .init(
+              id: uuid("1"), releasedAt: .iso("2025-12-31T00:00:00Z")!, riotId: "Nocturne",
+              name: "Nocturne", title: "the Eternal Nightmare"),
+            .init(
+              id: uuid("2"), releasedAt: .iso("2024-01-01T00:00:00Z")!, riotId: "Garen",
+              name: "Garen",
+              title: "The Might of Demacia"),
+          ],
+          dbPatchVersions: [.init(value: "15.0.1")],
+          dbChampionRotationConfigs: [.init(rotationChangeWeekday: 4)],
+          b2AuthorizeDownloadData: .init(authorizationToken: "123")
+        )
+
+        try await app.test(
+          .GET, "/champions/Nocturne",
+          headers: reqHeaders(accessToken: webApiKey),
+        ) { res async throws in
+          #expect(res.status == .ok)
+          try expectBody(
+            res.body,
+            [
+              "id": "nocturne",
+              "imageUrl": imageUrl("Nocturne"),
+              "name": "Nocturne",
+              "title": "the Eternal Nightmare",
+              "availability": [
+                [
+                  "rotationType": "regular",
+                  "current": true,
+                  "lastAvailable": "2026-01-01T12:00:00Z",
+                ],
+                [
+                  "rotationType": "beginner",
+                  "current": false,
+                ],
+              ],
+              "history": [
+                [
+                  "type": "rotation",
+                  "id": "s4w1",
+                  "duration": [
+                    "start": "2026-01-01T12:00:00Z",
+                    "end": "2026-01-08T12:00:00Z",
+                  ],
+                  "current": true,
+                  "championImageUrls": [imageUrl("Nocturne")],
+                ],
+                [
+                  "type": "yearChanged",
+                  "year": 2026,
+                ],
+                [
+                  "type": "release",
+                  "releasedAt": "2025-12-31T00:00:00Z",
+                ],
+              ],
+            ]
+          )
+        }
+      }
+    }
+
+    @Test func yearBoundaryBenchToBench() async throws {
+      try await withApp { app in
+        _ = try await app.testConfigureWith(
+          webApiKey: webApiKey,
+          idHasherSeed: idHasherSeed,
+          dbRegularRotations: [
+            .init(
+              id: uuid("2"),
+              observedAt: .iso("2025-01-02T12:00:00Z")!,
+              champions: ["Garen"],
+              slug: "s3w1",
+            ),
+            .init(
+              id: uuid("1"),
+              observedAt: .iso("2024-12-26T12:00:00Z")!,
+              champions: ["Garen"],
+              slug: "s2w52",
+            ),
+          ],
           dbChampions: [
             .init(
               id: uuid("1"), releasedAt: .iso("2024-01-01T00:00:00Z")!, riotId: "Nocturne",
@@ -2193,217 +2292,227 @@ extension AppTests {
         try await app.test(
           .GET, "/champions/Nocturne",
           headers: reqHeaders(accessToken: webApiKey),
-          afterResponse: afterResponse,
-        )
-      }
-    }
-
-    @Test func yearBoundaryBenchToBench() async throws {
-      try await championHistory(
-        rotations: [
-          .init(
-            id: uuid("2"),
-            observedAt: .iso("2025-01-02T12:00:00Z")!,
-            champions: ["Garen"],
-            slug: "s3w1",
-          ),
-          .init(
-            id: uuid("1"),
-            observedAt: .iso("2024-12-26T12:00:00Z")!,
-            champions: ["Garen"],
-            slug: "s2w52",
-          ),
-        ]
-      ) { res async throws in
-        #expect(res.status == .ok)
-        try expectBody(
-          res.body,
-          [
-            "id": "nocturne",
-            "imageUrl": imageUrl("Nocturne"),
-            "name": "Nocturne",
-            "title": "the Eternal Nightmare",
-            "availability": [
-              [
-                "rotationType": "regular",
-                "current": false,
+        ) { res async throws in
+          #expect(res.status == .ok)
+          try expectBody(
+            res.body,
+            [
+              "id": "nocturne",
+              "imageUrl": imageUrl("Nocturne"),
+              "name": "Nocturne",
+              "title": "the Eternal Nightmare",
+              "availability": [
+                [
+                  "rotationType": "regular",
+                  "current": false,
+                ],
+                [
+                  "rotationType": "beginner",
+                  "current": false,
+                ],
               ],
-              [
-                "rotationType": "beginner",
-                "current": false,
+              "history": [
+                [
+                  "type": "bench",
+                  "rotationsMissed": 1,
+                ],
+                [
+                  "type": "yearChanged",
+                  "year": 2025,
+                ],
+                [
+                  "type": "bench",
+                  "rotationsMissed": 1,
+                ],
+                [
+                  "type": "gap"
+                ],
+                [
+                  "type": "release",
+                  "releasedAt": "2024-01-01T00:00:00Z",
+                ],
               ],
-            ],
-            "history": [
-              [
-                "type": "bench",
-                "rotationsMissed": 1,
-              ],
-              [
-                "type": "yearChanged",
-                "year": 2025,
-              ],
-              [
-                "type": "bench",
-                "rotationsMissed": 1,
-              ],
-              [
-                "type": "yearChanged",
-                "year": 2024,
-              ],
-              [
-                "type": "gap",
-              ],
-              [
-                "type": "release",
-                "releasedAt": "2024-01-01T00:00:00Z",
-              ],
-            ],
-          ]
-        )
+            ]
+          )
+        }
       }
     }
 
     @Test func yearBoundaryBenchToRotation() async throws {
-      try await championHistory(
-        rotations: [
-          .init(
-            id: uuid("2"),
-            observedAt: .iso("2025-01-02T12:00:00Z")!,
-            champions: ["Nocturne"],
-            slug: "s3w1",
-          ),
-          .init(
-            id: uuid("1"),
-            observedAt: .iso("2024-12-26T12:00:00Z")!,
-            champions: ["Garen"],
-            slug: "s2w52",
-          ),
-        ]
-      ) { res async throws in
-        #expect(res.status == .ok)
-        try expectBody(
-          res.body,
-          [
-            "id": "nocturne",
-            "imageUrl": imageUrl("Nocturne"),
-            "name": "Nocturne",
-            "title": "the Eternal Nightmare",
-            "availability": [
-              [
-                "rotationType": "regular",
-                "current": true,
-                "lastAvailable": "2025-01-02T12:00:00Z",
-              ],
-              [
-                "rotationType": "beginner",
-                "current": false,
-              ],
-            ],
-            "history": [
-              [
-                "type": "rotation",
-                "id": "s3w1",
-                "duration": [
-                  "start": "2025-01-02T12:00:00Z",
-                  "end": "2025-01-09T12:00:00Z",
-                ],
-                "current": true,
-                "championImageUrls": [imageUrl("Nocturne")],
-              ],
-              [
-                "type": "yearChanged",
-                "year": 2025,
-              ],
-              [
-                "type": "bench",
-                "rotationsMissed": 1,
-              ],
-              [
-                "type": "yearChanged",
-                "year": 2024,
-              ],
-              [
-                "type": "gap",
-              ],
-              [
-                "type": "release",
-                "releasedAt": "2024-01-01T00:00:00Z",
-              ],
-            ],
-          ]
+      try await withApp { app in
+        _ = try await app.testConfigureWith(
+          webApiKey: webApiKey,
+          idHasherSeed: idHasherSeed,
+          dbRegularRotations: [
+            .init(
+              id: uuid("2"),
+              observedAt: .iso("2025-01-02T12:00:00Z")!,
+              champions: ["Nocturne"],
+              slug: "s3w1",
+            ),
+            .init(
+              id: uuid("1"),
+              observedAt: .iso("2024-12-26T12:00:00Z")!,
+              champions: ["Garen"],
+              slug: "s2w52",
+            ),
+          ],
+          dbChampions: [
+            .init(
+              id: uuid("1"), releasedAt: .iso("2024-01-01T00:00:00Z")!, riotId: "Nocturne",
+              name: "Nocturne", title: "the Eternal Nightmare"),
+            .init(
+              id: uuid("2"), releasedAt: .iso("2024-01-01T00:00:00Z")!, riotId: "Garen",
+              name: "Garen",
+              title: "The Might of Demacia"),
+          ],
+          dbPatchVersions: [.init(value: "15.0.1")],
+          dbChampionRotationConfigs: [.init(rotationChangeWeekday: 4)],
+          b2AuthorizeDownloadData: .init(authorizationToken: "123")
         )
+
+        try await app.test(
+          .GET, "/champions/Nocturne",
+          headers: reqHeaders(accessToken: webApiKey),
+        ) { res async throws in
+          #expect(res.status == .ok)
+          try expectBody(
+            res.body,
+            [
+              "id": "nocturne",
+              "imageUrl": imageUrl("Nocturne"),
+              "name": "Nocturne",
+              "title": "the Eternal Nightmare",
+              "availability": [
+                [
+                  "rotationType": "regular",
+                  "current": true,
+                  "lastAvailable": "2025-01-02T12:00:00Z",
+                ],
+                [
+                  "rotationType": "beginner",
+                  "current": false,
+                ],
+              ],
+              "history": [
+                [
+                  "type": "rotation",
+                  "id": "s3w1",
+                  "duration": [
+                    "start": "2025-01-02T12:00:00Z",
+                    "end": "2025-01-09T12:00:00Z",
+                  ],
+                  "current": true,
+                  "championImageUrls": [imageUrl("Nocturne")],
+                ],
+                [
+                  "type": "yearChanged",
+                  "year": 2025,
+                ],
+                [
+                  "type": "bench",
+                  "rotationsMissed": 1,
+                ],
+                [
+                  "type": "gap"
+                ],
+                [
+                  "type": "release",
+                  "releasedAt": "2024-01-01T00:00:00Z",
+                ],
+              ],
+            ]
+          )
+        }
       }
     }
 
     @Test func yearBoundaryRotationToBench() async throws {
-      try await championHistory(
-        rotations: [
-          .init(
-            id: uuid("2"),
-            observedAt: .iso("2025-01-02T12:00:00Z")!,
-            champions: ["Garen"],
-            slug: "s3w1",
-          ),
-          .init(
-            id: uuid("1"),
-            observedAt: .iso("2024-12-26T12:00:00Z")!,
-            champions: ["Nocturne"],
-            slug: "s2w52",
-          ),
-        ]
-      ) { res async throws in
-        #expect(res.status == .ok)
-        try expectBody(
-          res.body,
-          [
-            "id": "nocturne",
-            "imageUrl": imageUrl("Nocturne"),
-            "name": "Nocturne",
-            "title": "the Eternal Nightmare",
-            "availability": [
-              [
-                "rotationType": "regular",
-                "current": false,
-                "lastAvailable": "2024-12-26T12:00:00Z",
-              ],
-              [
-                "rotationType": "beginner",
-                "current": false,
-              ],
-            ],
-            "history": [
-              [
-                "type": "bench",
-                "rotationsMissed": 1,
-              ],
-              [
-                "type": "yearChanged",
-                "year": 2025,
-              ],
-              [
-                "type": "rotation",
-                "id": "s2w52",
-                "duration": [
-                  "start": "2024-12-26T12:00:00Z",
-                  "end": "2025-01-02T12:00:00Z",
-                ],
-                "current": false,
-                "championImageUrls": [imageUrl("Nocturne")],
-              ],
-              [
-                "type": "yearChanged",
-                "year": 2024,
-              ],
-              [
-                "type": "gap",
-              ],
-              [
-                "type": "release",
-                "releasedAt": "2024-01-01T00:00:00Z",
-              ],
-            ],
-          ]
+      try await withApp { app in
+        _ = try await app.testConfigureWith(
+          webApiKey: webApiKey,
+          idHasherSeed: idHasherSeed,
+          dbRegularRotations: [
+            .init(
+              id: uuid("2"),
+              observedAt: .iso("2025-01-02T12:00:00Z")!,
+              champions: ["Garen"],
+              slug: "s3w1",
+            ),
+            .init(
+              id: uuid("1"),
+              observedAt: .iso("2024-12-26T12:00:00Z")!,
+              champions: ["Nocturne"],
+              slug: "s2w52",
+            ),
+          ],
+          dbChampions: [
+            .init(
+              id: uuid("1"), releasedAt: .iso("2024-01-01T00:00:00Z")!, riotId: "Nocturne",
+              name: "Nocturne", title: "the Eternal Nightmare"),
+            .init(
+              id: uuid("2"), releasedAt: .iso("2024-01-01T00:00:00Z")!, riotId: "Garen",
+              name: "Garen",
+              title: "The Might of Demacia"),
+          ],
+          dbPatchVersions: [.init(value: "15.0.1")],
+          dbChampionRotationConfigs: [.init(rotationChangeWeekday: 4)],
+          b2AuthorizeDownloadData: .init(authorizationToken: "123")
         )
+
+        try await app.test(
+          .GET, "/champions/Nocturne",
+          headers: reqHeaders(accessToken: webApiKey),
+        ) { res async throws in
+          #expect(res.status == .ok)
+          try expectBody(
+            res.body,
+            [
+              "id": "nocturne",
+              "imageUrl": imageUrl("Nocturne"),
+              "name": "Nocturne",
+              "title": "the Eternal Nightmare",
+              "availability": [
+                [
+                  "rotationType": "regular",
+                  "current": false,
+                  "lastAvailable": "2024-12-26T12:00:00Z",
+                ],
+                [
+                  "rotationType": "beginner",
+                  "current": false,
+                ],
+              ],
+              "history": [
+                [
+                  "type": "bench",
+                  "rotationsMissed": 1,
+                ],
+                [
+                  "type": "yearChanged",
+                  "year": 2025,
+                ],
+                [
+                  "type": "rotation",
+                  "id": "s2w52",
+                  "duration": [
+                    "start": "2024-12-26T12:00:00Z",
+                    "end": "2025-01-02T12:00:00Z",
+                  ],
+                  "current": false,
+                  "championImageUrls": [imageUrl("Nocturne")],
+                ],
+                [
+                  "type": "gap"
+                ],
+                [
+                  "type": "release",
+                  "releasedAt": "2024-01-01T00:00:00Z",
+                ],
+              ],
+            ]
+          )
+        }
       }
     }
 
@@ -2555,11 +2664,7 @@ extension AppTests {
                   "championImageUrls": [imageUrl("Nocturne")],
                 ],
                 [
-                  "type": "yearChanged",
-                  "year": 2024,
-                ],
-                [
-                  "type": "gap",
+                  "type": "gap"
                 ],
                 [
                   "type": "release",

@@ -275,8 +275,13 @@ extension Dictionary {
 }
 
 extension Dictionary where Key: Comparable {
-  func sorted(by keyPath: KeyPath<Self.Element, some Comparable>) -> [(Key, Value)] {
-    sorted { lhs, rhs in lhs[keyPath: keyPath] < rhs[keyPath: keyPath] }
+  func sorted<Compared: Comparable>(
+    by keyPath: KeyPath<Self.Element, Compared>,
+    with comparator: (Compared, Compared) -> Bool = (<),
+  ) -> [(Key, Value)] {
+    sorted { lhs, rhs in
+      comparator(lhs[keyPath: keyPath], rhs[keyPath: keyPath])
+    }
   }
 }
 
